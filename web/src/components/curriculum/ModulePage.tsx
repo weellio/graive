@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Link from 'next/link'
@@ -67,17 +67,119 @@ const STEP_META: Record<StepType, StepMeta> = {
   general:   { icon: BookOpen,     label: 'Read',         bg: 'bg-white',       border: 'border-slate-200',  topBar: '#cbd5e1', pillBg: 'bg-slate-100',  pillText: 'text-slate-600',  headingColor: 'text-slate-900',   dark: false },
 }
 
+// ─── Activity interactivity helpers ──────────────────────────────────────────
+
+/** Replace blank placeholders and rating placeholders before rendering */
+function prepareActivityContent(content: string): string {
+  let bi = 0, ri = 0
+  return content
+    .replace(/_{3,}\/10/g, () => `\`[rating-${ri++}]\``)
+    .replace(/_{3,}/g, () => `\`[blank-${bi++}]\``)
+}
+
+function InlineBlank({ storageKey }: { storageKey: string }) {
+  const [val, setVal] = useState('')
+  useEffect(() => { try { setVal(localStorage.getItem(storageKey) ?? '') } catch {} }, [storageKey])
+  function save(v: string) {
+    setVal(v)
+    try { localStorage.setItem(storageKey, v) } catch {}
+  }
+  return (
+    <input
+      type="text"
+      value={val}
+      onChange={e => save(e.target.value)}
+      placeholder="type here..."
+      className="inline-block mx-1 px-2 py-0.5 border-b-2 border-indigo-400 bg-indigo-50 rounded-t text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-600 min-w-[120px] align-baseline"
+    />
+  )
+}
+
+function InlineRating({ storageKey }: { storageKey: string }) {
+  const [val, setVal] = useState<number | null>(null)
+  useEffect(() => {
+    try { const v = localStorage.getItem(storageKey); if (v) setVal(parseInt(v)) } catch {}
+  }, [storageKey])
+  function pick(n: number) {
+    setVal(n)
+    try { localStorage.setItem(storageKey, String(n)) } catch {}
+  }
+  return (
+    <span className="inline-flex gap-0.5 mx-1 align-middle flex-wrap">
+      {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+        <button
+          key={n}
+          onClick={() => pick(n)}
+          className={`w-7 h-7 rounded text-xs font-bold transition-all ${
+            val === n
+              ? 'bg-indigo-500 text-white scale-110 shadow'
+              : val !== null && n <= val
+              ? 'bg-indigo-200 text-indigo-700'
+              : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'
+          }`}
+        >
+          {n}
+        </button>
+      ))}
+    </span>
+  )
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  async function copy() {
+    try { await navigator.clipboard.writeText(text) } catch {}
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <button
+      onClick={copy}
+      className="absolute top-2 right-2 px-2.5 py-1 rounded text-xs font-semibold bg-white/10 hover:bg-white/25 text-slate-300 transition-colors"
+    >
+      {copied ? '✓ Copied' : 'Copy'}
+    </button>
+  )
+}
+
+function Scratchpad({ storageKey }: { storageKey: string }) {
+  const [text, setText] = useState('')
+  useEffect(() => { try { setText(localStorage.getItem(storageKey) ?? '') } catch {} }, [storageKey])
+  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setText(e.target.value)
+    try { localStorage.setItem(storageKey, e.target.value) } catch {}
+  }
+  return (
+    <div className="mt-6 rounded-xl overflow-hidden border-2 border-dashed border-indigo-200">
+      <div className="px-4 py-2 bg-indigo-50 border-b border-indigo-100 flex items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">✏️ My Notes</span>
+        <span className="text-xs text-indigo-400 ml-auto">auto-saved</span>
+      </div>
+      <textarea
+        value={text}
+        onChange={handleChange}
+        placeholder="Write your answers, ideas, or observations here..."
+        className="w-full p-4 text-sm resize-none focus:outline-none min-h-[130px] bg-white text-slate-700 placeholder-slate-400"
+      />
+    </div>
+  )
+}
+
 // ─── Block renderer — paragraphs as individual bordered cards ─────────────────
 
 const BLOCK_ACCENTS = ['#6366f1', '#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981', '#f43f5e']
 
-function BlockRenderer({ content, tierColor, dark }: { content: string; tierColor: string; dark: boolean }) {
+function BlockRenderer({
+  content, tierColor, dark, baseKey = '',
+}: {
+  content: string; tierColor: string; dark: boolean; baseKey?: string
+}) {
   const accents = [tierColor, '#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981']
   const cleaned = content.replace(/ — /g, ' - ').replace(/—/g, '-')
   const quoteStyle = {
-    backgroundColor: tierColor + '18',
+    backgroundColor: dark ? 'rgba(255,255,255,0.06)' : '#f8fafc',
     borderLeftColor: tierColor,
-    color: dark ? '#e2e8f0' : '#1e293b',
+    color: dark ? '#e2e8f0' : '#334155',
   }
 
   // Split on double newlines to get individual blocks
@@ -95,38 +197,32 @@ function BlockRenderer({ content, tierColor, dark }: { content: string; tierColo
 
         if (isHr) return null
 
-        // Headings, code, tables render without a left border
+        // Shared component map for headings/fence blocks
+        const headingComponents = {
+          h2: ({ children }: any) => <h2 className={`text-xl font-bold mt-4 mb-1 ${dark ? 'text-white' : 'text-slate-800'}`}>{children}</h2>,
+          h3: ({ children }: any) => <h3 className={`text-lg font-bold mt-3 mb-1 ${dark ? 'text-white' : 'text-slate-700'}`}>{children}</h3>,
+          h4: ({ children }: any) => <h4 className={`text-base font-semibold mt-2 mb-0.5 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</h4>,
+          code: ({ children }: any) => <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>,
+          pre: ({ children }: any) => {
+            const codeEl = (children as any)?.props
+            const raw = Array.isArray(codeEl?.children) ? codeEl.children.join('') : String(codeEl?.children ?? '')
+            return (
+              <div className="relative">
+                <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 pr-16 overflow-x-auto text-sm">{children}</pre>
+                <CopyButton text={raw} />
+              </div>
+            )
+          },
+        }
+
+        // Headings, code fences, tables render without a left border
         if (isHeading || isCodeFence || isTable) {
-          return (
-            <div key={i}>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  h2: ({ children }) => (
-                    <h2 className={`text-xl font-bold mt-4 mb-1 ${dark ? 'text-white' : 'text-slate-800'}`}>{children}</h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className={`text-lg font-bold mt-3 mb-1 ${dark ? 'text-white' : 'text-slate-700'}`}>{children}</h3>
-                  ),
-                  h4: ({ children }) => (
-                    <h4 className={`text-base font-semibold mt-2 mb-0.5 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</h4>
-                  ),
-                  code: ({ children }) => (
-                    <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>
-                  ),
-                  pre: ({ children }) => (
-                    <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 overflow-x-auto text-sm">{children}</pre>
-                  ),
-                }}
-              >
-                {block}
-              </ReactMarkdown>
-            </div>
-          )
+          return <div key={i}><ReactMarkdown remarkPlugins={[remarkGfm]} components={headingComponents}>{block}</ReactMarkdown></div>
         }
 
         // Paragraphs and lists get a colored left border
         const color = accents[(borderedCount++) % accents.length]
+        const blockIdx = i
 
         return (
           <div
@@ -150,7 +246,7 @@ function BlockRenderer({ content, tierColor, dark }: { content: string; tierColo
                 strong: ({ children }) => <strong className="font-bold">{children}</strong>,
                 em: ({ children }) => <em className="italic">{children}</em>,
                 a: ({ href, children }) => (
-                  <a href={href} className="font-medium text-indigo-600 hover:underline">{children}</a>
+                  <a href={href} className="font-medium text-sky-600 hover:text-sky-800 hover:underline">{children}</a>
                 ),
                 blockquote: ({ children }) => (
                   <blockquote
@@ -160,9 +256,14 @@ function BlockRenderer({ content, tierColor, dark }: { content: string; tierColo
                     {children}
                   </blockquote>
                 ),
-                code: ({ children }) => (
-                  <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>
-                ),
+                code: ({ children }) => {
+                  const text = String(children).trim()
+                  const blankM = text.match(/^\[blank-(\d+)\]$/)
+                  const ratingM = text.match(/^\[rating-(\d+)\]$/)
+                  if (blankM) return <InlineBlank storageKey={`${baseKey}-b${blockIdx}-${blankM[1]}`} />
+                  if (ratingM) return <InlineRating storageKey={`${baseKey}-r${blockIdx}-${ratingM[1]}`} />
+                  return <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10 text-slate-200' : 'bg-slate-100 text-slate-700'}`}>{children}</code>
+                },
               }}
             >
               {block}
@@ -190,10 +291,14 @@ function StepCard({
   content,
   tier,
   videoUrl,
+  moduleId,
+  stepIdx,
 }: {
   content: string
   tier: AgeTier
   videoUrl?: string | null
+  moduleId: string
+  stepIdx: number
 }) {
   const tierCfg = TIER_CONFIG[tier]
   const type = getStepType(content)
@@ -204,7 +309,10 @@ function StepCard({
   const pillBg = type === 'activity' ? tierCfg.color + '22' : meta.pillBg
   const pillTextColor = type === 'activity' ? tierCfg.color : undefined
 
-  const { heading, rest } = extractHeading(content)
+  const isActivity = type === 'activity'
+  const baseKey = `graive-${moduleId}-s${stepIdx}`
+  const processedContent = isActivity ? prepareActivityContent(content) : content
+  const { heading, rest } = extractHeading(processedContent)
 
   return (
     <div className={`rounded-2xl border-2 overflow-hidden shadow-sm ${meta.bg} ${meta.border}`}>
@@ -240,7 +348,8 @@ function StepCard({
 
         {/* Scrollable body with paragraph-per-block rendering */}
         <div className="overflow-y-auto max-h-[58vh] pr-1 scrollbar-thin">
-          <BlockRenderer content={rest} tierColor={tierCfg.color} dark={meta.dark} />
+          <BlockRenderer content={rest} tierColor={tierCfg.color} dark={meta.dark} baseKey={baseKey} />
+          {isActivity && <Scratchpad storageKey={`${baseKey}-scratch`} />}
         </div>
       </div>
     </div>
@@ -326,6 +435,8 @@ export function ModulePage({
         content={steps[step] ?? ''}
         tier={tier}
         videoUrl={step === 0 ? module.video_url : null}
+        moduleId={module.id}
+        stepIdx={step}
       />
 
       {/* Step navigation */}
