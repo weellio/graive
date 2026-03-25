@@ -1,7 +1,7 @@
 export type AgeTier = 'explorer' | 'builder' | 'thinker' | 'innovator'
 export type UserRole = 'student' | 'admin'
 export type SubscriptionStatus = 'active' | 'inactive' | 'trialing' | 'past_due' | 'canceled'
-export type SubscriptionPlan = 'free' | 'monthly' | 'annual'
+export type SubscriptionPlan = 'free' | 'monthly' | 'annual' | 'beta'
 export type LLMProvider = 'claude' | 'openai' | 'gemini'
 export type MessageRole = 'user' | 'assistant'
 
