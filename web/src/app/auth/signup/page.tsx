@@ -49,7 +49,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-indigo-50 p-4">
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Start learning</CardTitle>
