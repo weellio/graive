@@ -81,9 +81,9 @@ export default async function DashboardPage() {
             return (
               <Card
                 key={tier}
-                className={`relative overflow-hidden transition-all ${
+                className={`relative overflow-hidden ${
                   isCurrent ? `border-2 ${cfg.borderClass}` : ''
-                } ${isLocked ? 'opacity-60' : 'hover:shadow-md'}`}
+                } ${isLocked ? 'opacity-60' : 'hover-lift'}`}
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
             const done = completedIds.has(mod.id)
             return (
               <Link key={mod.id} href={`/learn/${userTier}/${mod.slug}`}>
-                <Card className={`h-full cursor-pointer transition-all hover:shadow-md ${done ? 'bg-amber-50 border-amber-200' : ''}`}>
+                <Card className={`h-full hover-lift ${done ? 'bg-amber-50 border-amber-200' : ''}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">

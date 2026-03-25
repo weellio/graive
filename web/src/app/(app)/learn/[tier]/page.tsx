@@ -94,7 +94,7 @@ export default async function TierPage({ params }: PageProps) {
           return (
             <Link key={mod.id} href={`/learn/${tier}/${mod.slug}`}>
               <Card
-                className={`h-full cursor-pointer transition-all hover:shadow-md ${
+                className={`h-full hover-lift ${
                   done
                     ? 'bg-amber-50 border-amber-200'
                     : isCurrent

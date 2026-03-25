@@ -498,7 +498,7 @@ export function ModulePage({
           onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           disabled={step === 0}
           aria-label="Previous step"
-          className="w-12 shrink-0 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 disabled:opacity-20 disabled:pointer-events-none transition-all"
+          className="w-12 shrink-0 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 hover:scale-105 disabled:opacity-20 disabled:pointer-events-none transition-all"
         >
           <ChevronLeft className="h-7 w-7 text-slate-500" />
         </button>
@@ -522,7 +522,7 @@ export function ModulePage({
           }}
           disabled={(isLastStep && (completed || marking))}
           aria-label={isLastStep ? 'Complete module' : 'Next step'}
-          className="w-12 shrink-0 flex flex-col items-center justify-center rounded-2xl text-white transition-all gap-1 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+          className="w-12 shrink-0 flex flex-col items-center justify-center rounded-2xl text-white transition-all gap-1 shadow-sm hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:pointer-events-none"
           style={{ backgroundColor: completed && isLastStep ? '#22c55e' : tierCfg.color }}
         >
           {isLastStep
