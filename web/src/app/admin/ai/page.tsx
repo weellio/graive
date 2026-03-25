@@ -42,6 +42,27 @@ const PROVIDER_DOCS: Record<string, string> = {
   gemini:  'https://ai.google.dev/gemini-api/docs/models/gemini',
 }
 
+const PROVIDER_MODEL_DEFAULTS: Record<string, Pick<AISettings, 'llm_model_explorer' | 'llm_model_builder' | 'llm_model_thinker' | 'llm_model_innovator'>> = {
+  claude: {
+    llm_model_explorer:  'claude-haiku-4-5-20251001',
+    llm_model_builder:   'claude-haiku-4-5-20251001',
+    llm_model_thinker:   'claude-sonnet-4-6',
+    llm_model_innovator: 'claude-sonnet-4-6',
+  },
+  openai: {
+    llm_model_explorer:  'gpt-4o-mini',
+    llm_model_builder:   'gpt-4o-mini',
+    llm_model_thinker:   'gpt-4o',
+    llm_model_innovator: 'gpt-4o',
+  },
+  gemini: {
+    llm_model_explorer:  'gemini-2.0-flash',
+    llm_model_builder:   'gemini-2.0-flash',
+    llm_model_thinker:   'gemini-1.5-pro',
+    llm_model_innovator: 'gemini-1.5-pro',
+  },
+}
+
 const tiers: { key: keyof AISettings; label: string; tier: AgeTier }[] = [
   { key: 'llm_model_explorer',  label: 'Explorer (10–11)',  tier: 'explorer' },
   { key: 'llm_model_builder',   label: 'Builder (12–13)',   tier: 'builder' },
@@ -118,7 +139,14 @@ export default function AdminAIPage() {
         <CardContent className="space-y-4">
           <div className="grid gap-1.5">
             <Label>LLM Provider</Label>
-            <Select value={settings.llm_provider} onValueChange={v => set('llm_provider', v ?? '')}>
+            <Select
+              value={settings.llm_provider}
+              onValueChange={v => {
+                if (!v) return
+                const modelDefaults = PROVIDER_MODEL_DEFAULTS[v] ?? PROVIDER_MODEL_DEFAULTS.claude
+                setSettings(prev => ({ ...prev, llm_provider: v, ...modelDefaults }))
+              }}
+            >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="claude">Anthropic Claude</SelectItem>
