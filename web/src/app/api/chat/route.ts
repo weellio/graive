@@ -20,12 +20,14 @@ export async function POST(req: NextRequest) {
       moduleTitle,
       tier,
       saveHistory,
+      mode = 'tutor',
     }: {
       messages: ChatMessage[]
       moduleId: string
       moduleTitle: string
       tier: AgeTier
       saveHistory: boolean
+      mode?: 'tutor' | 'playground'
     } = body
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -86,7 +88,8 @@ export async function POST(req: NextRequest) {
       tier,
       settings,
       moduleTitle,
-      moduleDescription
+      moduleDescription,
+      mode
     )
 
     // Save history after streaming completes (we need to buffer for this)

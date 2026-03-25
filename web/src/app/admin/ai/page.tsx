@@ -50,6 +50,12 @@ const OPENAI_MODELS = [
   { value: 'gpt-4o', label: 'GPT-4o (capable)' },
 ]
 
+const GEMINI_MODELS = [
+  { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (fast, free tier)' },
+  { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (fast, free tier)' },
+  { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (capable)' },
+]
+
 const tiers: { key: keyof AISettings; label: string; tier: AgeTier }[] = [
   { key: 'llm_model_explorer', label: 'Explorer (10–11)', tier: 'explorer' },
   { key: 'llm_model_builder', label: 'Builder (12–13)', tier: 'builder' },
@@ -95,7 +101,10 @@ export default function AdminAIPage() {
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  const models = settings.llm_provider === 'openai' ? OPENAI_MODELS : CLAUDE_MODELS
+  const models =
+    settings.llm_provider === 'openai' ? OPENAI_MODELS :
+    settings.llm_provider === 'gemini' ? GEMINI_MODELS :
+    CLAUDE_MODELS
 
   return (
     <div className="space-y-6">
@@ -118,6 +127,7 @@ export default function AdminAIPage() {
               <SelectContent>
                 <SelectItem value="claude">Anthropic Claude</SelectItem>
                 <SelectItem value="openai">OpenAI</SelectItem>
+                <SelectItem value="gemini">Google Gemini ✨ free credits</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -131,7 +141,8 @@ export default function AdminAIPage() {
               placeholder="Leave empty to use server environment variable"
             />
             <p className="text-xs text-slate-400">
-              If set, this key is used instead of the <code>ANTHROPIC_API_KEY</code> / <code>OPENAI_API_KEY</code> env var.
+              Overrides the server env var for the selected provider.
+              Claude → <code>ANTHROPIC_API_KEY</code> · OpenAI → <code>OPENAI_API_KEY</code> · Gemini → <code>GEMINI_API_KEY</code>
             </p>
           </div>
         </CardContent>
