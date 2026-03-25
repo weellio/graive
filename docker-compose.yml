@@ -21,9 +21,3 @@ services:
       - "traefik.http.middlewares.redirect-to-apex.redirectregex.regex=^https://www\\.graive\\.com/(.*)"
       - "traefik.http.middlewares.redirect-to-apex.redirectregex.replacement=https://graive.com/$${1}"
       - "traefik.http.middlewares.redirect-to-apex.redirectregex.permanent=true"
-    networks:
-      - traefik-public
-
-networks:
-  traefik-public:
-    external: true
