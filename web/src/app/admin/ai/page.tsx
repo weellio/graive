@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,27 +39,32 @@ const DEFAULTS: AISettings = {
   free_tier_daily_message_limit: '10',
 }
 
-const CLAUDE_MODELS = [
-  { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5 (fast)' },
-  { value: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6 (capable)' },
-  { value: 'claude-opus-4-6', label: 'Claude Opus 4.6 (powerful)' },
-]
-
-const OPENAI_MODELS = [
-  { value: 'gpt-4o-mini', label: 'GPT-4o mini (fast)' },
-  { value: 'gpt-4o', label: 'GPT-4o (capable)' },
-]
-
-const GEMINI_MODELS = [
-  { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (fast, free tier)' },
-  { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (fast, free tier)' },
-  { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (capable)' },
-]
+// Suggested defaults per provider — shown as hints, not enforced
+const PROVIDER_HINTS: Record<string, { placeholder: string; docsUrl: string; envVar: string; suggestions: string[] }> = {
+  claude: {
+    placeholder: 'e.g. claude-haiku-4-5-20251001',
+    docsUrl: 'https://docs.anthropic.com/en/docs/about-claude/models',
+    envVar: 'ANTHROPIC_API_KEY',
+    suggestions: ['claude-haiku-4-5-20251001', 'claude-sonnet-4-6', 'claude-opus-4-6'],
+  },
+  openai: {
+    placeholder: 'e.g. gpt-4o-mini',
+    docsUrl: 'https://platform.openai.com/docs/models',
+    envVar: 'OPENAI_API_KEY',
+    suggestions: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo'],
+  },
+  gemini: {
+    placeholder: 'e.g. gemini-2.0-flash',
+    docsUrl: 'https://ai.google.dev/gemini-api/docs/models/gemini',
+    envVar: 'GEMINI_API_KEY',
+    suggestions: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+  },
+}
 
 const tiers: { key: keyof AISettings; label: string; tier: AgeTier }[] = [
-  { key: 'llm_model_explorer', label: 'Explorer (10–11)', tier: 'explorer' },
-  { key: 'llm_model_builder', label: 'Builder (12–13)', tier: 'builder' },
-  { key: 'llm_model_thinker', label: 'Thinker (14–15)', tier: 'thinker' },
+  { key: 'llm_model_explorer',  label: 'Explorer (10–11)',  tier: 'explorer' },
+  { key: 'llm_model_builder',   label: 'Builder (12–13)',   tier: 'builder' },
+  { key: 'llm_model_thinker',   label: 'Thinker (14–15)',   tier: 'thinker' },
   { key: 'llm_model_innovator', label: 'Innovator (16–18)', tier: 'innovator' },
 ]
 
@@ -90,21 +95,15 @@ export default function AdminAIPage() {
     const rows = Object.entries(settings).map(([key, value]) => ({ key, value }))
     const { error } = await supabase.from('site_settings').upsert(rows, { onConflict: 'key' })
     setSaving(false)
-    if (error) {
-      toast.error('Failed to save settings')
-    } else {
-      toast.success('AI settings saved')
-    }
+    if (error) toast.error('Failed to save settings')
+    else toast.success('AI settings saved')
   }
 
   function set(key: keyof AISettings, value: string) {
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  const models =
-    settings.llm_provider === 'openai' ? OPENAI_MODELS :
-    settings.llm_provider === 'gemini' ? GEMINI_MODELS :
-    CLAUDE_MODELS
+  const hint = PROVIDER_HINTS[settings.llm_provider] ?? PROVIDER_HINTS.claude
 
   return (
     <div className="space-y-6">
@@ -127,7 +126,7 @@ export default function AdminAIPage() {
               <SelectContent>
                 <SelectItem value="claude">Anthropic Claude</SelectItem>
                 <SelectItem value="openai">OpenAI</SelectItem>
-                <SelectItem value="gemini">Google Gemini ✨ free credits</SelectItem>
+                <SelectItem value="gemini">Google Gemini</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -141,8 +140,7 @@ export default function AdminAIPage() {
               placeholder="Leave empty to use server environment variable"
             />
             <p className="text-xs text-slate-400">
-              Overrides the server env var for the selected provider.
-              Claude → <code>ANTHROPIC_API_KEY</code> · OpenAI → <code>OPENAI_API_KEY</code> · Gemini → <code>GEMINI_API_KEY</code>
+              Overrides <code>{hint.envVar}</code> env var on the server.
             </p>
           </div>
         </CardContent>
@@ -151,21 +149,27 @@ export default function AdminAIPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Model per Tier</CardTitle>
+          <CardDescription className="text-xs">
+            Type any model name supported by <strong>{settings.llm_provider}</strong>.{' '}
+            <a href={hint.docsUrl} target="_blank" rel="noopener noreferrer"
+               className="text-indigo-500 hover:underline">
+              See latest models →
+            </a>
+            <span className="block mt-1 text-slate-400">
+              Suggestions: {hint.suggestions.join(' · ')}
+            </span>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {tiers.map(t => (
             <div key={t.key} className="grid gap-1.5">
               <Label>{t.label}</Label>
-              <Select value={settings[t.key]} onValueChange={v => set(t.key, v ?? '')}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {models.map(m => (
-                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                value={settings[t.key]}
+                onChange={e => set(t.key, e.target.value)}
+                placeholder={hint.placeholder}
+                className="font-mono text-sm"
+              />
             </div>
           ))}
         </CardContent>
@@ -173,7 +177,7 @@ export default function AdminAIPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">History & Rate Limiting</CardTitle>
+          <CardTitle className="text-base">History &amp; Rate Limiting</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
