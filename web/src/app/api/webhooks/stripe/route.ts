@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-05-28.basil' })
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(req: NextRequest) {
@@ -52,7 +52,9 @@ export async function POST(req: NextRequest) {
             stripe_price_id: priceId ?? null,
             status: sub.status,
             plan,
-            current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+            current_period_end: sub.items.data[0]?.current_period_end
+              ? new Date(sub.items.data[0].current_period_end * 1000).toISOString()
+              : null,
             updated_at: new Date().toISOString(),
           },
           { onConflict: 'user_id' }

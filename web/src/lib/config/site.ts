@@ -55,6 +55,13 @@ export function getDefaultSettings(): SiteSettings {
     conversation_history_enabled: 'true',
     free_tier_daily_message_limit: '10',
     maintenance_mode: 'false',
+    system_prompt_explorer: '',
+    system_prompt_builder: '',
+    system_prompt_thinker: '',
+    system_prompt_innovator: '',
+    curriculum_name: 'AI Literacy',
+    curriculum_author: '',
+    curriculum_version: '1.0',
   }
 }
 

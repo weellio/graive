@@ -111,7 +111,7 @@ export default function AdminAIPage() {
         <CardContent className="space-y-4">
           <div className="grid gap-1.5">
             <Label>LLM Provider</Label>
-            <Select value={settings.llm_provider} onValueChange={v => set('llm_provider', v)}>
+            <Select value={settings.llm_provider} onValueChange={v => set('llm_provider', v ?? '')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -145,7 +145,7 @@ export default function AdminAIPage() {
           {tiers.map(t => (
             <div key={t.key} className="grid gap-1.5">
               <Label>{t.label}</Label>
-              <Select value={settings[t.key]} onValueChange={v => set(t.key, v)}>
+              <Select value={settings[t.key]} onValueChange={v => set(t.key, v ?? '')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

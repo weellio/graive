@@ -91,7 +91,7 @@ export async function GET() {
   const curriculumName = (settingsMap['curriculum_name'] || 'curriculum').replace(/\s+/g, '-').toLowerCase()
   const filename = `${curriculumName}-${new Date().toISOString().slice(0, 10)}.zip`
 
-  return new Response(zipBuffer, {
+  return new Response(zipBuffer as unknown as BodyInit, {
     headers: {
       'Content-Type': 'application/zip',
       'Content-Disposition': `attachment; filename="${filename}"`,
