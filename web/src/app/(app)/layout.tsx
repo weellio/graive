@@ -6,15 +6,17 @@ import type { Profile } from '@/types'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
+  console.log('[layout] getUser:', user?.id ?? 'null', userError?.message ?? '')
   if (!user) redirect('/auth/signin')
 
-  const [{ data: profile }, settings] = await Promise.all([
+  const [{ data: profile, error: profileError }, settings] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).single(),
     getSiteSettings(),
   ])
 
+  console.log('[layout] profile:', profile?.id ?? 'null', profileError?.message ?? '')
   if (!profile) redirect('/auth/signin')
 
   return (
