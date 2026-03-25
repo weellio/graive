@@ -278,7 +278,13 @@ export function ModulePage({
   const [step, setStep] = useState(0)
   const tierCfg = TIER_CONFIG[tier]
 
-  const steps = parseSteps(content)
+  // Replace generic "AI tool" references with the built-in chat
+  const processedContent = content
+    .replace(/\bAI tool\b/g, 'Spark AI (use the chat panel →)')
+    .replace(/\ban AI tool\b/gi, 'the Spark AI chat (built in →)')
+    .replace(/\bYour AI tool\b/gi, 'Spark AI (chat panel →)')
+
+  const steps = parseSteps(processedContent)
   const totalSteps = steps.length || 1
   const isLastStep = step === totalSteps - 1
   const stepProgress = Math.round(((step + 1) / totalSteps) * 100)
@@ -315,42 +321,6 @@ export function ModulePage({
 
   const stepView = (
     <div className="space-y-4">
-      {/* Step progress bar */}
-      <div className="bg-slate-800 rounded-2xl px-5 py-4">
-        <div className="flex items-center justify-between text-sm mb-2">
-          <span className="font-semibold text-white">
-            Step <span className="text-xl font-black">{step + 1}</span>{' '}
-            <span className="text-slate-400 text-sm font-normal">of {totalSteps}</span>
-          </span>
-          <span className="font-bold text-sm text-white">
-            {stepProgress}%
-          </span>
-        </div>
-        <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${stepProgress}%`, backgroundColor: tierCfg.color }}
-          />
-        </div>
-        {/* Step dots */}
-        {totalSteps <= 15 && (
-          <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-            {steps.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setStep(i)}
-                className="h-2 rounded-full transition-all duration-200 hover:opacity-80 focus:outline-none"
-                style={{
-                  width: i === step ? '24px' : '8px',
-                  backgroundColor: i < step ? tierCfg.color + 'aa' : i === step ? tierCfg.color : '#475569',
-                }}
-                aria-label={`Go to step ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Step content card */}
       <StepCard
         content={steps[step] ?? ''}
@@ -400,6 +370,39 @@ export function ModulePage({
           </Button>
         )}
       </div>
+
+      {/* Step progress — below nav so content is always at top on step change */}
+      <div className="bg-slate-800 rounded-2xl px-5 py-4">
+        <div className="flex items-center justify-between text-sm mb-2">
+          <span className="font-semibold text-white">
+            Step <span className="text-xl font-black">{step + 1}</span>{' '}
+            <span className="text-slate-400 text-sm font-normal">of {totalSteps}</span>
+          </span>
+          <span className="font-bold text-sm text-white">{stepProgress}%</span>
+        </div>
+        <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${stepProgress}%`, backgroundColor: tierCfg.color }}
+          />
+        </div>
+        {totalSteps <= 15 && (
+          <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+            {steps.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setStep(i); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                className="h-2 rounded-full transition-all duration-200 hover:opacity-80 focus:outline-none"
+                style={{
+                  width: i === step ? '24px' : '8px',
+                  backgroundColor: i < step ? tierCfg.color + 'aa' : i === step ? tierCfg.color : '#475569',
+                }}
+                aria-label={`Go to step ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 
@@ -417,46 +420,22 @@ export function ModulePage({
         <span className="text-slate-700 truncate">{module.title}</span>
       </div>
 
-      {/* Module header */}
-      <div className={`rounded-2xl p-5 mb-6 ${tierCfg.bgClass} border-2 ${tierCfg.borderClass}`}>
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <Badge
-                variant="outline"
-                className={`text-xs font-semibold ${tierCfg.textClass} ${tierCfg.borderClass}`}
-              >
-                Module {module.order_index}
-              </Badge>
-              <Badge variant="outline" className="text-xs gap-1 text-slate-500">
-                <Zap className="h-3 w-3" /> {MODULE_XP} XP
-              </Badge>
-              <Badge variant="outline" className="text-xs gap-1 text-slate-500">
-                <BookOpen className="h-3 w-3" /> {totalSteps} steps
-              </Badge>
-              {completed && (
-                <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs gap-1 font-semibold">
-                  <Star className="h-3 w-3 fill-amber-500 text-amber-500" /> Complete
-                </Badge>
-              )}
-            </div>
-            <h1 className="text-xl font-bold text-slate-800">{module.title}</h1>
-            {module.description && (
-              <p className="text-sm text-slate-600 mt-1">
-                {module.description.replace(/ — /g, ' - ')}
-              </p>
-            )}
-            <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" /> ~{module.estimated_minutes} min
-              </span>
-            </div>
-          </div>
+      {/* Module header — compact strip */}
+      <div className={`rounded-xl px-4 py-3 mb-4 ${tierCfg.bgClass} border ${tierCfg.borderClass} flex items-center justify-between gap-3 flex-wrap`}>
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <span className={`text-xs font-bold uppercase tracking-wide ${tierCfg.textClass}`}>
+            Module {module.order_index}
+          </span>
+          <span className="text-slate-300 text-xs">·</span>
+          <h1 className="text-sm font-bold text-slate-800 truncate">{module.title}</h1>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 text-xs text-slate-500">
+          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> ~{module.estimated_minutes} min</span>
+          <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> {MODULE_XP} XP</span>
           {completed && (
-            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-100 text-amber-700 text-sm font-semibold shrink-0">
-              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-              {MODULE_XP} XP earned
-            </div>
+            <span className="flex items-center gap-1 text-amber-600 font-semibold">
+              <Star className="h-3 w-3 fill-amber-500 text-amber-500" /> Complete
+            </span>
           )}
         </div>
       </div>
