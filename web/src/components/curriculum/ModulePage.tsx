@@ -67,6 +67,113 @@ const STEP_META: Record<StepType, StepMeta> = {
   general:   { icon: BookOpen,     label: 'Read',         bg: 'bg-white',       border: 'border-slate-200',  topBar: '#cbd5e1', pillBg: 'bg-slate-100',  pillText: 'text-slate-600',  headingColor: 'text-slate-900',   dark: false },
 }
 
+// ─── Block renderer — paragraphs as individual bordered cards ─────────────────
+
+const BLOCK_ACCENTS = ['#6366f1', '#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981', '#f43f5e']
+
+function BlockRenderer({ content, tierColor, dark }: { content: string; tierColor: string; dark: boolean }) {
+  const accents = [tierColor, '#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981']
+  const cleaned = content.replace(/ — /g, ' - ').replace(/—/g, '-')
+  const quoteStyle = {
+    backgroundColor: tierColor + '18',
+    borderLeftColor: tierColor,
+    color: dark ? '#e2e8f0' : '#1e293b',
+  }
+
+  // Split on double newlines to get individual blocks
+  const blocks = cleaned.split(/\n{2,}/).map(b => b.trim()).filter(Boolean)
+
+  let borderedCount = 0
+
+  return (
+    <div className="space-y-5">
+      {blocks.map((block, i) => {
+        const isHeading   = /^#{1,4}\s/.test(block)
+        const isCodeFence = block.startsWith('```')
+        const isTable     = block.startsWith('|')
+        const isHr        = /^---+$/.test(block)
+
+        if (isHr) return null
+
+        // Headings, code, tables render without a left border
+        if (isHeading || isCodeFence || isTable) {
+          return (
+            <div key={i}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h2: ({ children }) => (
+                    <h2 className={`text-xl font-bold mt-4 mb-1 ${dark ? 'text-white' : 'text-slate-800'}`}>{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className={`text-lg font-bold mt-3 mb-1 ${dark ? 'text-white' : 'text-slate-700'}`}>{children}</h3>
+                  ),
+                  h4: ({ children }) => (
+                    <h4 className={`text-base font-semibold mt-2 mb-0.5 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</h4>
+                  ),
+                  code: ({ children }) => (
+                    <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>
+                  ),
+                  pre: ({ children }) => (
+                    <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 overflow-x-auto text-sm">{children}</pre>
+                  ),
+                }}
+              >
+                {block}
+              </ReactMarkdown>
+            </div>
+          )
+        }
+
+        // Paragraphs and lists get a colored left border
+        const color = accents[(borderedCount++) % accents.length]
+
+        return (
+          <div
+            key={i}
+            className="pl-4 py-1"
+            style={{ borderLeft: `3px solid ${color}` }}
+          >
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => (
+                  <p className={`text-[17px] leading-relaxed m-0 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>
+                    {children}
+                  </p>
+                ),
+                ul: ({ children }) => <ul className="space-y-2 list-disc pl-5">{children}</ul>,
+                ol: ({ children }) => <ol className="space-y-2 list-decimal pl-5">{children}</ol>,
+                li: ({ children }) => (
+                  <li className={`text-[17px] leading-relaxed ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</li>
+                ),
+                strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                em: ({ children }) => <em className="italic">{children}</em>,
+                a: ({ href, children }) => (
+                  <a href={href} className="font-medium text-indigo-600 hover:underline">{children}</a>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote
+                    className="border-l-4 pl-4 pr-3 py-2 rounded-r-xl italic font-medium text-[17px] leading-relaxed"
+                    style={quoteStyle}
+                  >
+                    {children}
+                  </blockquote>
+                ),
+                code: ({ children }) => (
+                  <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>
+                ),
+              }}
+            >
+              {block}
+            </ReactMarkdown>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Step card ────────────────────────────────────────────────────────────────
 
 /** Pull the first heading out of markdown so we can render it at large size */
@@ -95,31 +202,30 @@ function StepCard({
 
   const topBarColor = type === 'intro' || type === 'activity' ? tierCfg.color : meta.topBar
   const pillBg = type === 'activity' ? tierCfg.color + '22' : meta.pillBg
-  const pillText = type === 'activity' ? tierCfg.color : undefined
+  const pillTextColor = type === 'activity' ? tierCfg.color : undefined
 
   const { heading, rest } = extractHeading(content)
-  const cleaned = rest.replace(/ — /g, ' - ').replace(/—/g, '-')
 
   return (
     <div className={`rounded-2xl border-2 overflow-hidden shadow-sm ${meta.bg} ${meta.border}`}>
 
-      {/* Coloured accent bar at the top */}
+      {/* Coloured accent bar */}
       <div className="h-1.5 w-full" style={{ backgroundColor: topBarColor }} />
 
-      <div className="p-6 sm:p-10">
+      <div className="p-6 sm:p-8">
 
         {/* Type pill */}
-        <div className="flex items-center gap-2 mb-5">
+        <div className="flex items-center gap-2 mb-4">
           <span
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${meta.pillBg} ${meta.pillText}`}
-            style={type === 'activity' ? { backgroundColor: pillBg, color: pillText } : {}}
+            style={type === 'activity' ? { backgroundColor: pillBg, color: pillTextColor } : {}}
           >
             <Icon className="h-3.5 w-3.5" />
             {meta.label}
           </span>
         </div>
 
-        {/* Large heading — rendered outside prose so we fully control size */}
+        {/* Large heading */}
         {heading && (
           <h2 className={`text-2xl sm:text-3xl font-black leading-tight mb-6 ${meta.headingColor}`}>
             {heading}
@@ -127,35 +233,14 @@ function StepCard({
         )}
 
         {videoUrl && (
-          <div className="aspect-video rounded-xl overflow-hidden bg-slate-900 mb-8">
+          <div className="aspect-video rounded-xl overflow-hidden bg-slate-900 mb-6">
             <iframe src={videoUrl} className="w-full h-full" allowFullScreen title="Module video" />
           </div>
         )}
 
-        {/* Body — prose-lg gives 18px base, relaxed leading */}
-        <div
-          className={`prose prose-lg max-w-none
-            prose-headings:font-bold
-            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3
-            prose-h3:text-lg prose-h3:font-bold prose-h3:mt-6 prose-h3:mb-2
-            prose-h4:text-base prose-h4:font-semibold prose-h4:mt-4 prose-h4:mb-1
-            prose-p:leading-relaxed prose-p:mb-5
-            prose-ul:space-y-3 prose-ul:my-4
-            prose-ol:space-y-3 prose-ol:my-4
-            prose-li:leading-relaxed
-            prose-strong:font-bold
-            prose-code:bg-white/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
-            prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:rounded-xl
-            prose-blockquote:not-italic prose-blockquote:border-l-4 prose-blockquote:pl-4 prose-blockquote:py-0.5 prose-blockquote:rounded-r-lg
-            prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-            prose-table:text-base prose-thead:border-b-2
-            ${meta.dark
-              ? 'prose-invert prose-blockquote:border-white/30 prose-code:bg-white/10'
-              : 'prose-slate prose-a:text-indigo-600 prose-blockquote:border-slate-300 prose-blockquote:bg-white/60'
-            }
-          `}
-        >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleaned}</ReactMarkdown>
+        {/* Scrollable body with paragraph-per-block rendering */}
+        <div className="overflow-y-auto max-h-[58vh] pr-1 scrollbar-thin">
+          <BlockRenderer content={rest} tierColor={tierCfg.color} dark={meta.dark} />
         </div>
       </div>
     </div>
