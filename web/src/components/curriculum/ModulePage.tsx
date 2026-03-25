@@ -69,12 +69,17 @@ const STEP_META: Record<StepType, StepMeta> = {
 
 // ─── Activity interactivity helpers ──────────────────────────────────────────
 
-/** Replace blank placeholders and rating placeholders before rendering */
+/** Replace blank placeholders — but never inside code fences */
 function prepareActivityContent(content: string): string {
   let bi = 0, ri = 0
-  return content
-    .replace(/_{3,}\/10/g, () => `\`[rating-${ri++}]\``)
-    .replace(/_{3,}/g, () => `\`[blank-${bi++}]\``)
+  // Split on fenced code blocks so we never touch their content
+  const parts = content.split(/(```[\s\S]*?```)/g)
+  return parts.map((part, i) => {
+    if (i % 2 === 1) return part // odd = inside a fence → leave unchanged
+    return part
+      .replace(/_{3,}\/10/g, () => `\`[rating-${ri++}]\``)
+      .replace(/_{3,}/g, () => `\`[blank-${bi++}]\``)
+  }).join('')
 }
 
 function InlineBlank({ storageKey }: { storageKey: string }) {
@@ -224,11 +229,19 @@ function BlockRenderer({
           h4: ({ children }: any) => <h4 className={`text-base font-semibold mt-2 mb-0.5 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</h4>,
           code: ({ children }: any) => <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>,
           pre: ({ children }: any) => {
+            // Extract raw string to render ourselves — avoids the inner `code`
+            // component applying its bg-slate-100 style (invisible on dark bg)
             const codeEl = (children as any)?.props
-            const raw = Array.isArray(codeEl?.children) ? codeEl.children.join('') : String(codeEl?.children ?? '')
+            const raw = Array.isArray(codeEl?.children)
+              ? codeEl.children.join('')
+              : String(codeEl?.children ?? '')
             return (
-              <div className="relative">
-                <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 pr-16 overflow-x-auto text-sm">{children}</pre>
+              <div className="relative my-2">
+                <pre className="bg-slate-900 rounded-xl overflow-x-auto">
+                  <code className="block p-4 pr-14 text-sm font-mono leading-relaxed text-slate-100 whitespace-pre">
+                    {raw}
+                  </code>
+                </pre>
                 <CopyButton text={raw} />
               </div>
             )
