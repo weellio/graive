@@ -177,10 +177,10 @@ In the Stripe Dashboard:
 
 1. Go to **Products → Add product**
 2. Create **"GRAIVE Pro — Monthly"**
-   - Pricing: Recurring, £9.99/month (or your currency)
+   - Pricing: Recurring, $9.99/month (or your currency)
    - Copy the **Price ID** (starts with `price_`) → `STRIPE_MONTHLY_PRICE_ID`
 3. Create **"GRAIVE Pro — Annual"**
-   - Pricing: Recurring, £79.99/year
+   - Pricing: Recurring, $79.99/year
    - Copy the **Price ID** → `STRIPE_ANNUAL_PRICE_ID`
 
 ### 3. Get your API keys

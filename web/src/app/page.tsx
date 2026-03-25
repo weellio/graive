@@ -306,7 +306,7 @@ export default function LandingPage() {
           <div className="rounded-xl border border-white/10 bg-white/3 p-7">
             <p className="font-semibold text-white text-lg mb-1">Free</p>
             <div className="flex items-baseline gap-1 mb-5">
-              <span className="text-4xl font-bold text-white">£0</span>
+              <span className="text-4xl font-bold text-white">$0</span>
               <span className="text-slate-500">forever</span>
             </div>
             <ul className="space-y-2.5 mb-6">
@@ -345,10 +345,10 @@ export default function LandingPage() {
             </div>
             <p className="font-semibold text-white text-lg mb-1">Pro</p>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-4xl font-bold text-white">£9.99</span>
+              <span className="text-4xl font-bold text-white">$9.99</span>
               <span className="text-slate-400">/month</span>
             </div>
-            <p className="text-xs mb-5" style={{ color: '#e040fb' }}>Or £79.99/year — 2 months free</p>
+            <p className="text-xs mb-5" style={{ color: '#e040fb' }}>Or $79.99/year — 2 months free</p>
             <ul className="space-y-2.5 mb-6">
               {proFeatures.map(f => (
                 <li key={f} className="flex items-center gap-2 text-sm text-slate-300">

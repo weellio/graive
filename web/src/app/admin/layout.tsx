@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { LayoutDashboard, BookOpen, Palette, Bot, Users, Package } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Palette, Bot, Users, Package, ArrowLeft } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
@@ -35,6 +35,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
                 Admin Panel
               </p>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors mb-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+              <div className="border-t border-slate-100 my-2" />
               <nav className="space-y-0.5">
                 {navItems.map(item => (
                   <Link

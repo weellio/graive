@@ -197,7 +197,7 @@ Yes — modules don't lock each other out. You can open any module in your level
 Explorer Level is free forever. To access Builder, Thinker, or Innovator:
 
 1. Go to **Account → Billing** (click your name in the top right)
-2. Choose **Monthly (£9.99/month)** or **Annual (£79.99/year — 2 months free)**
+2. Choose **Monthly ($9.99/month)** or **Annual ($79.99/year — 2 months free)**
 3. You'll be taken to a secure Stripe checkout page
 4. After payment, Pro access is activated immediately
 

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { BookOpen, Lock, CheckCircle2, ChevronRight } from 'lucide-react'
+import { BookOpen, Lock, Star, ChevronRight, Zap } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -58,7 +58,10 @@ export default async function DashboardPage() {
         <div className="mt-4">
           <div className="flex justify-between text-sm text-slate-600 mb-1">
             <span>{completedCount} of {userModules.length} modules complete</span>
-            <span>{progressPct}%</span>
+            <span className="flex items-center gap-1 font-semibold" style={{ color: tierCfg.color }}>
+              <Zap className="h-3.5 w-3.5" />
+              {completedCount * 100} XP earned
+            </span>
           </div>
           <Progress value={progressPct} className="h-2" />
         </div>
@@ -135,13 +138,13 @@ export default async function DashboardPage() {
             const done = completedIds.has(mod.id)
             return (
               <Link key={mod.id} href={`/learn/${userTier}/${mod.slug}`}>
-                <Card className={`h-full cursor-pointer transition-all hover:shadow-md ${done ? 'bg-green-50 border-green-200' : ''}`}>
+                <Card className={`h-full cursor-pointer transition-all hover:shadow-md ${done ? 'bg-amber-50 border-amber-200' : ''}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium text-slate-400">Module {mod.order_index}</span>
-                          {done && <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />}
+                          {done && <Star className="h-4 w-4 fill-amber-400 text-amber-400 shrink-0" />}
                         </div>
                         <h3 className="font-semibold text-slate-800 text-sm leading-tight">{mod.title}</h3>
                         <p className="text-xs text-slate-500 mt-1 line-clamp-2">{mod.description}</p>

@@ -146,7 +146,7 @@ export default async function BillingPage({
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Monthly</CardTitle>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-bold text-slate-800">£9.99</span>
+                  <span className="text-3xl font-bold text-slate-800">$9.99</span>
                   <span className="text-slate-500 text-sm">/month</span>
                 </div>
               </CardHeader>
@@ -168,7 +168,7 @@ export default async function BillingPage({
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Annual</CardTitle>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-bold text-slate-800">£79.99</span>
+                  <span className="text-3xl font-bold text-slate-800">$79.99</span>
                   <span className="text-slate-500 text-sm">/year</span>
                 </div>
                 <p className="text-xs text-indigo-600 font-medium">2 months free</p>

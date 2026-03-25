@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import Link from 'next/link'
-import { BookOpen, CheckCircle2, Clock, ChevronRight, Lock } from 'lucide-react'
+import { BookOpen, Star, Clock, ChevronRight, Lock, Zap } from 'lucide-react'
 
 interface PageProps {
   params: Promise<{ tier: string }>
@@ -74,7 +74,9 @@ export default async function TierPage({ params }: PageProps) {
         <div className="mt-5">
           <div className="flex justify-between text-sm text-slate-600 mb-1.5">
             <span>{completedCount} of {allModules.length} modules complete</span>
-            <span>{progressPct}%</span>
+            <span className="flex items-center gap-1 font-semibold" style={{ color: tierConfig.color }}>
+              <Zap className="h-3.5 w-3.5" /> {completedCount * 100} XP
+            </span>
           </div>
           <Progress value={progressPct} className="h-2" />
         </div>
@@ -94,7 +96,7 @@ export default async function TierPage({ params }: PageProps) {
               <Card
                 className={`h-full cursor-pointer transition-all hover:shadow-md ${
                   done
-                    ? 'bg-green-50 border-green-200'
+                    ? 'bg-amber-50 border-amber-200'
                     : isCurrent
                     ? `border-2 ${tierConfig.borderClass}`
                     : ''
@@ -107,22 +109,22 @@ export default async function TierPage({ params }: PageProps) {
                       className="h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold mt-0.5"
                       style={{
                         backgroundColor: done
-                          ? '#dcfce7'
+                          ? '#fef3c7'
                           : isCurrent
                           ? tierConfig.color + '20'
                           : '#f1f5f9',
-                        color: done ? '#16a34a' : isCurrent ? tierConfig.color : '#94a3b8',
+                        color: done ? '#d97706' : isCurrent ? tierConfig.color : '#94a3b8',
                       }}
                     >
-                      {done ? <CheckCircle2 className="h-5 w-5" /> : idx + 1}
+                      {done ? <Star className="h-5 w-5 fill-amber-400 text-amber-400" /> : idx + 1}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs text-slate-400">Module {mod.order_index}</span>
                         {done && (
-                          <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">
-                            Complete
+                          <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs gap-1">
+                            <Star className="h-3 w-3 fill-amber-500 text-amber-500" /> +100 XP
                           </Badge>
                         )}
                         {isCurrent && !done && (
