@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { TIER_CONFIG, type AgeTier, type Module } from '@/types'
-import { Clock, GripVertical } from 'lucide-react'
+import { Clock, GripVertical, Plus, Pencil } from 'lucide-react'
 
 export default function AdminModulesPage() {
   const [modules, setModules] = useState<Module[]>([])
@@ -50,9 +51,17 @@ export default function AdminModulesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-800">Modules</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Toggle modules on/off. Disabled modules are hidden from learners.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-slate-800">Modules</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Toggle modules on/off or create new ones.</p>
+        </div>
+        <Link href="/admin/modules/new">
+          <Button size="sm" className="gap-1.5 shrink-0">
+            <Plus className="h-3.5 w-3.5" />
+            New Module
+          </Button>
+        </Link>
       </div>
 
       {tiers.map(tier => {
@@ -88,10 +97,20 @@ export default function AdminModulesPage() {
                       <span className="font-mono">{mod.slug}</span>
                     </div>
                   </div>
-                  <Switch
-                    checked={mod.enabled}
-                    onCheckedChange={() => toggleEnabled(mod)}
-                  />
+                  <div className="flex items-center gap-2">
+                    <Link href={`/admin/modules/${mod.id}/edit`}>
+                      <button
+                        title="Edit module"
+                        className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    </Link>
+                    <Switch
+                      checked={mod.enabled}
+                      onCheckedChange={() => toggleEnabled(mod)}
+                    />
+                  </div>
                 </div>
               ))}
             </CardContent>
