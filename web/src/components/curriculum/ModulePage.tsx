@@ -110,22 +110,30 @@ function InlineRating({ storageKey }: { storageKey: string }) {
     try { localStorage.setItem(storageKey, String(n)) } catch {}
   }
   return (
-    <span className="inline-flex gap-0.5 mx-1 align-middle flex-wrap">
-      {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
-        <button
-          key={n}
-          onClick={() => pick(n)}
-          className={`w-7 h-7 rounded text-xs font-bold transition-all ${
-            val === n
-              ? 'bg-indigo-500 text-white scale-110 shadow'
-              : val !== null && n <= val
-              ? 'bg-indigo-200 text-indigo-700'
-              : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'
-          }`}
-        >
-          {n}
-        </button>
-      ))}
+    <span className="inline-flex flex-col gap-1 my-2 align-middle w-full">
+      <span className="flex items-center gap-1.5 flex-wrap">
+        <span className="text-sm shrink-0" title="Not good at all">😞</span>
+        {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+          <button
+            key={n}
+            onClick={() => pick(n)}
+            className={`w-8 h-8 rounded-lg text-sm font-bold transition-all ${
+              val === n
+                ? 'bg-indigo-500 text-white scale-110 shadow-md'
+                : val !== null && n <= val
+                ? 'bg-indigo-200 text-indigo-700'
+                : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'
+            }`}
+          >
+            {n}
+          </button>
+        ))}
+        <span className="text-sm shrink-0" title="Amazing!">🤩</span>
+      </span>
+      <span className="flex justify-between text-xs text-slate-400 px-7">
+        <span>not good</span>
+        <span>amazing!</span>
+      </span>
     </span>
   )
 }
