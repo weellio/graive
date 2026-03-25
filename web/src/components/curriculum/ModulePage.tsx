@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { TIER_CONFIG, type AgeTier, type Module, type Conversation, type Profile, type ChatMessage } from '@/types'
 import {
-  CheckCircle2, ChevronLeft, ChevronRight, BookOpen, MessageSquare, Clock,
-  Star, Zap, Trophy, Lightbulb, FlaskConical, Brain, Rocket, Sparkles,
+  CheckCircle2, ChevronLeft, ChevronRight, BookOpen, MessageSquare,
+  Star, Trophy, Lightbulb, FlaskConical, Brain, Sparkles,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -58,13 +58,13 @@ interface StepMeta {
 }
 
 const STEP_META: Record<StepType, StepMeta> = {
-  intro:     { icon: BookOpen,     label: 'Read',         bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: 'bg-slate-100',    pillText: 'text-slate-600',   headingColor: 'text-slate-900',   dark: false },
-  activity:  { icon: FlaskConical, label: 'Activity',     bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: '',                 pillText: '',                  headingColor: 'text-slate-900',   dark: false },
-  concepts:  { icon: Lightbulb,    label: 'Key Concepts', bg: 'bg-sky-50',      border: 'border-sky-200',    topBar: '#0ea5e9', pillBg: 'bg-sky-100',    pillText: 'text-sky-700',    headingColor: 'text-sky-900',     dark: false },
-  facts:     { icon: Sparkles,     label: 'Fun Facts',    bg: 'bg-amber-50',    border: 'border-amber-200',  topBar: '#f59e0b', pillBg: 'bg-amber-100',  pillText: 'text-amber-800',  headingColor: 'text-amber-900',   dark: false },
-  reflect:   { icon: Brain,        label: 'Reflect',      bg: 'bg-violet-50',   border: 'border-violet-200', topBar: '#8b5cf6', pillBg: 'bg-violet-100', pillText: 'text-violet-700', headingColor: 'text-violet-900',  dark: false },
-  challenge: { icon: Trophy,       label: 'Challenge',    bg: 'bg-slate-900',   border: 'border-slate-700',  topBar: '#f59e0b', pillBg: 'bg-yellow-400', pillText: 'text-slate-900',  headingColor: 'text-white',       dark: true  },
-  general:   { icon: BookOpen,     label: 'Read',         bg: 'bg-white',       border: 'border-slate-200',  topBar: '#cbd5e1', pillBg: 'bg-slate-100',  pillText: 'text-slate-600',  headingColor: 'text-slate-900',   dark: false },
+  intro:     { icon: BookOpen,     label: 'Read This',       bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: 'bg-slate-100',    pillText: 'text-slate-600',   headingColor: 'text-slate-900',   dark: false },
+  activity:  { icon: FlaskConical, label: 'Try It',          bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: '',                 pillText: '',                  headingColor: 'text-slate-900',   dark: false },
+  concepts:  { icon: Lightbulb,    label: 'Key Ideas',       bg: 'bg-sky-50',      border: 'border-sky-200',    topBar: '#0ea5e9', pillBg: 'bg-sky-100',    pillText: 'text-sky-700',    headingColor: 'text-sky-900',     dark: false },
+  facts:     { icon: Sparkles,     label: 'Fun Facts',       bg: 'bg-amber-50',    border: 'border-amber-200',  topBar: '#f59e0b', pillBg: 'bg-amber-100',  pillText: 'text-amber-800',  headingColor: 'text-amber-900',   dark: false },
+  reflect:   { icon: Brain,        label: 'Think About It',  bg: 'bg-violet-50',   border: 'border-violet-200', topBar: '#8b5cf6', pillBg: 'bg-violet-100', pillText: 'text-violet-700', headingColor: 'text-violet-900',  dark: false },
+  challenge: { icon: Trophy,       label: 'Challenge',       bg: 'bg-slate-900',   border: 'border-slate-700',  topBar: '#f59e0b', pillBg: 'bg-yellow-400', pillText: 'text-slate-900',  headingColor: 'text-white',       dark: true  },
+  general:   { icon: BookOpen,     label: 'Read This',       bg: 'bg-white',       border: 'border-slate-200',  topBar: '#cbd5e1', pillBg: 'bg-slate-100',  pillText: 'text-slate-600',  headingColor: 'text-slate-900',   dark: false },
 }
 
 // ─── Activity interactivity helpers ──────────────────────────────────────────
@@ -142,24 +142,48 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
-function Scratchpad({ storageKey }: { storageKey: string }) {
+function ModuleNotes({ userId, moduleId }: { userId: string; moduleId: string }) {
   const [text, setText] = useState('')
-  useEffect(() => { try { setText(localStorage.getItem(storageKey) ?? '') } catch {} }, [storageKey])
+  const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    createClient()
+      .from('notes')
+      .select('content')
+      .eq('user_id', userId)
+      .eq('module_id', moduleId)
+      .single()
+      .then(({ data }) => { if (data?.content) setText(data.content) })
+  }, [userId, moduleId])
+
   function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setText(e.target.value)
-    try { localStorage.setItem(storageKey, e.target.value) } catch {}
+    const val = e.target.value
+    setText(val)
+    setStatus('saving')
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(async () => {
+      await createClient().from('notes').upsert(
+        { user_id: userId, module_id: moduleId, content: val, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,module_id' }
+      )
+      setStatus('saved')
+    }, 800)
   }
+
   return (
-    <div className="mt-6 rounded-xl overflow-hidden border-2 border-dashed border-indigo-200">
-      <div className="px-4 py-2 bg-indigo-50 border-b border-indigo-100 flex items-center gap-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">✏️ My Notes</span>
-        <span className="text-xs text-indigo-400 ml-auto">auto-saved</span>
+    <div className="rounded-2xl overflow-hidden border-2 border-amber-200 shadow-sm">
+      <div className="px-4 py-3 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
+        <span className="text-sm font-bold text-amber-700">📓 My Notes</span>
+        <span className="text-xs ml-auto" style={{ color: status === 'saving' ? '#94a3b8' : status === 'saved' ? '#22c55e' : 'transparent' }}>
+          {status === 'saving' ? 'saving...' : '✓ saved'}
+        </span>
       </div>
       <textarea
         value={text}
         onChange={handleChange}
-        placeholder="Write your answers, ideas, or observations here..."
-        className="w-full p-4 text-sm resize-none focus:outline-none min-h-[130px] bg-white text-slate-700 placeholder-slate-400"
+        placeholder="Write anything here — questions, ideas, things to remember..."
+        className="w-full p-4 text-base resize-none focus:outline-none min-h-[130px] bg-white text-slate-700 placeholder-slate-300"
       />
     </div>
   )
@@ -176,11 +200,7 @@ function BlockRenderer({
 }) {
   const accents = [tierColor, '#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981']
   const cleaned = content.replace(/ — /g, ' - ').replace(/—/g, '-')
-  const quoteStyle = {
-    backgroundColor: dark ? 'rgba(255,255,255,0.06)' : '#f8fafc',
-    borderLeftColor: tierColor,
-    color: dark ? '#e2e8f0' : '#334155',
-  }
+  const quoteBorderColor = tierColor
 
   // Split on double newlines to get individual blocks
   const blocks = cleaned.split(/\n{2,}/).map(b => b.trim()).filter(Boolean)
@@ -250,10 +270,12 @@ function BlockRenderer({
                 ),
                 blockquote: ({ children }) => (
                   <blockquote
-                    className="border-l-4 pl-4 pr-3 py-2 rounded-r-xl italic font-medium text-[17px] leading-relaxed"
-                    style={quoteStyle}
+                    className="border-l-4 pl-4 pr-3 py-2.5 my-1 rounded-r-lg"
+                    style={{ borderLeftColor: quoteBorderColor }}
                   >
-                    {children}
+                    <div className={`italic text-[17px] leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+                      {children}
+                    </div>
                   </blockquote>
                 ),
                 code: ({ children }) => {
@@ -325,10 +347,10 @@ function StepCard({
         {/* Type pill */}
         <div className="flex items-center gap-2 mb-4">
           <span
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${meta.pillBg} ${meta.pillText}`}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${meta.pillBg} ${meta.pillText}`}
             style={type === 'activity' ? { backgroundColor: pillBg, color: pillTextColor } : {}}
           >
-            <Icon className="h-3.5 w-3.5" />
+            <Icon className="h-4 w-4" />
             {meta.label}
           </span>
         </div>
@@ -346,10 +368,9 @@ function StepCard({
           </div>
         )}
 
-        {/* Scrollable body with paragraph-per-block rendering */}
+        {/* Scrollable body */}
         <div className="overflow-y-auto max-h-[58vh] pr-1 scrollbar-thin">
           <BlockRenderer content={rest} tierColor={tierCfg.color} dark={meta.dark} baseKey={baseKey} />
-          {isActivity && <Scratchpad storageKey={`${baseKey}-scratch`} />}
         </div>
       </div>
     </div>
@@ -430,7 +451,25 @@ export function ModulePage({
 
   const stepView = (
     <div className="space-y-4">
-      {/* Step content card */}
+      {/* Progress dots — simple, tappable, at the top */}
+      <div className="flex items-center gap-1.5 justify-center flex-wrap px-2">
+        {steps.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => { setStep(i); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            aria-label={`Go to step ${i + 1}`}
+            className="rounded-full transition-all duration-300 hover:opacity-80 focus:outline-none"
+            style={{
+              width: i === step ? 28 : 10,
+              height: 10,
+              backgroundColor: i === step ? tierCfg.color : i < step ? tierCfg.color + '99' : '#e2e8f0',
+            }}
+          />
+        ))}
+      </div>
+      <p className="text-center text-xs text-slate-400">{step + 1} of {totalSteps}</p>
+
+      {/* Step card */}
       <StepCard
         content={steps[step] ?? ''}
         tier={tier}
@@ -439,81 +478,47 @@ export function ModulePage({
         stepIdx={step}
       />
 
-      {/* Step navigation */}
-      <div className="flex items-center justify-between gap-3">
+      {/* Navigation — Back (ghost) | Next (big, full-width) */}
+      <div className="flex items-center gap-3">
         <Button
-          variant="outline"
-          size="lg"
+          variant="ghost"
+          size="sm"
           onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           disabled={step === 0}
-          className="gap-2 rounded-xl border-2 font-semibold"
+          className="gap-1 text-slate-400 hover:text-slate-600 shrink-0 px-3"
         >
-          <ChevronLeft className="h-4 w-4" />
-          Back
+          <ChevronLeft className="h-4 w-4" /> Back
         </Button>
 
-        {isLastStep ? (
-          <Button
-            onClick={markComplete}
-            disabled={completed || marking}
-            size="lg"
-            className={`gap-2 px-8 rounded-xl font-semibold text-white ${
-              completed ? 'bg-green-500 hover:bg-green-500' : ''
-            }`}
-            style={!completed ? { backgroundColor: tierCfg.color } : {}}
-          >
-            {completed ? (
-              <><CheckCircle2 className="h-5 w-5" /> Done!</>
-            ) : marking ? (
-              'Saving...'
-            ) : (
-              <><Star className="h-5 w-5" /> Complete and earn {MODULE_XP} XP</>
-            )}
-          </Button>
-        ) : (
-          <Button
-            onClick={() => { setStep(s => s + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-            size="lg"
-            className="gap-2 px-8 rounded-xl font-semibold text-white"
-            style={{ backgroundColor: tierCfg.color }}
-          >
-            Next Step <ChevronRight className="h-4 w-4" />
-          </Button>
-        )}
+        <div className="flex-1">
+          {isLastStep ? (
+            <Button
+              onClick={markComplete}
+              disabled={completed || marking}
+              size="lg"
+              className={`w-full gap-2 rounded-2xl font-bold text-base py-6 text-white shadow-lg ${completed ? 'bg-green-500 hover:bg-green-500' : ''}`}
+              style={!completed ? { backgroundColor: tierCfg.color } : {}}
+            >
+              {completed
+                ? <><CheckCircle2 className="h-5 w-5" /> Done!</>
+                : marking ? 'Saving...'
+                : <><Star className="h-5 w-5 fill-current" /> Finish &amp; Earn {MODULE_XP} XP!</>}
+            </Button>
+          ) : (
+            <Button
+              onClick={() => { setStep(s => s + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+              size="lg"
+              className="w-full gap-2 rounded-2xl font-bold text-base py-6 text-white shadow-lg"
+              style={{ backgroundColor: tierCfg.color }}
+            >
+              Next <ChevronRight className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Step progress — below nav so content is always at top on step change */}
-      <div className="bg-slate-800 rounded-2xl px-5 py-4">
-        <div className="flex items-center justify-between text-sm mb-2">
-          <span className="font-semibold text-white">
-            Step <span className="text-xl font-black">{step + 1}</span>{' '}
-            <span className="text-slate-400 text-sm font-normal">of {totalSteps}</span>
-          </span>
-          <span className="font-bold text-sm text-white">{stepProgress}%</span>
-        </div>
-        <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${stepProgress}%`, backgroundColor: tierCfg.color }}
-          />
-        </div>
-        {totalSteps <= 15 && (
-          <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-            {steps.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { setStep(i); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className="h-2 rounded-full transition-all duration-200 hover:opacity-80 focus:outline-none"
-                style={{
-                  width: i === step ? '24px' : '8px',
-                  backgroundColor: i < step ? tierCfg.color + 'aa' : i === step ? tierCfg.color : '#475569',
-                }}
-                aria-label={`Go to step ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {/* My Notes — always visible, Supabase-persisted across all steps */}
+      <ModuleNotes userId={profile.id} moduleId={module.id} />
     </div>
   )
 
@@ -531,24 +536,13 @@ export function ModulePage({
         <span className="text-slate-700 truncate">{module.title}</span>
       </div>
 
-      {/* Module header — compact strip */}
-      <div className={`rounded-xl px-4 py-3 mb-4 ${tierCfg.bgClass} border ${tierCfg.borderClass} flex items-center justify-between gap-3 flex-wrap`}>
-        <div className="flex items-center gap-2 flex-wrap min-w-0">
-          <span className={`text-xs font-bold uppercase tracking-wide ${tierCfg.textClass}`}>
-            Module {module.order_index}
-          </span>
-          <span className="text-slate-300 text-xs">·</span>
-          <h1 className="text-sm font-bold text-slate-800 truncate">{module.title}</h1>
-        </div>
-        <div className="flex items-center gap-2 shrink-0 text-xs text-slate-500">
-          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> ~{module.estimated_minutes} min</span>
-          <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> {MODULE_XP} XP</span>
-          {completed && (
-            <span className="flex items-center gap-1 text-amber-600 font-semibold">
-              <Star className="h-3 w-3 fill-amber-500 text-amber-500" /> Complete
-            </span>
-          )}
-        </div>
+      {/* Module header — just the title */}
+      <div className="mb-4">
+        <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${tierCfg.textClass}`}>
+          {tierCfg.label} · Module {module.order_index}
+          {completed && <span className="ml-2 text-amber-500">⭐ Complete</span>}
+        </p>
+        <h1 className="text-lg font-bold text-slate-800 leading-tight">{module.title}</h1>
       </div>
 
       {/* Desktop split layout */}
