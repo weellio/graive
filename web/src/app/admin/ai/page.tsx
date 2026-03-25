@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,13 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { RefreshCw } from 'lucide-react'
 import type { AgeTier } from '@/types'
 
 interface AISettings {
@@ -39,26 +36,10 @@ const DEFAULTS: AISettings = {
   free_tier_daily_message_limit: '10',
 }
 
-// Suggested defaults per provider — shown as hints, not enforced
-const PROVIDER_HINTS: Record<string, { placeholder: string; docsUrl: string; envVar: string; suggestions: string[] }> = {
-  claude: {
-    placeholder: 'e.g. claude-haiku-4-5-20251001',
-    docsUrl: 'https://docs.anthropic.com/en/docs/about-claude/models',
-    envVar: 'ANTHROPIC_API_KEY',
-    suggestions: ['claude-haiku-4-5-20251001', 'claude-sonnet-4-6', 'claude-opus-4-6'],
-  },
-  openai: {
-    placeholder: 'e.g. gpt-4o-mini',
-    docsUrl: 'https://platform.openai.com/docs/models',
-    envVar: 'OPENAI_API_KEY',
-    suggestions: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo'],
-  },
-  gemini: {
-    placeholder: 'e.g. gemini-2.0-flash',
-    docsUrl: 'https://ai.google.dev/gemini-api/docs/models/gemini',
-    envVar: 'GEMINI_API_KEY',
-    suggestions: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
-  },
+const PROVIDER_DOCS: Record<string, string> = {
+  claude:  'https://docs.anthropic.com/en/docs/about-claude/models',
+  openai:  'https://platform.openai.com/docs/models',
+  gemini:  'https://ai.google.dev/gemini-api/docs/models/gemini',
 }
 
 const tiers: { key: keyof AISettings; label: string; tier: AgeTier }[] = [
@@ -71,14 +52,15 @@ const tiers: { key: keyof AISettings; label: string; tier: AgeTier }[] = [
 export default function AdminAIPage() {
   const [settings, setSettings] = useState<AISettings>(DEFAULTS)
   const [saving, setSaving] = useState(false)
+  const [models, setModels] = useState<string[]>([])
+  const [modelsLoading, setModelsLoading] = useState(false)
+  const [modelsError, setModelsError] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     const keys = Object.keys(DEFAULTS)
     supabase
-      .from('site_settings')
-      .select('key, value')
-      .in('key', keys)
+      .from('site_settings').select('key, value').in('key', keys)
       .then(({ data }) => {
         if (data) {
           const merged = { ...DEFAULTS }
@@ -89,6 +71,27 @@ export default function AdminAIPage() {
         }
       })
   }, [])
+
+  const fetchModels = useCallback(async (provider: string) => {
+    setModelsLoading(true)
+    setModelsError(null)
+    try {
+      const res = await fetch(`/api/admin/models?provider=${provider}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed to fetch models')
+      setModels(data.models ?? [])
+    } catch (err) {
+      setModelsError(err instanceof Error ? err.message : 'Could not fetch models')
+      setModels([])
+    } finally {
+      setModelsLoading(false)
+    }
+  }, [])
+
+  // Fetch models whenever provider changes (and on first load)
+  useEffect(() => {
+    fetchModels(settings.llm_provider)
+  }, [settings.llm_provider, fetchModels])
 
   async function save() {
     setSaving(true)
@@ -103,8 +106,6 @@ export default function AdminAIPage() {
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  const hint = PROVIDER_HINTS[settings.llm_provider] ?? PROVIDER_HINTS.claude
-
   return (
     <div className="space-y-6">
       <div>
@@ -113,16 +114,12 @@ export default function AdminAIPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Provider</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="text-base">Provider</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-1.5">
             <Label>LLM Provider</Label>
             <Select value={settings.llm_provider} onValueChange={v => set('llm_provider', v ?? '')}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="claude">Anthropic Claude</SelectItem>
                 <SelectItem value="openai">OpenAI</SelectItem>
@@ -140,7 +137,11 @@ export default function AdminAIPage() {
               placeholder="Leave empty to use server environment variable"
             />
             <p className="text-xs text-slate-400">
-              Overrides <code>{hint.envVar}</code> env var on the server.
+              {{
+                claude: 'Uses ANTHROPIC_API_KEY env var if empty',
+                openai: 'Uses OPENAI_API_KEY env var if empty',
+                gemini: 'Uses GEMINI_API_KEY env var if empty',
+              }[settings.llm_provider] ?? ''}
             </p>
           </div>
         </CardContent>
@@ -148,37 +149,67 @@ export default function AdminAIPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Model per Tier</CardTitle>
-          <CardDescription className="text-xs">
-            Type any model name supported by <strong>{settings.llm_provider}</strong>.{' '}
-            <a href={hint.docsUrl} target="_blank" rel="noopener noreferrer"
-               className="text-indigo-500 hover:underline">
-              See latest models →
-            </a>
-            <span className="block mt-1 text-slate-400">
-              Suggestions: {hint.suggestions.join(' · ')}
-            </span>
-          </CardDescription>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Model per Tier</CardTitle>
+              <CardDescription className="text-xs mt-0.5">
+                Models fetched live from the {settings.llm_provider} API.{' '}
+                <a
+                  href={PROVIDER_DOCS[settings.llm_provider]}
+                  target="_blank" rel="noopener noreferrer"
+                  className="text-indigo-500 hover:underline"
+                >
+                  Full model list →
+                </a>
+              </CardDescription>
+            </div>
+            <Button
+              variant="outline" size="sm"
+              onClick={() => fetchModels(settings.llm_provider)}
+              disabled={modelsLoading}
+              className="shrink-0 gap-1.5 text-xs"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${modelsLoading ? 'animate-spin' : ''}`} />
+              {modelsLoading ? 'Fetching…' : 'Refresh'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {modelsError && (
+            <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              ⚠ {modelsError} — check your API key is configured.
+            </p>
+          )}
           {tiers.map(t => (
             <div key={t.key} className="grid gap-1.5">
               <Label>{t.label}</Label>
-              <Input
-                value={settings[t.key]}
-                onChange={e => set(t.key, e.target.value)}
-                placeholder={hint.placeholder}
-                className="font-mono text-sm"
-              />
+              {models.length > 0 ? (
+                <Select value={settings[t.key]} onValueChange={v => set(t.key, v ?? '')}>
+                  <SelectTrigger className="font-mono text-sm">
+                    <SelectValue placeholder="Select a model…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {models.map(m => (
+                      <SelectItem key={m} value={m} className="font-mono text-sm">{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={settings[t.key]}
+                  onChange={e => set(t.key, e.target.value)}
+                  placeholder={modelsLoading ? 'Loading models…' : 'Enter model name manually'}
+                  className="font-mono text-sm"
+                  disabled={modelsLoading}
+                />
+              )}
             </div>
           ))}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">History &amp; Rate Limiting</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="text-base">History &amp; Rate Limiting</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -194,9 +225,7 @@ export default function AdminAIPage() {
             <Label htmlFor="daily_limit">Free Tier Daily Message Limit</Label>
             <Input
               id="daily_limit"
-              type="number"
-              min="1"
-              max="100"
+              type="number" min="1" max="100"
               value={settings.free_tier_daily_message_limit}
               onChange={e => set('free_tier_daily_message_limit', e.target.value)}
             />
