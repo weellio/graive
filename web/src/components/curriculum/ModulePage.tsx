@@ -490,52 +490,49 @@ export function ModulePage({
       </div>
       <p className="text-center text-xs text-slate-400">{step + 1} of {totalSteps}</p>
 
-      {/* Step card */}
-      <StepCard
-        content={steps[step] ?? ''}
-        tier={tier}
-        videoUrl={step === 0 ? module.video_url : null}
-        moduleId={module.id}
-        stepIdx={step}
-      />
+      {/* Card with left/right nav arrows on either side */}
+      <div className="flex items-stretch gap-2">
 
-      {/* Navigation — Back (ghost) | Next (big, full-width) */}
-      <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="sm"
+        {/* ← Left arrow */}
+        <button
           onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           disabled={step === 0}
-          className="gap-1 text-slate-400 hover:text-slate-600 shrink-0 px-3"
+          aria-label="Previous step"
+          className="w-12 shrink-0 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 disabled:opacity-20 disabled:pointer-events-none transition-all"
         >
-          <ChevronLeft className="h-4 w-4" /> Back
-        </Button>
+          <ChevronLeft className="h-7 w-7 text-slate-500" />
+        </button>
 
-        <div className="flex-1">
-          {isLastStep ? (
-            <Button
-              onClick={markComplete}
-              disabled={completed || marking}
-              size="lg"
-              className={`w-full gap-2 rounded-2xl font-bold text-base py-6 text-white shadow-lg ${completed ? 'bg-green-500 hover:bg-green-500' : ''}`}
-              style={!completed ? { backgroundColor: tierCfg.color } : {}}
-            >
-              {completed
-                ? <><CheckCircle2 className="h-5 w-5" /> Done!</>
-                : marking ? 'Saving...'
-                : <><Star className="h-5 w-5 fill-current" /> Finish &amp; Earn {MODULE_XP} XP!</>}
-            </Button>
-          ) : (
-            <Button
-              onClick={() => { setStep(s => s + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-              size="lg"
-              className="w-full gap-2 rounded-2xl font-bold text-base py-6 text-white shadow-lg"
-              style={{ backgroundColor: tierCfg.color }}
-            >
-              Next <ChevronRight className="h-5 w-5" />
-            </Button>
-          )}
+        {/* Card */}
+        <div className="flex-1 min-w-0">
+          <StepCard
+            content={steps[step] ?? ''}
+            tier={tier}
+            videoUrl={step === 0 ? module.video_url : null}
+            moduleId={module.id}
+            stepIdx={step}
+          />
         </div>
+
+        {/* → Right arrow / ⭐ Complete */}
+        <button
+          onClick={() => {
+            if (isLastStep) { markComplete() }
+            else { setStep(s => s + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+          }}
+          disabled={(isLastStep && (completed || marking))}
+          aria-label={isLastStep ? 'Complete module' : 'Next step'}
+          className="w-12 shrink-0 flex flex-col items-center justify-center rounded-2xl text-white transition-all gap-1 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+          style={{ backgroundColor: completed && isLastStep ? '#22c55e' : tierCfg.color }}
+        >
+          {isLastStep
+            ? completed
+              ? <CheckCircle2 className="h-7 w-7" />
+              : <><Star className="h-6 w-6 fill-current" /><span className="text-[9px] font-black tracking-wide leading-none">DONE</span></>
+            : <ChevronRight className="h-7 w-7" />
+          }
+        </button>
+
       </div>
 
       {/* My Notes — always visible, Supabase-persisted across all steps */}
