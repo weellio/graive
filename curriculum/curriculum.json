@@ -1,0 +1,481 @@
+{
+  "format": "graive-curriculum",
+  "format_version": "1.0",
+  "metadata": {
+    "name": "AI Literacy for Kids",
+    "author": "GRAIVE",
+    "version": "2.0"
+  },
+  "ai_prompts": {
+    "explorer": "",
+    "builder": "",
+    "thinker": "",
+    "innovator": ""
+  },
+  "tiers": [
+    {
+      "slug": "explorer",
+      "label": "Explorer",
+      "age_range": "Ages 10-11",
+      "theme": "Talking to Computers",
+      "modules": [
+        {
+          "slug": "what-is-ai",
+          "title": "What Is AI?",
+          "description": "Understand how AI learns from patterns — not magic, just math.",
+          "order_index": 1,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-10-11/module-01-what-is-ai/lesson-plan.md"
+        },
+        {
+          "slug": "good-questions",
+          "title": "Asking Good Questions",
+          "description": "The secret to great AI output: be specific.",
+          "order_index": 2,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-10-11/module-02-good-questions/lesson-plan.md"
+        },
+        {
+          "slug": "prompt-recipe",
+          "title": "Prompts Are Like Recipes",
+          "description": "Context + Instruction + Format = the prompt recipe.",
+          "order_index": 3,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-10-11/module-03-prompt-recipe/lesson-plan.md"
+        },
+        {
+          "slug": "when-ai-is-wrong",
+          "title": "When AI Gets It Wrong",
+          "description": "Hallucinations, mistakes, and why you must always check.",
+          "order_index": 4,
+          "estimated_minutes": 25,
+          "video_url": null,
+          "content_file": "ages-10-11/module-04-when-ai-is-wrong/lesson-plan.md"
+        },
+        {
+          "slug": "staying-safe",
+          "title": "Staying Safe Online",
+          "description": "What to share, what never to share, and who can see what.",
+          "order_index": 5,
+          "estimated_minutes": 25,
+          "video_url": null,
+          "content_file": "ages-10-11/module-05-staying-safe/lesson-plan.md"
+        },
+        {
+          "slug": "create-with-ai",
+          "title": "Create with AI",
+          "description": "Use AI as a creative partner for stories, poems and art ideas.",
+          "order_index": 6,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-10-11/module-06-create-with-ai/lesson-plan.md"
+        },
+        {
+          "slug": "ai-daily-life",
+          "title": "AI in Your Daily Life",
+          "description": "AI is already everywhere — phones, games, music. Let's find it.",
+          "order_index": 7,
+          "estimated_minutes": 25,
+          "video_url": null,
+          "content_file": "ages-10-11/module-07-ai-daily-life/lesson-plan.md"
+        },
+        {
+          "slug": "teaching-machine",
+          "title": "Teaching the Machine",
+          "description": "How training data works — you're the teacher giving examples.",
+          "order_index": 8,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-10-11/module-08-teaching-machine/lesson-plan.md"
+        },
+        {
+          "slug": "remix-improve",
+          "title": "Remix & Improve",
+          "description": "Iterative prompting: take a bad output and improve it step by step.",
+          "order_index": 9,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-10-11/module-09-remix-improve/lesson-plan.md"
+        },
+        {
+          "slug": "ai-hobbies",
+          "title": "AI and Your Hobbies",
+          "description": "Use AI to explore something you already love.",
+          "order_index": 10,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-10-11/module-10-ai-hobbies/lesson-plan.md"
+        },
+        {
+          "slug": "real-vs-fake",
+          "title": "Real vs Fake",
+          "description": "Spotting AI-generated images and text. Basic verification habits.",
+          "order_index": 11,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-10-11/module-11-real-vs-fake/lesson-plan.md"
+        },
+        {
+          "slug": "explorer-challenge",
+          "title": "Explorer Challenge",
+          "description": "Mini-capstone: the best prompt competition with 3 rounds.",
+          "order_index": 12,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-10-11/module-12-explorer-challenge/lesson-plan.md"
+        }
+      ]
+    },
+    {
+      "slug": "builder",
+      "label": "Builder",
+      "age_range": "Ages 12-13",
+      "theme": "Understanding the Machine",
+      "modules": [
+        {
+          "slug": "how-ai-learns",
+          "title": "How AI Actually Learns",
+          "description": "Training data, pattern recognition, and why AI can be biased.",
+          "order_index": 1,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-12-13/module-01-how-ai-learns/lesson-plan.md"
+        },
+        {
+          "slug": "structured-prompts",
+          "title": "Structured Prompts",
+          "description": "Role + Context + Task + Format + Constraints — the RCTFC framework.",
+          "order_index": 2,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-12-13/module-02-structured-prompts/lesson-plan.md"
+        },
+        {
+          "slug": "algorithms",
+          "title": "Algorithms Around You",
+          "description": "Why YouTube shows you what it shows you. Filter bubbles explained.",
+          "order_index": 3,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-12-13/module-03-algorithms/lesson-plan.md"
+        },
+        {
+          "slug": "misinformation",
+          "title": "Misinformation in the AI Age",
+          "description": "Deepfakes, AI-generated text, and how to verify sources.",
+          "order_index": 4,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-12-13/module-04-misinformation/lesson-plan.md"
+        },
+        {
+          "slug": "chatbot-persona",
+          "title": "Building a Chatbot Persona",
+          "description": "Give AI a character, instructions, and constraints.",
+          "order_index": 5,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-12-13/module-05-chatbot-persona/lesson-plan.md"
+        },
+        {
+          "slug": "data-privacy",
+          "title": "Data & Privacy",
+          "description": "What apps collect, why, and what that really means.",
+          "order_index": 6,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-12-13/module-06-data-privacy/lesson-plan.md"
+        },
+        {
+          "slug": "image-generation",
+          "title": "AI Image Generation",
+          "description": "How it works, prompting for images, style, mood, and composition.",
+          "order_index": 7,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-12-13/module-07-image-generation/lesson-plan.md"
+        },
+        {
+          "slug": "prompt-library",
+          "title": "The Prompt Library",
+          "description": "Build a personal collection of reusable, remixable prompt templates.",
+          "order_index": 8,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-12-13/module-08-prompt-library/lesson-plan.md"
+        },
+        {
+          "slug": "ai-music",
+          "title": "AI and Music",
+          "description": "How AI generates music, tools to try, copyright and ownership questions.",
+          "order_index": 9,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-12-13/module-09-ai-music/lesson-plan.md"
+        },
+        {
+          "slug": "debug-prompt",
+          "title": "Debug Your Prompt",
+          "description": "A systematic checklist for when AI gives you a bad output.",
+          "order_index": 10,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-12-13/module-10-debug-prompt/lesson-plan.md"
+        },
+        {
+          "slug": "ai-news",
+          "title": "AI in the News",
+          "description": "Analyse real AI headlines — separate hype from substance.",
+          "order_index": 11,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-12-13/module-11-ai-news/lesson-plan.md"
+        },
+        {
+          "slug": "builder-challenge",
+          "title": "Builder Challenge",
+          "description": "Mini-capstone: build a complete AI toolkit for one school subject.",
+          "order_index": 12,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-12-13/module-12-builder-challenge/lesson-plan.md"
+        }
+      ]
+    },
+    {
+      "slug": "thinker",
+      "label": "Thinker",
+      "age_range": "Ages 14-15",
+      "theme": "Critical AI Citizenship",
+      "modules": [
+        {
+          "slug": "chain-of-thought",
+          "title": "Chain of Thought Prompting",
+          "description": "Break complex problems into steps. AI as thinking partner.",
+          "order_index": 1,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-01-chain-of-thought/lesson-plan.md"
+        },
+        {
+          "slug": "ai-ethics",
+          "title": "AI Ethics: Bias & Fairness",
+          "description": "Real cases where AI got it wrong. Who is responsible?",
+          "order_index": 2,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-14-15/module-02-ai-ethics/lesson-plan.md"
+        },
+        {
+          "slug": "digital-economy",
+          "title": "The Digital Economy",
+          "description": "Attention, data, platforms, creator economy — how it all works.",
+          "order_index": 3,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-03-digital-economy/lesson-plan.md"
+        },
+        {
+          "slug": "jobs-automation",
+          "title": "Jobs & Automation",
+          "description": "Which jobs are changing, which are emerging, what skills are AI-proof.",
+          "order_index": 4,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-04-jobs-automation/lesson-plan.md"
+        },
+        {
+          "slug": "ai-for-learning",
+          "title": "AI for Research & Study",
+          "description": "How to use AI to learn faster without cheating yourself.",
+          "order_index": 5,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-05-ai-for-learning/lesson-plan.md"
+        },
+        {
+          "slug": "digital-identity",
+          "title": "Personal Brand & Online Identity",
+          "description": "Who you are online, your digital footprint, long-term consequences.",
+          "order_index": 6,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-14-15/module-06-digital-identity/lesson-plan.md"
+        },
+        {
+          "slug": "ai-mental-health",
+          "title": "AI and Mental Health",
+          "description": "AI therapy apps, emotional AI, dependency risks, and healthy boundaries.",
+          "order_index": 7,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-07-ai-mental-health/lesson-plan.md"
+        },
+        {
+          "slug": "copyright-ai",
+          "title": "Copyright in the AI Age",
+          "description": "Who owns AI-generated content? Legal grey areas and real cases.",
+          "order_index": 8,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-08-copyright-ai/lesson-plan.md"
+        },
+        {
+          "slug": "fact-checking",
+          "title": "Fact-Checking Workflows",
+          "description": "A systematic process for verifying AI outputs against primary sources.",
+          "order_index": 9,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-14-15/module-09-fact-checking/lesson-plan.md"
+        },
+        {
+          "slug": "ai-cultures",
+          "title": "AI Across Cultures",
+          "description": "How AI performs differently across languages and cultures — who gets left out.",
+          "order_index": 10,
+          "estimated_minutes": 30,
+          "video_url": null,
+          "content_file": "ages-14-15/module-10-ai-cultures/lesson-plan.md"
+        },
+        {
+          "slug": "design-ai-tool",
+          "title": "Design an AI Tool",
+          "description": "Plan (not build) a tool that solves a real problem in your community.",
+          "order_index": 11,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-14-15/module-11-design-ai-tool/lesson-plan.md"
+        },
+        {
+          "slug": "thinker-challenge",
+          "title": "Thinker Challenge",
+          "description": "Mini-capstone: debate + research project on one AI controversy.",
+          "order_index": 12,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-14-15/module-12-thinker-challenge/lesson-plan.md"
+        }
+      ]
+    },
+    {
+      "slug": "innovator",
+      "label": "Innovator",
+      "age_range": "Ages 16-18",
+      "theme": "Build with AI, Think Beyond AI",
+      "modules": [
+        {
+          "slug": "advanced-prompting",
+          "title": "Advanced Prompting Systems",
+          "description": "Prompt chaining, meta-prompts, templates, and agent patterns.",
+          "order_index": 1,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-16-18/module-01-advanced-prompting/lesson-plan.md"
+        },
+        {
+          "slug": "building-no-code",
+          "title": "Building with AI (No-Code)",
+          "description": "Zapier, n8n, Make, Claude API basics — automate real workflows.",
+          "order_index": 2,
+          "estimated_minutes": 50,
+          "video_url": null,
+          "content_file": "ages-16-18/module-02-building-no-code/lesson-plan.md"
+        },
+        {
+          "slug": "entrepreneurship",
+          "title": "Entrepreneurship in the AI Age",
+          "description": "How to build a product or service with AI as leverage.",
+          "order_index": 3,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-16-18/module-03-entrepreneurship/lesson-plan.md"
+        },
+        {
+          "slug": "philosophy",
+          "title": "Philosophy of Mind & AI",
+          "description": "What makes us human? Consciousness, creativity, authenticity.",
+          "order_index": 4,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-16-18/module-04-philosophy/lesson-plan.md"
+        },
+        {
+          "slug": "ai-policy",
+          "title": "AI Policy & Civic Engagement",
+          "description": "Regulation, digital rights, who governs AI development.",
+          "order_index": 5,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-16-18/module-05-ai-policy/lesson-plan.md"
+        },
+        {
+          "slug": "human-edge",
+          "title": "The Human Edge",
+          "description": "What AI can't replicate: empathy, creativity, moral judgement.",
+          "order_index": 6,
+          "estimated_minutes": 35,
+          "video_url": null,
+          "content_file": "ages-16-18/module-06-human-edge/lesson-plan.md"
+        },
+        {
+          "slug": "ai-agents",
+          "title": "AI Agents",
+          "description": "What agents are, agentic workflows, and multi-step automation.",
+          "order_index": 7,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-16-18/module-07-ai-agents/lesson-plan.md"
+        },
+        {
+          "slug": "open-source-ai",
+          "title": "The Open Source AI World",
+          "description": "Hugging Face, Ollama, local models — why it matters.",
+          "order_index": 8,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-16-18/module-08-open-source-ai/lesson-plan.md"
+        },
+        {
+          "slug": "ai-security",
+          "title": "AI Security & Prompt Injection",
+          "description": "How people attack AI systems, prompt injection demos, and defences.",
+          "order_index": 9,
+          "estimated_minutes": 45,
+          "video_url": null,
+          "content_file": "ages-16-18/module-09-ai-security/lesson-plan.md"
+        },
+        {
+          "slug": "saas-with-ai",
+          "title": "Building a SaaS with AI",
+          "description": "Product thinking, MVP, finding real paying users.",
+          "order_index": 10,
+          "estimated_minutes": 50,
+          "video_url": null,
+          "content_file": "ages-16-18/module-10-saas-with-ai/lesson-plan.md"
+        },
+        {
+          "slug": "fine-tuning-rag",
+          "title": "Fine-Tuning and RAG",
+          "description": "Conceptual understanding of customising models with your own data.",
+          "order_index": 11,
+          "estimated_minutes": 40,
+          "video_url": null,
+          "content_file": "ages-16-18/module-11-fine-tuning-rag/lesson-plan.md"
+        },
+        {
+          "slug": "innovator-challenge",
+          "title": "Innovator Challenge",
+          "description": "Mini-capstone: ship something real — automation, tool, or product.",
+          "order_index": 12,
+          "estimated_minutes": 60,
+          "video_url": null,
+          "content_file": "ages-16-18/module-12-innovator-challenge/lesson-plan.md"
+        }
+      ]
+    }
+  ]
+}

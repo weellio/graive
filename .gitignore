@@ -1,0 +1,35 @@
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env*.local
+web/.env
+web/.env.local
+web/.env*.local
+
+# Node
+node_modules/
+web/node_modules/
+
+# Next.js build output
+web/.next/
+web/out/
+web/build/
+
+# Generated curriculum bundles (large binary files)
+*.zip
+
+# TypeScript
+*.tsbuildinfo
+web/next-env.d.ts
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
