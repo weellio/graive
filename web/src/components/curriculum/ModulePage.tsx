@@ -45,17 +45,39 @@ function getStepType(content: string): StepType {
   return 'general'
 }
 
-const STEP_META: Record<StepType, { icon: React.ElementType; label: string; bg: string; border: string; headingColor: string }> = {
-  intro:     { icon: BookOpen,     label: 'Read',        bg: 'bg-white',        border: 'border-slate-200',  headingColor: 'text-slate-800' },
-  activity:  { icon: FlaskConical, label: 'Activity',    bg: 'bg-white',        border: 'border-slate-200',  headingColor: 'text-slate-800' },
-  concepts:  { icon: Lightbulb,    label: 'Key Concepts', bg: 'bg-sky-50',      border: 'border-sky-200',    headingColor: 'text-sky-800' },
-  facts:     { icon: Sparkles,     label: 'Fun Facts',   bg: 'bg-amber-50',     border: 'border-amber-200',  headingColor: 'text-amber-800' },
-  reflect:   { icon: Brain,        label: 'Reflect',     bg: 'bg-violet-50',    border: 'border-violet-200', headingColor: 'text-violet-800' },
-  challenge: { icon: Trophy,       label: 'Challenge',   bg: 'bg-slate-900',    border: 'border-slate-700',  headingColor: 'text-white' },
-  general:   { icon: BookOpen,     label: 'Read',        bg: 'bg-white',        border: 'border-slate-200',  headingColor: 'text-slate-800' },
+interface StepMeta {
+  icon: React.ElementType
+  label: string
+  bg: string
+  border: string
+  topBar: string        // CSS color for the accent bar
+  pillBg: string
+  pillText: string
+  headingColor: string
+  dark: boolean
+}
+
+const STEP_META: Record<StepType, StepMeta> = {
+  intro:     { icon: BookOpen,     label: 'Read',         bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: 'bg-slate-100',    pillText: 'text-slate-600',   headingColor: 'text-slate-900',   dark: false },
+  activity:  { icon: FlaskConical, label: 'Activity',     bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: '',                 pillText: '',                  headingColor: 'text-slate-900',   dark: false },
+  concepts:  { icon: Lightbulb,    label: 'Key Concepts', bg: 'bg-sky-50',      border: 'border-sky-200',    topBar: '#0ea5e9', pillBg: 'bg-sky-100',    pillText: 'text-sky-700',    headingColor: 'text-sky-900',     dark: false },
+  facts:     { icon: Sparkles,     label: 'Fun Facts',    bg: 'bg-amber-50',    border: 'border-amber-200',  topBar: '#f59e0b', pillBg: 'bg-amber-100',  pillText: 'text-amber-800',  headingColor: 'text-amber-900',   dark: false },
+  reflect:   { icon: Brain,        label: 'Reflect',      bg: 'bg-violet-50',   border: 'border-violet-200', topBar: '#8b5cf6', pillBg: 'bg-violet-100', pillText: 'text-violet-700', headingColor: 'text-violet-900',  dark: false },
+  challenge: { icon: Trophy,       label: 'Challenge',    bg: 'bg-slate-900',   border: 'border-slate-700',  topBar: '#f59e0b', pillBg: 'bg-yellow-400', pillText: 'text-slate-900',  headingColor: 'text-white',       dark: true  },
+  general:   { icon: BookOpen,     label: 'Read',         bg: 'bg-white',       border: 'border-slate-200',  topBar: '#cbd5e1', pillBg: 'bg-slate-100',  pillText: 'text-slate-600',  headingColor: 'text-slate-900',   dark: false },
 }
 
 // ─── Step card ────────────────────────────────────────────────────────────────
+
+/** Pull the first heading out of markdown so we can render it at large size */
+function extractHeading(content: string): { heading: string; rest: string } {
+  const lines = content.split('\n')
+  const idx = lines.findIndex(l => /^#{1,4}\s+/.test(l))
+  if (idx === -1) return { heading: '', rest: content }
+  const heading = lines[idx].replace(/^#{1,4}\s+/, '').replace(/ — /g, ' - ')
+  const rest = [...lines.slice(0, idx), ...lines.slice(idx + 1)].join('\n').trim()
+  return { heading, rest }
+}
 
 function StepCard({
   content,
@@ -71,61 +93,70 @@ function StepCard({
   const meta = STEP_META[type]
   const Icon = meta.icon
 
-  // Fix em dashes to regular dashes for cleaner display
-  const cleaned = content.replace(/ — /g, ' - ').replace(/—/g, '-')
+  const topBarColor = type === 'intro' || type === 'activity' ? tierCfg.color : meta.topBar
+  const pillBg = type === 'activity' ? tierCfg.color + '22' : meta.pillBg
+  const pillText = type === 'activity' ? tierCfg.color : undefined
+
+  const { heading, rest } = extractHeading(content)
+  const cleaned = rest.replace(/ — /g, ' - ').replace(/—/g, '-')
 
   return (
-    <div
-      className={`rounded-2xl border-2 p-6 sm:p-8 ${meta.bg} ${meta.border} relative overflow-hidden`}
-      style={
-        type === 'activity'
-          ? { borderLeftColor: tierCfg.color, borderLeftWidth: '5px' }
-          : {}
-      }
-    >
-      {/* Step type pill */}
-      <div className="flex items-center gap-2 mb-5">
+    <div className={`rounded-2xl border-2 overflow-hidden shadow-sm ${meta.bg} ${meta.border}`}>
+
+      {/* Coloured accent bar at the top */}
+      <div className="h-1.5 w-full" style={{ backgroundColor: topBarColor }} />
+
+      <div className="p-6 sm:p-10">
+
+        {/* Type pill */}
+        <div className="flex items-center gap-2 mb-5">
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${meta.pillBg} ${meta.pillText}`}
+            style={type === 'activity' ? { backgroundColor: pillBg, color: pillText } : {}}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {meta.label}
+          </span>
+        </div>
+
+        {/* Large heading — rendered outside prose so we fully control size */}
+        {heading && (
+          <h2 className={`text-2xl sm:text-3xl font-black leading-tight mb-6 ${meta.headingColor}`}>
+            {heading}
+          </h2>
+        )}
+
+        {videoUrl && (
+          <div className="aspect-video rounded-xl overflow-hidden bg-slate-900 mb-8">
+            <iframe src={videoUrl} className="w-full h-full" allowFullScreen title="Module video" />
+          </div>
+        )}
+
+        {/* Body — prose-lg gives 18px base, relaxed leading */}
         <div
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-          style={
-            type === 'activity'
-              ? { backgroundColor: tierCfg.color + '20', color: tierCfg.color }
-              : type === 'challenge'
-              ? { backgroundColor: '#ffffff20', color: '#ffffff' }
-              : {}
-          }
+          className={`prose prose-lg max-w-none
+            prose-headings:font-bold
+            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3
+            prose-h3:text-lg prose-h3:font-bold prose-h3:mt-6 prose-h3:mb-2
+            prose-h4:text-base prose-h4:font-semibold prose-h4:mt-4 prose-h4:mb-1
+            prose-p:leading-relaxed prose-p:mb-5
+            prose-ul:space-y-3 prose-ul:my-4
+            prose-ol:space-y-3 prose-ol:my-4
+            prose-li:leading-relaxed
+            prose-strong:font-bold
+            prose-code:bg-white/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
+            prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:rounded-xl
+            prose-blockquote:not-italic prose-blockquote:border-l-4 prose-blockquote:pl-4 prose-blockquote:py-0.5 prose-blockquote:rounded-r-lg
+            prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+            prose-table:text-base prose-thead:border-b-2
+            ${meta.dark
+              ? 'prose-invert prose-blockquote:border-white/30 prose-code:bg-white/10'
+              : 'prose-slate prose-a:text-indigo-600 prose-blockquote:border-slate-300 prose-blockquote:bg-white/60'
+            }
+          `}
         >
-          <Icon className="h-3.5 w-3.5" />
-          {meta.label}
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleaned}</ReactMarkdown>
         </div>
-      </div>
-
-      {videoUrl && (
-        <div className="aspect-video rounded-xl overflow-hidden bg-slate-900 mb-6">
-          <iframe src={videoUrl} className="w-full h-full" allowFullScreen title="Module video" />
-        </div>
-      )}
-
-      <div
-        className={`prose max-w-none
-          prose-headings:font-bold
-          prose-h1:text-2xl prose-h1:mb-4
-          prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3
-          prose-h3:text-base prose-h3:font-semibold prose-h3:mt-5 prose-h3:mb-2
-          prose-p:leading-relaxed prose-p:text-base
-          prose-ul:space-y-2 prose-li:text-base
-          prose-ol:space-y-2
-          prose-strong:font-semibold
-          prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
-          prose-pre:bg-slate-900 prose-pre:text-slate-100
-          prose-blockquote:border-l-4 prose-blockquote:bg-slate-50 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
-          prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
-          prose-table:text-sm
-          ${type === 'challenge' ? 'prose-invert' : 'prose-slate'}
-          ${type === 'concepts' ? 'prose-sky' : ''}
-        `}
-      >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleaned}</ReactMarkdown>
       </div>
     </div>
   )
@@ -200,33 +231,33 @@ export function ModulePage({
   const stepView = (
     <div className="space-y-4">
       {/* Step progress bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 px-5 py-4">
+      <div className="bg-slate-800 rounded-2xl px-5 py-4">
         <div className="flex items-center justify-between text-sm mb-2">
-          <span className="font-medium text-slate-600">
-            Step <span className="font-bold text-slate-800">{step + 1}</span>{' '}
-            <span className="text-slate-400">of {totalSteps}</span>
+          <span className="font-semibold text-white">
+            Step <span className="text-xl font-black">{step + 1}</span>{' '}
+            <span className="text-slate-400 text-sm font-normal">of {totalSteps}</span>
           </span>
-          <span className="font-bold text-sm" style={{ color: tierCfg.color }}>
+          <span className="font-bold text-sm text-white">
             {stepProgress}%
           </span>
         </div>
-        <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-500 ease-out"
             style={{ width: `${stepProgress}%`, backgroundColor: tierCfg.color }}
           />
         </div>
-        {/* Step dots for short courses */}
+        {/* Step dots */}
         {totalSteps <= 15 && (
-          <div className="flex items-center gap-1 mt-3 flex-wrap">
+          <div className="flex items-center gap-1.5 mt-3 flex-wrap">
             {steps.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setStep(i)}
                 className="h-2 rounded-full transition-all duration-200 hover:opacity-80 focus:outline-none"
                 style={{
-                  width: i === step ? '20px' : '8px',
-                  backgroundColor: i <= step ? tierCfg.color : '#e2e8f0',
+                  width: i === step ? '24px' : '8px',
+                  backgroundColor: i < step ? tierCfg.color + 'aa' : i === step ? tierCfg.color : '#475569',
                 }}
                 aria-label={`Go to step ${i + 1}`}
               />
@@ -249,10 +280,10 @@ export function ModulePage({
           size="lg"
           onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           disabled={step === 0}
-          className="gap-2 rounded-xl"
+          className="gap-2 rounded-xl border-2 font-semibold"
         >
           <ChevronLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Back</span>
+          Back
         </Button>
 
         {isLastStep ? (
