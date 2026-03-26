@@ -181,7 +181,8 @@ insert into site_settings (key, value) values
   ('llm_model_innovator', 'claude-sonnet-4-6'),
   ('llm_api_key_override', ''),
   ('conversation_history_enabled', 'true'),
-  ('free_tier_daily_message_limit', '10')
+  ('free_tier_daily_message_limit', '10'),
+  ('paid_tier_daily_message_limit', '200')
 on conflict (key) do nothing;
 ```
 

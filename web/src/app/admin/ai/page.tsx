@@ -23,6 +23,7 @@ interface AISettings {
   llm_api_key_override: string
   conversation_history_enabled: string
   free_tier_daily_message_limit: string
+  paid_tier_daily_message_limit: string
 }
 
 const DEFAULTS: AISettings = {
@@ -34,6 +35,7 @@ const DEFAULTS: AISettings = {
   llm_api_key_override: '',
   conversation_history_enabled: 'true',
   free_tier_daily_message_limit: '10',
+  paid_tier_daily_message_limit: '200',
 }
 
 const PROVIDER_DOCS: Record<string, string> = {
@@ -249,14 +251,27 @@ export default function AdminAIPage() {
               onCheckedChange={v => set('conversation_history_enabled', v ? 'true' : 'false')}
             />
           </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="daily_limit">Free Tier Daily Message Limit</Label>
-            <Input
-              id="daily_limit"
-              type="number" min="1" max="100"
-              value={settings.free_tier_daily_message_limit}
-              onChange={e => set('free_tier_daily_message_limit', e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="free_daily_limit">Free Tier — Daily Message Limit</Label>
+              <Input
+                id="free_daily_limit"
+                type="number" min="1" max="100"
+                value={settings.free_tier_daily_message_limit}
+                onChange={e => set('free_tier_daily_message_limit', e.target.value)}
+              />
+              <p className="text-xs text-slate-400">Explorer users on the free plan.</p>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="paid_daily_limit">Paid Tier — Daily Message Limit</Label>
+              <Input
+                id="paid_daily_limit"
+                type="number" min="1" max="10000"
+                value={settings.paid_tier_daily_message_limit}
+                onChange={e => set('paid_tier_daily_message_limit', e.target.value)}
+              />
+              <p className="text-xs text-slate-400">Subscribers (all tiers). Prevents API cost abuse.</p>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -14,6 +14,7 @@ import { Loader2 } from 'lucide-react'
 interface UserRow extends Profile {
   plan: SubscriptionPlan
   sub_status: string | null
+  today_messages: number
 }
 
 const PLAN_OPTIONS: { value: SubscriptionPlan; label: string; badge: string }[] = [
@@ -34,11 +35,14 @@ export default function AdminUsersPage() {
   const supabase = createClient()
 
   useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10)
     Promise.all([
       supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(200),
       supabase.from('subscriptions').select('user_id, status, plan'),
-    ]).then(([{ data: profiles }, { data: subs }]) => {
+      supabase.from('ai_usage').select('user_id, message_count').eq('date', today),
+    ]).then(([{ data: profiles }, { data: subs }, { data: usageRows }]) => {
       const subMap = new Map((subs ?? []).map(s => [s.user_id, s]))
+      const usageMap = new Map((usageRows ?? []).map(u => [u.user_id, u.message_count]))
       const rows: UserRow[] = (profiles ?? []).map(p => {
         const sub = subMap.get(p.id)
         const isActive = sub?.status === 'active' || sub?.status === 'trialing'
@@ -46,6 +50,7 @@ export default function AdminUsersPage() {
           ...p,
           plan: (isActive ? (sub?.plan ?? 'monthly') : 'free') as SubscriptionPlan,
           sub_status: sub?.status ?? null,
+          today_messages: usageMap.get(p.id) ?? 0,
         }
       })
       setUsers(rows)
@@ -95,6 +100,7 @@ export default function AdminUsersPage() {
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Tier</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Plan</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Role</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">AI today</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Joined</th>
                 </tr>
               </thead>
@@ -157,6 +163,12 @@ export default function AdminUsersPage() {
                         ) : (
                           <span className="text-xs text-slate-400">student</span>
                         )}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <span className={`text-xs font-mono ${user.today_messages > 0 ? 'text-slate-700' : 'text-slate-300'}`}>
+                          {user.today_messages}
+                        </span>
                       </td>
 
                       <td className="px-4 py-3 text-xs text-slate-400">

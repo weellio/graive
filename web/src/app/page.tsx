@@ -80,7 +80,7 @@ export default function LandingPage() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="GRAIVE"
               width={32}
               height={32}
@@ -196,7 +196,7 @@ export default function LandingPage() {
                 style={{ backgroundColor: '#e040fb' }}
               />
               <Image
-                src="/logo.png"
+                src="/logo.svg"
                 alt="GRAIVE"
                 width={340}
                 height={340}
@@ -395,7 +395,7 @@ export default function LandingPage() {
       <footer className="border-t border-white/10 py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="GRAIVE" width={24} height={24} className="object-contain" />
+            <Image src="/logo.svg" alt="GRAIVE" width={24} height={24} className="object-contain" />
             <span className="font-bold tracking-widest uppercase text-xs" style={{ color: '#e040fb' }}>
               GRAIVE
             </span>
@@ -404,6 +404,8 @@ export default function LandingPage() {
           <div className="flex gap-4">
             <Link href="/auth/signin" className="hover:text-slate-300">Sign In</Link>
             <Link href="/auth/signup" className="hover:text-slate-300">Sign Up</Link>
+            <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-300">Terms</Link>
             <Link
               href="https://reddit.com/r/graive"
               target="_blank"

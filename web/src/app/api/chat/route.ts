@@ -34,43 +34,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid messages' }, { status: 400 })
     }
 
+    // Cap input message length to prevent token abuse
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage.content.length > 2000) {
+      return NextResponse.json({ error: 'Message too long (max 2000 characters)' }, { status: 400 })
+    }
+
     const settings = await getSiteSettings()
 
-    // Rate limiting for free tier
-    const dailyLimit = parseInt(settings.free_tier_daily_message_limit || '10', 10)
+    // Rate limiting — applied to ALL users (free and paid)
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('status')
+      .select('status, plan')
       .eq('user_id', user.id)
       .single()
 
     const isSubscribed =
       subscription?.status === 'active' || subscription?.status === 'trialing'
 
-    if (!isSubscribed) {
-      const today = new Date().toISOString().slice(0, 10)
-      const { data: usage } = await supabase
-        .from('ai_usage')
-        .select('message_count')
-        .eq('user_id', user.id)
-        .eq('date', today)
-        .single()
+    const dailyLimit = isSubscribed
+      ? parseInt(settings.paid_tier_daily_message_limit || '200', 10)
+      : parseInt(settings.free_tier_daily_message_limit || '10', 10)
 
-      const currentCount = usage?.message_count ?? 0
+    const today = new Date().toISOString().slice(0, 10)
+    const { data: usage } = await supabase
+      .from('ai_usage')
+      .select('message_count')
+      .eq('user_id', user.id)
+      .eq('date', today)
+      .single()
 
-      if (currentCount >= dailyLimit) {
-        return NextResponse.json(
-          { error: `Daily message limit reached (${dailyLimit}/day on free plan). Upgrade to continue.` },
-          { status: 429 }
-        )
-      }
+    const currentCount = usage?.message_count ?? 0
 
-      // Upsert usage count
-      await supabase.from('ai_usage').upsert(
-        { user_id: user.id, date: today, message_count: currentCount + 1 },
-        { onConflict: 'user_id,date' }
+    if (currentCount >= dailyLimit) {
+      const planLabel = isSubscribed ? 'pro plan' : 'free plan'
+      return NextResponse.json(
+        { error: `Daily message limit reached (${dailyLimit}/day on ${planLabel}).${isSubscribed ? ' Try again tomorrow.' : ' Upgrade to continue.'}` },
+        { status: 429 }
       )
     }
+
+    // Track usage for all users
+    await supabase.from('ai_usage').upsert(
+      { user_id: user.id, date: today, message_count: currentCount + 1 },
+      { onConflict: 'user_id,date' }
+    )
+
+    // Trim conversation history sent to the API — keep last 20 turns max to cap input tokens
+    const trimmedMessages = messages.length > 20
+      ? messages.slice(-20)
+      : messages
 
     // Get module description for system prompt context
     let moduleDescription: string | undefined
@@ -84,7 +97,7 @@ export async function POST(req: NextRequest) {
     }
 
     const stream = await streamLLMResponse(
-      messages,
+      trimmedMessages,
       tier,
       settings,
       moduleTitle,

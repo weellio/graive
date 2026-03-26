@@ -12,6 +12,7 @@ export async function streamGemini(
   const genModel = genAI.getGenerativeModel({
     model,
     systemInstruction: systemPrompt,
+    generationConfig: { maxOutputTokens: 1024 },
   })
 
   // Gemini uses 'model' for assistant role

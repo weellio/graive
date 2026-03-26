@@ -74,6 +74,7 @@ export interface SiteSettings {
   llm_api_key_override: string
   conversation_history_enabled: string
   free_tier_daily_message_limit: string
+  paid_tier_daily_message_limit: string
   maintenance_mode: string
   // Per-tier system prompt overrides (set by curriculum import)
   system_prompt_explorer: string
