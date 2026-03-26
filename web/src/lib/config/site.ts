@@ -54,6 +54,7 @@ export function getDefaultSettings(): SiteSettings {
     llm_api_key_override: '',
     conversation_history_enabled: 'true',
     free_tier_daily_message_limit: '10',
+    paid_tier_daily_message_limit: '200',
     maintenance_mode: 'false',
     system_prompt_explorer: '',
     system_prompt_builder: '',
