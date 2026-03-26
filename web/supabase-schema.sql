@@ -30,6 +30,7 @@ insert into site_settings (key, value) values
   ('llm_api_key_override', ''),
   ('conversation_history_enabled', 'true'),
   ('free_tier_daily_message_limit', '10'),
+  ('paid_tier_daily_message_limit', '200'),
   ('maintenance_mode', 'false'),
   -- Per-tier system prompt overrides (empty = use built-in defaults)
   ('system_prompt_explorer', ''),
@@ -90,7 +91,7 @@ create table if not exists subscriptions (
   status text not null default 'inactive'
     check (status in ('active', 'inactive', 'trialing', 'past_due', 'canceled')),
   plan text default 'free'
-    check (plan in ('free', 'monthly', 'annual')),
+    check (plan in ('free', 'monthly', 'annual', 'beta')),
   current_period_end timestamptz,
   created_at timestamptz default now(),
   updated_at timestamptz default now()

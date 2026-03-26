@@ -3,12 +3,13 @@ import { notFound } from 'next/navigation'
 import { ModuleEditor } from '../../_components/ModuleEditor'
 import type { Module } from '@/types'
 
-export default async function EditModulePage({ params }: { params: { id: string } }) {
+export default async function EditModulePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: module } = await supabase
     .from('modules')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!module) notFound()
