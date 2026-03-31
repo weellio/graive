@@ -1,6 +1,6 @@
 # GRAIVE — Web Platform
 
-AI literacy curriculum platform for kids aged 10–18. Built on Next.js + Supabase + Stripe with a white-label admin panel, age-gated AI chat, and a step-by-step interactive lesson engine.
+AI literacy curriculum platform for kids and adults aged 10+. Built on Next.js + Supabase + Stripe with a white-label admin panel, age-gated AI chat, and a step-by-step interactive lesson engine.
 
 ---
 
@@ -8,12 +8,12 @@ AI literacy curriculum platform for kids aged 10–18. Built on Next.js + Supaba
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js (App Router) |
+| Framework | Next.js 16 (App Router, Turbopack) |
 | Styling | Tailwind CSS + shadcn/ui |
 | Database / Auth | Supabase (Postgres + RLS) |
 | Payments | Stripe (subscriptions + Customer Portal) |
 | AI | Anthropic Claude / OpenAI / Google Gemini (switchable) |
-| Hosting | Vercel |
+| Hosting | Docker + Traefik on VPS |
 
 ---
 
@@ -22,7 +22,7 @@ AI literacy curriculum platform for kids aged 10–18. Built on Next.js + Supaba
 ```bash
 cd web
 npm install
-cp .env.local.example .env.local   # fill in values below
+cp .env.local.example .env.local   # fill in values
 npm run dev                         # http://localhost:3000
 ```
 
@@ -38,111 +38,85 @@ SUPABASE_SERVICE_ROLE_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_MONTHLY_PRICE_ID=
+STRIPE_ANNUAL_PRICE_ID=
+STRIPE_FAMILY_PRICE_ID=
+STRIPE_CLASSROOM_PRICE_ID=
 
-# AI providers — only the one you select in admin is needed
+# AI providers — only the active provider is required
 ANTHROPIC_API_KEY=
 OPENAI_API_KEY=
 GEMINI_API_KEY=
+
+# App URL (used for Stripe redirects)
+NEXT_PUBLIC_APP_URL=https://graive.com
 ```
 
-All AI provider keys can also be set per-deployment from the admin panel (`/admin/ai`) — the DB value takes precedence over the environment variable.
+All AI provider keys can also be overridden per-deployment from `/admin/ai` — the DB value takes precedence.
 
 ---
 
-## Database Setup (Supabase)
+## Database Setup
 
-Run these in the Supabase SQL editor in order.
+Run `web/supabase-schema.sql` in your Supabase SQL Editor. This creates all tables, RLS policies, and seeds default settings.
 
-### Core tables
+**If upgrading an existing DB**, run these migrations:
 
 ```sql
--- Profiles (extends auth.users)
-create table profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  email text not null,
-  full_name text,
-  age_tier text not null default 'explorer',
-  role text not null default 'student',
-  stripe_customer_id text,
-  parent_email text,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-alter table profiles enable row level security;
-create policy "Users read own profile" on profiles for select using (auth.uid() = id);
-create policy "Users update own profile" on profiles for update using (auth.uid() = id);
+-- Streak tracking
+alter table profiles add column if not exists current_streak int not null default 0;
+alter table profiles add column if not exists longest_streak int not null default 0;
+alter table profiles add column if not exists last_active_date date;
 
--- Subscriptions
-create table subscriptions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  stripe_subscription_id text,
-  stripe_price_id text,
-  status text not null default 'inactive',
-  plan text not null default 'free',
-  current_period_end timestamptz,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-alter table subscriptions enable row level security;
-create policy "Users read own subscription" on subscriptions for select using (auth.uid() = user_id);
+-- Module enhancements
+alter table modules add column if not exists video_script text;
+alter table modules add column if not exists is_current_events boolean not null default false;
+alter table modules add column if not exists publish_date date;
 
--- Modules
-create table modules (
-  id uuid primary key default gen_random_uuid(),
-  tier_slug text not null,
-  slug text not null unique,
-  title text not null,
-  description text,
-  order_index int not null default 1,
-  enabled boolean not null default true,
-  content_path text,
-  content text,
-  video_url text,
-  estimated_minutes int not null default 30,
+-- Creator tier + group plans
+alter table modules drop constraint if exists modules_tier_slug_check;
+alter table modules add constraint modules_tier_slug_check
+  check (tier_slug in ('explorer','builder','thinker','innovator','creator'));
+
+alter table profiles drop constraint if exists profiles_age_tier_check;
+alter table profiles add constraint profiles_age_tier_check
+  check (age_tier in ('explorer','builder','thinker','innovator','creator'));
+
+alter table subscriptions drop constraint if exists subscriptions_plan_check;
+alter table subscriptions add constraint subscriptions_plan_check
+  check (plan in ('free','monthly','annual','beta','family','classroom'));
+
+-- Group plans
+create table if not exists groups (
+  id uuid primary key default uuid_generate_v4(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  name text not null,
+  plan text not null check (plan in ('family','classroom')),
+  max_members int not null default 4,
+  invite_code text not null unique default upper(substring(md5(random()::text),1,8)),
+  stripe_subscription_id text unique,
+  status text not null default 'inactive' check (status in ('active','inactive')),
   created_at timestamptz default now()
 );
-alter table modules enable row level security;
-create policy "Anyone reads enabled modules" on modules for select using (enabled = true);
-create policy "Admins manage modules" on modules for all
-  using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
-
--- Progress
-create table progress (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  module_id uuid references modules(id) on delete cascade not null,
-  completed_at timestamptz default now(),
-  unique(user_id, module_id)
+create table if not exists group_members (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid not null references groups(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  joined_at timestamptz default now(),
+  unique(group_id, user_id)
 );
-alter table progress enable row level security;
-create policy "Users manage own progress" on progress for all using (auth.uid() = user_id);
-
--- AI usage (rate limiting)
-create table ai_usage (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  date date not null,
-  message_count int not null default 0,
-  unique(user_id, date)
+create table if not exists group_ai_usage (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid not null references groups(id) on delete cascade,
+  date date not null default current_date,
+  message_count integer not null default 0,
+  unique(group_id, date)
 );
-alter table ai_usage enable row level security;
-create policy "Users manage own usage" on ai_usage for all using (auth.uid() = user_id);
+alter table groups enable row level security;
+alter table group_members enable row level security;
 
--- Conversations (chat history)
-create table conversations (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  module_id uuid references modules(id) on delete cascade,
-  role text not null,
-  content text not null,
-  created_at timestamptz default now()
-);
-alter table conversations enable row level security;
-create policy "Users manage own conversations" on conversations for all using (auth.uid() = user_id);
-
--- Notes (per user per module)
-create table notes (
+-- Notes
+create table if not exists notes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   module_id uuid references modules(id) on delete cascade not null,
@@ -154,36 +128,10 @@ alter table notes enable row level security;
 create policy "Users manage own notes" on notes for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- Site settings (key/value store for admin config)
-create table site_settings (
-  key text primary key,
-  value text not null
-);
-alter table site_settings enable row level security;
-create policy "Admins manage settings" on site_settings for all
-  using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
-create policy "Anyone reads settings" on site_settings for select using (true);
-```
-
-### Seed default site settings
-
-```sql
-insert into site_settings (key, value) values
-  ('brand_name', 'GRAIVE'),
-  ('brand_logo_url', ''),
-  ('brand_primary_color', '#6366f1'),
-  ('brand_accent_color', '#f59e0b'),
-  ('brand_font', 'Inter'),
-  ('llm_provider', 'claude'),
-  ('llm_model_explorer', 'claude-haiku-4-5-20251001'),
-  ('llm_model_builder', 'claude-haiku-4-5-20251001'),
-  ('llm_model_thinker', 'claude-sonnet-4-6'),
-  ('llm_model_innovator', 'claude-sonnet-4-6'),
-  ('llm_api_key_override', ''),
-  ('conversation_history_enabled', 'true'),
-  ('free_tier_daily_message_limit', '10'),
-  ('paid_tier_daily_message_limit', '200')
-on conflict (key) do nothing;
+-- AI usage rate limiting
+insert into site_settings (key, value)
+  values ('paid_tier_daily_message_limit', '200')
+  on conflict (key) do nothing;
 ```
 
 ### Make yourself admin
@@ -197,88 +145,93 @@ update profiles set role = 'admin' where email = 'your@email.com';
 ## App Routes
 
 ```
-/                              Marketing / landing page
-/auth/signin                   Sign in
-/auth/signup                   Sign up (age group selection)
+/                                  Landing page
+/auth/signin                       Sign in
+/auth/signup                       Sign up (age group selection)
+/auth/forgot-password              Password reset
+/join/[code]                       Join a family or classroom group
 
-/dashboard                     Progress overview
-/learn/[tier]                  Tier module grid
-/learn/[tier]/[module]         Module page — lesson steps + AI chat
+/dashboard                         Progress overview, streak, XP, next-up module
+/learn/[tier]                      Tier module grid
+/learn/[tier]/[module]             Module page — lesson steps + AI chat
+/learn/[tier]/certificate          Completion certificate (printable, unlocks when tier done)
 
-/account                       Profile settings
-/account/billing               Stripe Customer Portal
+/account                           Profile settings
+/account/billing                   Plans: Monthly / Annual / Family / Classroom
+/account/group                     Group dashboard (owner/teacher: member progress, invite code)
 
-/admin                         Admin overview
-/admin/modules                 Module list — toggle, edit, create new
-/admin/modules/new             Visual module builder (no ZIP needed)
-/admin/modules/[id]/edit       Edit an existing module
-/admin/theme                   Brand: logo, name, colors, font
-/admin/ai                      LLM provider, models per tier, API key, rate limits
-/admin/users                   User list + tier/role management
-/admin/curriculum              Bulk import via ZIP
+/admin                             Overview: users, AI usage today, top modules, conversions
+/admin/modules                     Module list — toggle, edit, create
+/admin/modules/new                 Visual step-by-step module builder
+/admin/modules/[id]/edit           Edit an existing module
+/admin/current-events              Create monthly AI news modules with scheduled publish dates
+/admin/video-scripts               AI-generated teleprompter scripts per module, export all
+/admin/theme                       Brand: name, logo URL, colors, font
+/admin/ai                          LLM provider, models per tier, rate limits
+/admin/users                       Users: plan management (free/monthly/annual/beta/family/classroom)
+/admin/curriculum                  Bulk import via ZIP
 
-/api/chat                      AI streaming endpoint (auth-gated, rate-limited)
-/api/admin/models              Live model list from provider API (admin-only)
-/api/webhooks/stripe           Stripe event handler
-/api/progress                  Mark module complete
+/api/chat                          AI streaming (auth-gated, rate-limited, group-aware)
+/api/admin/models                  Live model list from provider API
+/api/admin/generate-script         AI video script generation
+/api/admin/generate-current-events AI current events module generation
+/api/groups/info                   Group lookup by invite code
+/api/groups/join                   Join a group by invite code
+/api/webhooks/stripe               Stripe event handler (subscriptions + group activation)
 ```
 
 ---
 
-## Loading Curriculum Content
+## Learning Tiers
 
-### Option A — Admin Module Builder (recommended for new/single modules)
+| Tier | Ages | Free? | Modules |
+|------|------|-------|---------|
+| Explorer | 10–11 | ✅ Free | 12 core + monthly current events |
+| Builder | 12–13 | Pro | 12 core + monthly current events |
+| Thinker | 14–15 | Pro | 12 core + monthly current events |
+| Innovator | 16–18 | Pro | 12 core + monthly current events |
+| Creator | 18+ | Pro | 6 starter (AI stack, agents, RAG, ship it, business) |
 
-1. Go to `/admin/modules` → **New Module**
-2. Fill in metadata (title, tier, slug, estimated time)
-3. Add steps using the visual builder — each step is one card learners navigate
-4. Use toolbar buttons to insert: Bold, Italic, Bullets, Code blocks, Blockquotes, Fill-in blanks (`___`), Ratings (`___/10`)
-5. Toggle **Published** → **Create Module**
+Total core modules: **54** across 5 tiers. Plus monthly current events per tier.
 
-### Option B — ZIP Bulk Import (for importing the full curriculum)
+---
 
-Prepare a ZIP with this structure:
-```
-curriculum.json          ← module registry
-content/
-  explorer/
-    what-is-ai.md
-    asking-good-questions.md
-    ...
-  builder/
-    ...
-```
+## Pricing Plans
 
-`curriculum.json` format:
-```json
-[
-  {
-    "tier_slug": "explorer",
-    "slug": "what-is-ai",
-    "title": "What is AI?",
-    "description": "...",
-    "order_index": 1,
-    "estimated_minutes": 30,
-    "enabled": true,
-    "content_path": "explorer/what-is-ai.md"
-  }
-]
-```
+| Plan | Price | Learners |
+|------|-------|---------|
+| Free | $0 | 1 (Explorer only, 10 AI msgs/day) |
+| Monthly | $24.99/mo | 1 |
+| Annual | $199.99/yr | 1 (save 33%) |
+| Family | $59.99/mo | Up to 4 (~$15/learner) |
+| Classroom | $149.99/mo | Up to 30 (~$5/student) |
+| Beta | Admin-granted | Full access, no Stripe |
 
-Upload at `/admin/curriculum` → **Import ZIP**.
+**Add to Stripe:** Create products for Family and Classroom plans, copy Price IDs to `STRIPE_FAMILY_PRICE_ID` and `STRIPE_CLASSROOM_PRICE_ID`.
+
+---
+
+## AI Rate Limits
+
+| Plan | Daily limit |
+|------|------------|
+| Free | 10 msgs/day (configurable in `/admin/ai`) |
+| Monthly / Annual / Beta | 200 msgs/day per user |
+| Family | 200 msgs/day per member |
+| Classroom | 500 msgs/day **shared pool** across all students |
 
 ---
 
 ## Module Markdown Format
 
-Module content is stored as markdown in the `modules.content` column. Steps are separated by `---` on its own line.
+Content is stored as markdown. Steps are separated by `---` on its own line.
 
 ```markdown
 ## About This Lesson
 
 Introduction content here. Use **bold**, *italic*, bullet lists.
 
-> Highlighted quote or key idea appears with a colored border.
+> Highlighted quote or key idea — appears with a colored left border.
 
 ---
 
@@ -291,7 +244,7 @@ Introduction content here. Use **bold**, *italic*, bullet lists.
 
 ## Activity: Try It
 
-What happened when you tried the vague prompt?
+What happened when you tried the prompt?
 
 Type your answer: ___
 
@@ -299,7 +252,7 @@ How good was the result? ___/10
 
 ---
 
-## Reflect
+## Think About It
 
 What would you change next time?
 
@@ -312,25 +265,24 @@ ___
 Build something harder here.
 ```
 
-### Step type detection (auto, by heading keywords)
+### Step type detection (auto, by heading keyword)
 
-| Heading contains | Step type | Card style |
-|-----------------|-----------|------------|
-| "about this", "introduction", "background" | Read This | White |
-| "key concept", "key term", "glossary", "key idea" | Key Ideas | Sky blue |
-| "fun fact" | Fun Facts | Amber |
-| "activity", "try it", "build it" | Try It | White + tier color bar |
-| "reflect", "debate", "journal", "think about" | Think About It | Violet |
-| "challenge", "level up", "capstone" | Challenge | Dark / trophy |
-| anything else | General | White |
+| Heading contains | Card style |
+|-----------------|------------|
+| "about", "introduction", "background" | Read This — white |
+| "key concept", "key idea", "glossary" | Key Ideas — sky blue |
+| "fun fact" | Fun Facts — amber |
+| "activity", "try it", "build it" | Try It — white + tier color bar |
+| "reflect", "debate", "think about" | Think About It — violet |
+| "challenge", "level up", "capstone" | Challenge — dark/trophy |
 
 ### Interactive elements
 
 | Syntax | Renders as |
 |--------|-----------|
-| `___` | Fill-in-the-blank input (localStorage) |
-| `___/10` | 1–10 rating widget with 😞/🤩 anchors (localStorage) |
-| `` > text `` | Highlighted blockquote with colored left border |
+| `___` | Fill-in-the-blank input (saved to localStorage) |
+| `___/10` | 1–10 rating widget with 😞/🤩 labels |
+| `> text` | Blockquote with colored left border |
 | ` ```code``` ` | Code block with copy button |
 
 ---
@@ -341,54 +293,78 @@ Each module page has a two-tab AI panel:
 
 | Tab | Name | Behaviour |
 |-----|------|-----------|
-| Tutor | Spark (Explorer) / Sage (others) | Locked to current lesson topic, age-appropriate system prompt |
-| Try It | AI Playground | Open AI — write stories, test prompts, ask anything |
+| Tutor | Spark (Explorer) / Sage (others) | Locked to current lesson, age-appropriate |
+| Playground | Try It | Open AI — no topic restriction |
 
-Playground messages are NOT saved to the DB even when history is enabled.
-
-### System prompt tiers
-
-| Tier | Model (default) | Behaviour |
-|------|----------------|-----------|
-| Explorer (10–11) | claude-haiku-4-5 | Simple language, warm, lesson-locked, max ~150 words |
-| Builder (12–13) | claude-haiku-4-5 | Digital literacy topics, age-appropriate |
-| Thinker (14–15) | claude-sonnet-4-6 | Ethics, society, balanced critical thinking |
-| Innovator (16–18) | claude-sonnet-4-6 | Nearly open, technical/philosophical/business |
-
-All model assignments are overrideable from `/admin/ai`. Models are fetched live from the provider API — no hardcoded lists.
+Playground history is **not** saved to DB.
 
 ---
 
-## LLM Provider Switching
+## Video Scripts
 
-Supported providers: **Anthropic Claude**, **OpenAI**, **Google Gemini**
+Each module can have an AI-generated teleprompter script for its intro video:
 
-Switch provider at `/admin/ai`. Each provider has sensible model defaults that auto-populate when you switch. The API key can be set as an environment variable or overridden per-deployment in the admin panel (DB value wins).
+1. Go to `/admin/video-scripts`
+2. Click **Generate Script** on any module
+3. Review and edit the script inline
+4. Save to DB or **Export All** as a `.txt` file for your production team
+
+Scripts include: Hook, Intro, Main Content, Activity Teaser, Outro, Production Notes, B-roll suggestions.
 
 ---
 
-## Access Gating
+## Current Events Modules
 
-| Feature | Free (Explorer) | Paid subscription |
-|---------|----------------|-------------------|
-| Explorer tier modules | All | All |
-| AI chat (Explorer) | 10 msg/day (configurable) | Unlimited |
-| Builder / Thinker / Innovator tiers | Locked | All |
-| AI chat (paid tiers) | Locked | Unlimited |
-| Progress tracking | Yes | Yes |
+Monthly AI news modules keep subscribers engaged and content fresh:
 
-Daily message limit is configurable at `/admin/ai` → "Free Tier Daily Message Limit".
+1. Go to `/admin/current-events`
+2. Select tier, month/year, enter the AI topic/headline
+3. Paste background context (optional) or let AI research it
+4. Click **Generate with AI** or **Use Template**
+5. Set a **Publish Date** — module only appears to learners on/after that date
+6. Save → module appears in the tier with a 🗞 **New** badge
+
+---
+
+## Group Plans (Family & Classroom)
+
+### Setup flow
+
+1. Owner pays for Family or Classroom plan via Stripe
+2. Stripe webhook creates a `groups` row and generates an `invite_code`
+3. Owner shares link: `https://graive.com/join/XXXX`
+4. Members visit the link, sign in, and join (capacity-checked)
+5. All members get paid-tier access automatically
+
+### Group dashboard
+
+Owner/teacher goes to `/account/group` to see:
+- Member list with progress, streaks, and AI usage today
+- Invite code + shareable link with one-click copy
+- Classroom shared AI usage pool (500 msgs/day)
+
+### Admin override
+
+Admins can manually create a group from `/admin/users` or grant `beta` plan to any user without Stripe.
+
+---
+
+## Gamification
+
+- **XP** — 100 XP per completed module, shown on dashboard
+- **Streaks** — daily login streak tracked per user, flame 🔥 counter on dashboard
+- **Certificates** — printable completion certificate unlocks when all modules in a tier are done
+- **Progress bars** — per tier and per module grid
+- **"Up Next" card** — dashboard always shows the next incomplete module with a direct link
 
 ---
 
 ## White-Label
 
-Every visual and brand element is configurable from `/admin/theme`:
-- Brand name, logo URL
-- Primary and accent colors (CSS variables, applied globally)
-- Font family
+Every visual element is configurable from `/admin/theme`:
+- Brand name, logo URL, primary and accent colors, font
 
-Tier names are configurable in the DB. Each deployment is its own Supabase project + Stripe account + Vercel instance — no code changes needed to rebrand.
+The platform is designed for single-tenant white-label deployments — each client gets their own Supabase project + Stripe account + Docker instance. No code changes needed to rebrand.
 
 ---
 
@@ -397,63 +373,61 @@ Tier names are configurable in the DB. Each deployment is its own Supabase proje
 ```
 web/src/
   app/
-    (marketing)/page.tsx          Landing page
     (app)/
       dashboard/page.tsx
       learn/[tier]/page.tsx
       learn/[tier]/[module]/page.tsx
-      account/billing/page.tsx
+      learn/[tier]/certificate/page.tsx      ← Completion certificate
+      account/billing/page.tsx               ← All 4 plan types
+      account/group/page.tsx                 ← Group/classroom dashboard
     admin/
-      page.tsx                    Overview
-      modules/
-        page.tsx                  Module list
-        new/page.tsx              Create module
-        [id]/edit/page.tsx        Edit module
-        _components/
-          ModuleEditor.tsx        Shared visual editor
+      page.tsx                               ← Analytics overview
+      modules/page.tsx
+      modules/new/page.tsx
+      modules/[id]/edit/page.tsx
+      modules/_components/ModuleEditor.tsx
+      current-events/page.tsx                ← Monthly AI news creator
+      video-scripts/page.tsx                 ← AI teleprompter script gen
       theme/page.tsx
       ai/page.tsx
       users/page.tsx
-      curriculum/page.tsx         ZIP import
+      curriculum/page.tsx
+    join/[code]/page.tsx                     ← Group invite join page
     api/
-      chat/route.ts               AI streaming endpoint
-      admin/models/route.ts       Live model list
-      webhooks/stripe/route.ts
-      progress/route.ts
+      chat/route.ts                          ← Streaming AI (group-aware rate limiting)
+      admin/models/route.ts
+      admin/generate-script/route.ts         ← Video script generation
+      admin/generate-current-events/route.ts ← Current events generation
+      admin/users/plan/route.ts              ← Admin plan override
+      groups/info/route.ts
+      groups/join/route.ts
+      webhooks/stripe/route.ts               ← Group activation on payment
   components/
-    chat/ChatPanel.tsx            Dual-mode AI chat (tutor + playground)
-    curriculum/ModulePage.tsx     Step-by-step lesson engine
-    curriculum/ModuleCard.tsx
+    chat/ChatPanel.tsx                       ← Dual-mode AI (tutor + playground)
+    curriculum/ModulePage.tsx                ← Step-by-step lesson engine
   lib/
-    llm/
-      index.ts                    Provider factory + mode routing
-      providers/claude.ts
-      providers/openai.ts
-      providers/gemini.ts
-      system-prompts.ts           Age-appropriate prompts
-    config/site.ts                Load brand/settings from DB
-    supabase/client.ts
-    supabase/server.ts
-    stripe/client.ts
+    llm/index.ts + providers/               ← Claude / OpenAI / Gemini
+    config/site.ts
+    supabase/
+    stripe/
   types/index.ts
+
+curriculum/
+  ages-10-11/   ← 12 modules
+  ages-12-13/   ← 12 modules
+  ages-14-15/   ← 12 modules
+  ages-16-18/   ← 12 modules
+  ages-18-plus/ ← 6 modules (Creator tier)
 ```
 
 ---
 
-## Deployment (Vercel)
+## Deployment
 
-1. Push to GitHub
-2. Import repo in Vercel, set `Root Directory` to `web`
-3. Add all environment variables in Vercel project settings
-4. Set Stripe webhook endpoint to `https://your-domain.com/api/webhooks/stripe`
-5. Events to enable: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
+See [docs/INSTALL.md](../docs/INSTALL.md) for full VPS deployment instructions.
 
----
-
-## Pending / Not Yet Built
-
-- Stripe checkout + webhooks (DB sync via n8n or direct)
-- n8n automations (welcome email, weekly digest, dunning)
-- Progress dashboard with XP display
-- Mobile responsive chat panel collapse
-- Logo upload (currently set via URL in admin theme)
+Quick deploy on VPS:
+```bash
+git pull
+docker compose up -d --build
+```
