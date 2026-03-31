@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { LayoutDashboard, BookOpen, Palette, Bot, Users, Package, ArrowLeft } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Palette, Bot, Users, Package, ArrowLeft, Video, Newspaper } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/modules', label: 'Modules', icon: BookOpen },
+  { href: '/admin/current-events', label: 'Current Events', icon: Newspaper },
+  { href: '/admin/video-scripts', label: 'Video Scripts', icon: Video },
   { href: '/admin/curriculum', label: 'Curriculum', icon: Package },
   { href: '/admin/theme', label: 'Theme', icon: Palette },
   { href: '/admin/ai', label: 'AI Config', icon: Bot },

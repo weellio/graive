@@ -26,6 +26,7 @@ export default async function LearnModulePage({ params }: PageProps) {
         .eq('tier_slug', tier)
         .eq('slug', moduleSlug)
         .eq('enabled', true)
+        .or(`publish_date.is.null,publish_date.lte.${new Date().toISOString().slice(0, 10)}`)
         .single(),
       supabase.from('subscriptions').select('*').eq('user_id', user.id).single(),
       getSiteSettings(),

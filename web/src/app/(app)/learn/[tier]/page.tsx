@@ -28,6 +28,7 @@ export default async function TierPage({ params }: PageProps) {
         .select('*')
         .eq('tier_slug', tier)
         .eq('enabled', true)
+        .or(`publish_date.is.null,publish_date.lte.${new Date().toISOString().slice(0, 10)}`)
         .order('order_index'),
       supabase.from('progress').select('module_id').eq('user_id', user.id),
       supabase.from('subscriptions').select('status').eq('user_id', user.id).single(),
@@ -106,7 +107,7 @@ export default async function TierPage({ params }: PageProps) {
                   <div className="flex items-start gap-3">
                     {/* Module number / status indicator */}
                     <div
-                      className="h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold mt-0.5"
+                      className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 text-sm font-bold mt-0.5"
                       style={{
                         backgroundColor: done
                           ? '#fef3c7'
@@ -133,6 +134,11 @@ export default async function TierPage({ params }: PageProps) {
                             style={{ backgroundColor: tierConfig.color }}
                           >
                             Up Next
+                          </Badge>
+                        )}
+                        {(mod as { is_current_events?: boolean }).is_current_events && (
+                          <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs gap-1">
+                            🗞 New
                           </Badge>
                         )}
                       </div>

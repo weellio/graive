@@ -51,11 +51,14 @@ create table if not exists profiles (
   email text not null,
   full_name text,
   age_tier text not null default 'explorer'
-    check (age_tier in ('explorer', 'builder', 'thinker', 'innovator')),
+    check (age_tier in ('explorer', 'builder', 'thinker', 'innovator', 'creator')),
   role text not null default 'student'
     check (role in ('student', 'admin')),
   stripe_customer_id text unique,
   parent_email text,
+  current_streak int not null default 0,
+  longest_streak int not null default 0,
+  last_active_date date,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -91,7 +94,7 @@ create table if not exists subscriptions (
   status text not null default 'inactive'
     check (status in ('active', 'inactive', 'trialing', 'past_due', 'canceled')),
   plan text default 'free'
-    check (plan in ('free', 'monthly', 'annual', 'beta')),
+    check (plan in ('free', 'monthly', 'annual', 'beta', 'family', 'classroom')),
   current_period_end timestamptz,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -103,7 +106,7 @@ create table if not exists subscriptions (
 create table if not exists modules (
   id uuid primary key default uuid_generate_v4(),
   tier_slug text not null
-    check (tier_slug in ('explorer', 'builder', 'thinker', 'innovator')),
+    check (tier_slug in ('explorer', 'builder', 'thinker', 'innovator', 'creator')),
   slug text not null,
   title text not null,
   description text,
@@ -112,7 +115,10 @@ create table if not exists modules (
   content_path text not null default '',  -- relative path to markdown file (filesystem)
   content text,                           -- inline markdown (imported curriculum, takes priority)
   video_url text,
+  video_script text,
   estimated_minutes integer default 30,
+  is_current_events boolean not null default false,
+  publish_date date,
   created_at timestamptz default now(),
   unique(tier_slug, slug)
 );
@@ -146,7 +152,42 @@ insert into modules (tier_slug, slug, title, description, order_index, content_p
   ('innovator', 'entrepreneurship', 'Entrepreneurship in the AI Age', 'Unique insight + AI leverage = unfair advantage.', 3, 'ages-16-18/module-03-entrepreneurship/lesson-plan.md', 70),
   ('innovator', 'philosophy', 'Philosophy of Mind & AI', 'Consciousness, creativity, and what makes us human.', 4, 'ages-16-18/module-04-philosophy/lesson-plan.md', 60),
   ('innovator', 'ai-policy', 'AI Policy & Civic Engagement', 'Five debates shaping the AI-governed world.', 5, 'ages-16-18/module-05-ai-policy/lesson-plan.md', 65),
-  ('innovator', 'human-edge', 'The Human Edge', 'What AI cannot do — and how to build it.', 6, 'ages-16-18/module-06-human-edge/lesson-plan.md', 60)
+  ('innovator', 'human-edge', 'The Human Edge', 'What AI cannot do — and how to build it.', 6, 'ages-16-18/module-06-human-edge/lesson-plan.md', 60),
+  -- Explorer modules 7-12
+  ('explorer', 'ai-art', 'AI and Art: Who''s the Artist?', 'How AI generates images and the great creativity debate.', 7, 'ages-10-11/module-07-ai-art/lesson-plan.md', 35),
+  ('explorer', 'robots', 'Robots vs AI: What''s the Difference?', 'Physical robots, software AI, and how they work together.', 8, 'ages-10-11/module-08-robots/lesson-plan.md', 30),
+  ('explorer', 'ai-in-school', 'AI in Your School Life', 'Using AI ethically for learning — when it helps vs when it''s cheating.', 9, 'ages-10-11/module-09-ai-in-school/lesson-plan.md', 30),
+  ('explorer', 'talking-to-ai', 'Having a Real Conversation with AI', 'Multi-turn conversations, follow-ups, and correcting AI mistakes.', 10, 'ages-10-11/module-10-talking-to-ai/lesson-plan.md', 35),
+  ('explorer', 'ai-helpers', 'AI Helpers All Around You', 'Siri, Alexa, autocomplete, and recommendation engines in daily life.', 11, 'ages-10-11/module-11-ai-helpers/lesson-plan.md', 30),
+  ('explorer', 'future-of-ai', 'What Could AI Do in Your Future?', 'Jobs AI might help with and things humans will always do.', 12, 'ages-10-11/module-12-future-of-ai/lesson-plan.md', 35),
+  -- Builder modules 7-12
+  ('builder', 'training-data', 'Where Does AI Get Its Knowledge?', 'Training datasets, web scraping, copyright, and what AI doesn''t know.', 7, 'ages-12-13/module-07-training-data/lesson-plan.md', 40),
+  ('builder', 'ai-writing', 'AI Writing: Collaborator or Cheat?', 'Using AI for drafting, editing, and brainstorming — ethical use in school.', 8, 'ages-12-13/module-08-ai-writing/lesson-plan.md', 45),
+  ('builder', 'deepfakes', 'Deepfakes and Digital Deception', 'How deepfakes work, spotting them, and their social impact.', 9, 'ages-12-13/module-09-deepfakes/lesson-plan.md', 45),
+  ('builder', 'prompt-chaining', 'Chaining Prompts Together', 'Multi-step prompting and building on previous AI outputs.', 10, 'ages-12-13/module-10-prompt-chaining/lesson-plan.md', 45),
+  ('builder', 'ai-bias', 'Why Is AI Sometimes Unfair?', 'Bias in training data, facial recognition errors, and who gets harmed.', 11, 'ages-12-13/module-11-ai-bias/lesson-plan.md', 50),
+  ('builder', 'build-a-tool', 'Design Your Own AI Tool', 'Problem definition, choosing the right AI approach, simple prototyping.', 12, 'ages-12-13/module-12-build-a-tool/lesson-plan.md', 55),
+  -- Thinker modules 7-12
+  ('thinker', 'ai-creativity', 'Can AI Really Be Creative?', 'Generative art, music, and writing — the originality debate.', 7, 'ages-14-15/module-07-ai-creativity/lesson-plan.md', 55),
+  ('thinker', 'surveillance', 'AI Surveillance: Safety or Control?', 'Facial recognition, social scoring, privacy rights, and the balance.', 8, 'ages-14-15/module-08-surveillance/lesson-plan.md', 60),
+  ('thinker', 'climate-ai', 'AI and the Climate Crisis', 'AI''s energy footprint, climate solutions, and the carbon tradeoff.', 9, 'ages-14-15/module-09-climate-ai/lesson-plan.md', 55),
+  ('thinker', 'mental-health-ai', 'AI, Social Media, and Mental Health', 'Algorithmic feeds, dopamine loops, AI therapy tools, and regulation.', 10, 'ages-14-15/module-10-mental-health-ai/lesson-plan.md', 60),
+  ('thinker', 'future-work', 'Designing the Future of Work', 'Reskilling, UBI debate, and human-AI collaboration models.', 11, 'ages-14-15/module-11-future-work/lesson-plan.md', 55),
+  ('thinker', 'ai-manifesto', 'Write Your AI Manifesto', 'Synthesise your ethical beliefs into a personal AI stance.', 12, 'ages-14-15/module-12-your-ai-manifesto/lesson-plan.md', 60),
+  -- Innovator modules 7-12
+  ('innovator', 'fine-tuning', 'Fine-Tuning and Customising AI Models', 'What fine-tuning is, when to use it vs prompting, practical examples.', 7, 'ages-16-18/module-07-fine-tuning/lesson-plan.md', 70),
+  ('innovator', 'ai-product', 'Building an AI-Powered Product', 'MVP definition, API integration, user testing, monetisation basics.', 8, 'ages-16-18/module-08-ai-product/lesson-plan.md', 80),
+  ('innovator', 'legal-ai', 'AI Law: What You Need to Know', 'Copyright, liability, GDPR, EU AI Act, platform terms of service.', 9, 'ages-16-18/module-09-legal-ai/lesson-plan.md', 65),
+  ('innovator', 'multimodal', 'Multimodal AI: Beyond Text', 'Vision, audio, video AI — use cases and combining modalities.', 10, 'ages-16-18/module-10-multimodal/lesson-plan.md', 70),
+  ('innovator', 'ai-leadership', 'Leading in the Age of AI', 'Communication, decision-making with AI tools, responsible deployment.', 11, 'ages-16-18/module-11-ai-leadership/lesson-plan.md', 65),
+  ('innovator', 'capstone-build', 'Capstone: Build Something Real', 'Design, build, and pitch an AI solution to a real problem.', 12, 'ages-16-18/module-12-capstone-build/lesson-plan.md', 90),
+  -- Creator (18+)
+  ('creator', 'ai-stack', 'The Modern AI Stack', 'LLMs, APIs, vector databases, orchestration layers — the full picture.', 1, 'ages-18-plus/module-01-ai-stack/lesson-plan.md', 60),
+  ('creator', 'prompt-engineering-pro', 'Professional Prompt Engineering', 'System prompts, few-shot examples, temperature/top-p, structured output.', 2, 'ages-18-plus/module-02-prompt-engineering-pro/lesson-plan.md', 75),
+  ('creator', 'agents', 'Building AI Agents', 'What agents are, tool use, memory, planning loops, Claude Agent SDK.', 3, 'ages-18-plus/module-03-agents/lesson-plan.md', 90),
+  ('creator', 'rag', 'RAG: Teaching AI Your Own Data', 'Retrieval-augmented generation, embeddings, vector search, chunking.', 4, 'ages-18-plus/module-04-rag/lesson-plan.md', 90),
+  ('creator', 'ship-it', 'Ship an AI Product in a Weekend', 'No-code tools, n8n automations, Vercel deploy, pricing strategy.', 5, 'ages-18-plus/module-05-ship-it/lesson-plan.md', 120),
+  ('creator', 'ai-business', 'Running a Lean AI Business', 'Cost management, API pricing, customer acquisition, SaaS vs usage billing.', 6, 'ages-18-plus/module-06-ai-business/lesson-plan.md', 75)
 on conflict (tier_slug, slug) do nothing;
 
 -- ============================================================
@@ -181,6 +222,37 @@ create table if not exists ai_usage (
   date date not null default current_date,
   message_count integer not null default 0,
   unique(user_id, date)
+);
+
+-- ============================================================
+-- GROUPS (family / classroom plans)
+-- ============================================================
+create table if not exists groups (
+  id uuid primary key default uuid_generate_v4(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  name text not null,
+  plan text not null check (plan in ('family', 'classroom')),
+  max_members int not null default 4,
+  invite_code text not null unique default upper(substring(md5(random()::text), 1, 8)),
+  stripe_subscription_id text unique,
+  status text not null default 'inactive' check (status in ('active', 'inactive')),
+  created_at timestamptz default now()
+);
+
+create table if not exists group_members (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid not null references groups(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  joined_at timestamptz default now(),
+  unique(group_id, user_id)
+);
+
+create table if not exists group_ai_usage (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid not null references groups(id) on delete cascade,
+  date date not null default current_date,
+  message_count integer not null default 0,
+  unique(group_id, date)
 );
 
 -- ============================================================
@@ -219,6 +291,16 @@ create policy "Anyone can read enabled modules" on modules for select using (ena
 
 -- Site settings: everyone can read
 create policy "Anyone can read site_settings" on site_settings for select using (true);
+
+-- Groups: owners manage their group, members can read
+create policy "Group owners manage their group" on groups for all using (auth.uid() = owner_id);
+create policy "Group members can read their group" on groups for select using (
+  exists (select 1 from group_members where group_id = groups.id and user_id = auth.uid())
+);
+create policy "Users manage own group membership" on group_members for all using (auth.uid() = user_id);
+create policy "Group owners see all members" on group_members for select using (
+  exists (select 1 from groups where id = group_id and owner_id = auth.uid())
+);
 
 -- Admin policies (service role bypasses RLS anyway, but for completeness)
 create policy "Admins can manage modules" on modules for all using (

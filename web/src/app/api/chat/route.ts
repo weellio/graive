@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
     const settings = await getSiteSettings()
 
     // Rate limiting — applied to ALL users (free and paid)
+    const today = new Date().toISOString().slice(0, 10)
+
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('status, plan')
@@ -52,11 +54,51 @@ export async function POST(req: NextRequest) {
     const isSubscribed =
       subscription?.status === 'active' || subscription?.status === 'trialing'
 
-    const dailyLimit = isSubscribed
+    const plan = subscription?.plan ?? 'free'
+    const isClassroom = plan === 'classroom'
+    const isFamily = plan === 'family'
+    const isGroupPlan = isClassroom || isFamily
+
+    const individualLimit = isSubscribed
       ? parseInt(settings.paid_tier_daily_message_limit || '200', 10)
       : parseInt(settings.free_tier_daily_message_limit || '10', 10)
 
-    const today = new Date().toISOString().slice(0, 10)
+    // ── Classroom: shared group pool of 500 msgs/day ───────────────────────
+    if (isClassroom) {
+      // Find the group this user belongs to
+      const { data: membership } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (membership) {
+        const { data: groupUsage } = await supabase
+          .from('group_ai_usage')
+          .select('message_count')
+          .eq('group_id', membership.group_id)
+          .eq('date', today)
+          .single()
+
+        const groupCount = groupUsage?.message_count ?? 0
+        const groupLimit = 500
+
+        if (groupCount >= groupLimit) {
+          return NextResponse.json(
+            { error: `Your classroom has reached its daily AI limit (${groupLimit} messages/day). Try again tomorrow.` },
+            { status: 429 }
+          )
+        }
+
+        // Increment group pool
+        await supabase.from('group_ai_usage').upsert(
+          { group_id: membership.group_id, date: today, message_count: groupCount + 1 },
+          { onConflict: 'group_id,date' }
+        )
+      }
+    }
+
+    // ── Per-user limit (all plans) ─────────────────────────────────────────
     const { data: usage } = await supabase
       .from('ai_usage')
       .select('message_count')
@@ -66,15 +108,15 @@ export async function POST(req: NextRequest) {
 
     const currentCount = usage?.message_count ?? 0
 
-    if (currentCount >= dailyLimit) {
-      const planLabel = isSubscribed ? 'pro plan' : 'free plan'
+    if (currentCount >= individualLimit) {
+      const planLabel = isSubscribed ? plan : 'free plan'
       return NextResponse.json(
-        { error: `Daily message limit reached (${dailyLimit}/day on ${planLabel}).${isSubscribed ? ' Try again tomorrow.' : ' Upgrade to continue.'}` },
+        { error: `Daily message limit reached (${individualLimit}/day on ${planLabel}).${isSubscribed ? ' Try again tomorrow.' : ' Upgrade to continue.'}` },
         { status: 429 }
       )
     }
 
-    // Track usage for all users
+    // Track per-user usage
     await supabase.from('ai_usage').upsert(
       { user_id: user.id, date: today, message_count: currentCount + 1 },
       { onConflict: 'user_id,date' }

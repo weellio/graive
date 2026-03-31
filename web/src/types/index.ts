@@ -1,7 +1,7 @@
-export type AgeTier = 'explorer' | 'builder' | 'thinker' | 'innovator'
+export type AgeTier = 'explorer' | 'builder' | 'thinker' | 'innovator' | 'creator'
 export type UserRole = 'student' | 'admin'
 export type SubscriptionStatus = 'active' | 'inactive' | 'trialing' | 'past_due' | 'canceled'
-export type SubscriptionPlan = 'free' | 'monthly' | 'annual' | 'beta'
+export type SubscriptionPlan = 'free' | 'monthly' | 'annual' | 'beta' | 'family' | 'classroom'
 export type LLMProvider = 'claude' | 'openai' | 'gemini'
 export type MessageRole = 'user' | 'assistant'
 
@@ -13,8 +13,30 @@ export interface Profile {
   role: UserRole
   stripe_customer_id: string | null
   parent_email: string | null
+  current_streak: number
+  longest_streak: number
+  last_active_date: string | null
   created_at: string
   updated_at: string
+}
+
+export interface Group {
+  id: string
+  owner_id: string
+  name: string
+  plan: 'family' | 'classroom'
+  max_members: number
+  invite_code: string
+  stripe_subscription_id: string | null
+  status: 'active' | 'inactive'
+  created_at: string
+}
+
+export interface GroupMember {
+  id: string
+  group_id: string
+  user_id: string
+  joined_at: string
 }
 
 export interface Subscription {
@@ -40,7 +62,10 @@ export interface Module {
   content_path: string
   content: string | null        // DB-stored markdown (imported curriculum)
   video_url: string | null
+  video_script: string | null   // Teleprompter/production script for the intro video
   estimated_minutes: number
+  is_current_events: boolean    // Monthly AI news module
+  publish_date: string | null   // Scheduled publish date (null = always visible)
   created_at: string
 }
 
@@ -140,6 +165,16 @@ export const TIER_CONFIG: Record<AgeTier, {
     bgClass: 'bg-emerald-50',
     textClass: 'text-emerald-700',
     borderClass: 'border-emerald-200',
+    free: false,
+  },
+  creator: {
+    label: 'Creator',
+    ageRange: 'Ages 18+',
+    theme: 'Ship Real Things with AI',
+    color: '#ea580c',
+    bgClass: 'bg-orange-50',
+    textClass: 'text-orange-700',
+    borderClass: 'border-orange-200',
     free: false,
   },
 }

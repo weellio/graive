@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { TIER_CONFIG, type AgeTier } from '@/types'
 import { toast } from 'sonner'
 
-const TIERS: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator']
+const TIERS: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator', 'creator']
 
 export default function SignUpPage() {
   const router = useRouter()

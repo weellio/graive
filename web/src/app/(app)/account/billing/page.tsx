@@ -5,8 +5,7 @@ import { getSiteSettings } from '@/lib/config/site'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { CheckCircle2, Lock, Zap } from 'lucide-react'
+import { CheckCircle2, Lock, Zap, Users, GraduationCap } from 'lucide-react'
 import type { Profile, Subscription } from '@/types'
 import { headers } from 'next/headers'
 
@@ -66,17 +65,28 @@ export default async function BillingPage({
 
   const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID || ''
   const annualPriceId = process.env.STRIPE_ANNUAL_PRICE_ID || ''
+  const familyPriceId = process.env.STRIPE_FAMILY_PRICE_ID || ''
+  const classroomPriceId = process.env.STRIPE_CLASSROOM_PRICE_ID || ''
 
-  const features = [
+  const proFeatures = [
     'All 4 learning tiers (Explorer → Innovator)',
-    'Unlimited AI chat with age-appropriate assistant',
+    'Up to 200 AI messages per day',
     'Full conversation history',
-    'Progress tracking & completion badges',
+    'Progress tracking & XP',
+    'Completion certificates',
     'New modules added regularly',
   ]
 
+  const groupFeatures = [
+    'Everything in Pro for every member',
+    'One billing account for the group',
+    'Join with a shared invite code',
+    'Admin sees group member progress',
+    'Priority support',
+  ]
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-10">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Billing & Subscription</h1>
         <p className="text-slate-500 mt-1">Manage your plan and payment details.</p>
@@ -84,7 +94,7 @@ export default async function BillingPage({
 
       {reason === 'tier-locked' && (
         <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <Lock className="h-4 w-4 flex-shrink-0" />
+          <Lock className="h-4 w-4 shrink-0" />
           This tier requires a Pro subscription. Upgrade below to unlock all content.
         </div>
       )}
@@ -96,14 +106,14 @@ export default async function BillingPage({
           <CardDescription>
             {isSubscribed
               ? `Your ${(subscription as Subscription).plan} subscription is active.`
-              : 'You are on the free plan.'}
+              : 'You are on the free plan — Explorer tier only.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="font-medium text-slate-800">
-                {isSubscribed ? 'Pro' : 'Free'}
+                {isSubscribed ? (subscription as Subscription).plan : 'Free'}
               </span>
               <Badge
                 className={
@@ -112,93 +122,182 @@ export default async function BillingPage({
                     : 'bg-slate-100 text-slate-600 border-slate-200'
                 }
               >
-                {isSubscribed ? (subscription as Subscription).status : 'Free'}
+                {isSubscribed ? (subscription as Subscription).status : 'free'}
               </Badge>
             </div>
             {isSubscribed && (
               <form action={goToPortal}>
-                <Button variant="outline" size="sm">
-                  Manage Subscription
-                </Button>
+                <Button variant="outline" size="sm">Manage Subscription</Button>
               </form>
             )}
           </div>
-
           {isSubscribed && (subscription as Subscription).current_period_end && (
             <p className="text-sm text-slate-500">
               Renews on{' '}
               {new Date((subscription as Subscription).current_period_end!).toLocaleDateString(
-                'en-GB',
-                { day: 'numeric', month: 'long', year: 'numeric' }
+                'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }
               )}
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Upgrade CTA */}
       {!isSubscribed && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-slate-800">Upgrade to Pro</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Monthly */}
-            <Card className="border-2 border-slate-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Monthly</CardTitle>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-bold text-slate-800">$9.99</span>
-                  <span className="text-slate-500 text-sm">/month</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <form action={goToCheckout}>
-                  <input type="hidden" name="priceId" value={monthlyPriceId} />
-                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                    <Zap className="h-4 w-4 mr-2" /> Get Started
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+        <>
+          {/* ── Individual plans ─────────────────────────────────────────── */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-slate-800">Individual Plans</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Monthly */}
+              <Card className="border-2 border-slate-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Monthly</CardTitle>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-3xl font-bold text-slate-800">$24.99</span>
+                    <span className="text-slate-500 text-sm">/month</span>
+                  </div>
+                  <p className="text-xs text-slate-400">1 learner · cancel anytime</p>
+                </CardHeader>
+                <CardContent>
+                  <form action={goToCheckout}>
+                    <input type="hidden" name="priceId" value={monthlyPriceId} />
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={!monthlyPriceId}>
+                      <Zap className="h-4 w-4 mr-2" /> Get Started
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
 
-            {/* Annual */}
-            <Card className="border-2 border-indigo-500 relative overflow-hidden">
-              <div className="absolute top-3 right-3">
-                <Badge className="bg-indigo-600 text-white text-xs">Best Value</Badge>
-              </div>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Annual</CardTitle>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-bold text-slate-800">$79.99</span>
-                  <span className="text-slate-500 text-sm">/year</span>
+              {/* Annual */}
+              <Card className="border-2 border-indigo-500 relative overflow-hidden">
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-indigo-600 text-white text-xs">Best Value</Badge>
                 </div>
-                <p className="text-xs text-indigo-600 font-medium">2 months free</p>
-              </CardHeader>
-              <CardContent>
-                <form action={goToCheckout}>
-                  <input type="hidden" name="priceId" value={annualPriceId} />
-                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                    <Zap className="h-4 w-4 mr-2" /> Get Annual
-                  </Button>
-                </form>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Annual</CardTitle>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-3xl font-bold text-slate-800">$199.99</span>
+                    <span className="text-slate-500 text-sm">/year</span>
+                  </div>
+                  <p className="text-xs text-indigo-600 font-medium">Save 33% · 1 learner</p>
+                </CardHeader>
+                <CardContent>
+                  <form action={goToCheckout}>
+                    <input type="hidden" name="priceId" value={annualPriceId} />
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={!annualPriceId}>
+                      <Zap className="h-4 w-4 mr-2" /> Get Annual
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Pro features */}
+            <Card className="bg-slate-50 border-slate-200">
+              <CardContent className="pt-5">
+                <p className="text-sm font-medium text-slate-700 mb-3">Everything in Pro:</p>
+                <ul className="space-y-2">
+                  {proFeatures.map(f => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
+                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           </div>
 
-          {/* Features list */}
-          <Card className="bg-slate-50 border-slate-200">
-            <CardContent className="pt-5">
-              <p className="text-sm font-medium text-slate-700 mb-3">Everything in Pro:</p>
-              <ul className="space-y-2">
-                {features.map(f => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
-                    <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+          {/* ── Group plans ───────────────────────────────────────────────── */}
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">Group Plans</h2>
+              <p className="text-sm text-slate-500 mt-0.5">
+                One subscription covers multiple learners — perfect for families and classrooms.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Family */}
+              <Card className="border-2 border-teal-400 relative overflow-hidden">
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-teal-500 text-white text-xs">Family</Badge>
+                </div>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users className="h-5 w-5 text-teal-600" />
+                    <CardTitle className="text-base">Family Plan</CardTitle>
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-3xl font-bold text-slate-800">$59.99</span>
+                    <span className="text-slate-500 text-sm">/month</span>
+                  </div>
+                  <p className="text-xs text-teal-600 font-medium">Up to 4 learners · ~$15/learner</p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <ul className="space-y-1.5 text-sm text-slate-600">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-teal-500 shrink-0" />Parent dashboard to track kids' progress</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-teal-500 shrink-0" />Each child gets their own account</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-teal-500 shrink-0" />All Pro features for every member</li>
+                  </ul>
+                  <form action={goToCheckout}>
+                    <input type="hidden" name="priceId" value={familyPriceId} />
+                    <Button className="w-full bg-teal-600 hover:bg-teal-700" disabled={!familyPriceId}>
+                      <Users className="h-4 w-4 mr-2" /> Get Family Plan
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Classroom */}
+              <Card className="border-2 border-violet-400 relative overflow-hidden">
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-violet-600 text-white text-xs">Classroom</Badge>
+                </div>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <GraduationCap className="h-5 w-5 text-violet-600" />
+                    <CardTitle className="text-base">Classroom Plan</CardTitle>
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-3xl font-bold text-slate-800">$149.99</span>
+                    <span className="text-slate-500 text-sm">/month</span>
+                  </div>
+                  <p className="text-xs text-violet-600 font-medium">Up to 30 students · ~$5/student</p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <ul className="space-y-1.5 text-sm text-slate-600">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />Teacher dashboard with class roster</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />Simple join code for students</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />All Pro features for every student</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />Priority support</li>
+                  </ul>
+                  <form action={goToCheckout}>
+                    <input type="hidden" name="priceId" value={classroomPriceId} />
+                    <Button className="w-full bg-violet-600 hover:bg-violet-700" disabled={!classroomPriceId}>
+                      <GraduationCap className="h-4 w-4 mr-2" /> Get Classroom Plan
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Group features */}
+            <Card className="bg-slate-50 border-slate-200">
+              <CardContent className="pt-5">
+                <p className="text-sm font-medium text-slate-700 mb-3">Everything in Group plans:</p>
+                <ul className="space-y-2">
+                  {groupFeatures.map(f => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
+                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
     </div>
   )

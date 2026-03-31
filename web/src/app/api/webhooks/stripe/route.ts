@@ -77,6 +77,13 @@ export async function POST(req: NextRequest) {
             .from('subscriptions')
             .update({ status: 'canceled', updated_at: new Date().toISOString() })
             .eq('user_id', profile.id)
+
+          // Deactivate group if this was a group plan
+          await supabase
+            .from('groups')
+            .update({ status: 'inactive' })
+            .eq('owner_id', profile.id)
+            .eq('stripe_subscription_id', sub.id)
         }
         break
       }
@@ -84,14 +91,47 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         if (session.mode === 'subscription' && session.customer && session.client_reference_id) {
+          const userId = session.client_reference_id
+          const customerId = session.customer as string
+
           // Link stripe customer id to user profile
           await supabase
             .from('profiles')
-            .update({
-              stripe_customer_id: session.customer as string,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', session.client_reference_id)
+            .update({ stripe_customer_id: customerId, updated_at: new Date().toISOString() })
+            .eq('id', userId)
+
+          // If this is a group plan, create the group and activate it
+          const priceId = session.metadata?.price_id ?? (session as unknown as { line_items?: { data?: { price?: { id?: string } }[] } }).line_items?.data?.[0]?.price?.id
+          const plan = resolvePlan(priceId)
+
+          if (plan === 'family' || plan === 'classroom') {
+            const maxMembers = plan === 'family' ? 4 : 30
+            const groupName = session.metadata?.group_name ?? (plan === 'family' ? 'My Family' : 'My Classroom')
+
+            // Check if user already has a group
+            const { data: existingGroup } = await supabase
+              .from('groups')
+              .select('id')
+              .eq('owner_id', userId)
+              .single()
+
+            if (existingGroup) {
+              // Reactivate
+              await supabase
+                .from('groups')
+                .update({ status: 'active', stripe_subscription_id: session.subscription as string })
+                .eq('id', existingGroup.id)
+            } else {
+              await supabase.from('groups').insert({
+                owner_id: userId,
+                name: groupName,
+                plan,
+                max_members: maxMembers,
+                stripe_subscription_id: session.subscription as string,
+                status: 'active',
+              })
+            }
+          }
         }
         break
       }
@@ -127,11 +167,11 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true })
 }
 
-function resolvePlan(priceId?: string): 'monthly' | 'annual' | 'free' {
+function resolvePlan(priceId?: string): 'monthly' | 'annual' | 'family' | 'classroom' | 'free' {
   if (!priceId) return 'free'
-  const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID
-  const annualPriceId = process.env.STRIPE_ANNUAL_PRICE_ID
-  if (priceId === annualPriceId) return 'annual'
-  if (priceId === monthlyPriceId) return 'monthly'
-  return 'monthly' // default for unknown price IDs
+  if (priceId === process.env.STRIPE_ANNUAL_PRICE_ID) return 'annual'
+  if (priceId === process.env.STRIPE_MONTHLY_PRICE_ID) return 'monthly'
+  if (priceId === process.env.STRIPE_FAMILY_PRICE_ID) return 'family'
+  if (priceId === process.env.STRIPE_CLASSROOM_PRICE_ID) return 'classroom'
+  return 'monthly'
 }
