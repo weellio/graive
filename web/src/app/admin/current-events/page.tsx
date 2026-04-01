@@ -204,7 +204,7 @@ export default function CurrentEventsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Month</Label>
-                  <Select value={month} onValueChange={setMonth}>
+                  <Select value={month} onValueChange={v => v && setMonth(v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {MONTH_NAMES.map(m => (
