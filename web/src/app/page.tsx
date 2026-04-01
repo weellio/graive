@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { TIER_CONFIG } from '@/types'
+import { getSiteSettings } from '@/lib/config/site'
 import {
   ChevronRight,
   ArrowRight,
@@ -16,12 +17,17 @@ import {
   Layers,
 } from 'lucide-react'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const settings = await getSiteSettings()
+  const brandName = settings.brand_name || 'GRAIVE'
+  const logoSrc = settings.brand_logo_url || '/logo.svg'
+
   const tiers = [
     { key: 'explorer' as const, headline: 'Talking to Computers', free: true },
     { key: 'builder' as const, headline: 'Understanding the Machine', free: false },
     { key: 'thinker' as const, headline: 'Critical AI Citizenship', free: false },
     { key: 'innovator' as const, headline: 'Build with AI', free: false },
+    { key: 'creator' as const, headline: 'Ship Real Things with AI', free: false },
   ]
 
   const features = [
@@ -53,7 +59,7 @@ export default function LandingPage() {
       icon: Newspaper,
       title: 'Connected to the Live AI Conversation',
       description:
-        "GRAIVE's daily AI news feed keeps learners current. The world moves fast — so does the curriculum.",
+        `${brandName}'s daily AI news feed keeps learners current. The world moves fast — so does the curriculum.`,
     },
     {
       icon: Zap,
@@ -80,8 +86,8 @@ export default function LandingPage() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.svg"
-              alt="GRAIVE"
+              src={logoSrc}
+              alt={brandName}
               width={32}
               height={32}
               className="object-contain"
@@ -90,7 +96,7 @@ export default function LandingPage() {
               className="font-bold tracking-widest text-lg uppercase"
               style={{ color: '#e040fb' }}
             >
-              GRAIVE
+              {brandName}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -157,7 +163,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="mt-6 text-slate-400 text-lg leading-relaxed max-w-xl">
-              GRAIVE is an AI literacy platform for ages 10–18. Prompt engineering,
+              {brandName} is an AI literacy platform for ages 10–18. Prompt engineering,
               digital critical thinking, and the skills to build in an AI-first world —
               with a built-in AI tutor on every lesson.
             </p>
@@ -196,8 +202,8 @@ export default function LandingPage() {
                 style={{ backgroundColor: '#e040fb' }}
               />
               <Image
-                src="/logo.svg"
-                alt="GRAIVE"
+                src={logoSrc}
+                alt={brandName}
                 width={340}
                 height={340}
                 className="relative object-contain"
@@ -212,9 +218,9 @@ export default function LandingPage() {
       <section className="border-y border-white/10 bg-white/2">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
           <p className="text-xs text-slate-500 uppercase tracking-widest text-center mb-6">
-            4 Levels · 24 Modules · Ages 10–18
+            5 Levels · Ages 10+
           </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             {tiers.map(({ key, headline, free }) => {
               const cfg = TIER_CONFIG[key]
               return (
@@ -249,7 +255,7 @@ export default function LandingPage() {
           Not another coding course
         </h2>
         <p className="text-slate-400 text-center mb-12">
-          AI literacy is the new foundational skill. GRAIVE teaches it properly.
+          AI literacy is the new foundational skill. {brandName} teaches it properly.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map(f => (
@@ -276,12 +282,13 @@ export default function LandingPage() {
           <p className="text-xs text-slate-500 uppercase tracking-widest mb-6">
             The Prompt Engineering Progression
           </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-left">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 text-left">
             {[
               { age: '10–11', tier: 'Explorer', skill: 'Intention', q: '"What do I want?"' },
               { age: '12–13', tier: 'Builder', skill: 'Clarity', q: '"How do I explain this?"' },
               { age: '14–15', tier: 'Thinker', skill: 'Structure', q: '"How do I guide reasoning?"' },
               { age: '16–18', tier: 'Innovator', skill: 'Systems', q: '"How do I chain prompts?"' },
+              { age: '18+', tier: 'Creator', skill: 'Mastery', q: '"How do I build and ship?"' },
             ].map(item => (
               <div
                 key={item.tier}
@@ -377,7 +384,7 @@ export default function LandingPage() {
             100 AI sources. One daily digest.
           </h3>
           <p className="text-slate-400 text-sm mb-5">
-            The GRAIVE subreddit compiles the most important AI news every single day.
+            The {brandName} subreddit compiles the most important AI news every single day.
             Follow along while your kids learn the skills to understand it.
           </p>
           <Link href="https://reddit.com/r/graive" target="_blank" rel="noopener noreferrer">
@@ -395,12 +402,12 @@ export default function LandingPage() {
       <footer className="border-t border-white/10 py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
           <div className="flex items-center gap-2">
-            <Image src="/logo.svg" alt="GRAIVE" width={24} height={24} className="object-contain" />
+            <Image src={logoSrc} alt={brandName} width={24} height={24} className="object-contain" />
             <span className="font-bold tracking-widest uppercase text-xs" style={{ color: '#e040fb' }}>
-              GRAIVE
+              {brandName}
             </span>
           </div>
-          <p>© {new Date().getFullYear()} GRAIVE · Generative Robotic AI in Virtual Environments</p>
+          <p>© {new Date().getFullYear()} {brandName} · Generative Robotic AI in Virtual Environments</p>
           <div className="flex gap-4">
             <Link href="/auth/signin" className="hover:text-slate-300">Sign In</Link>
             <Link href="/auth/signup" className="hover:text-slate-300">Sign Up</Link>
