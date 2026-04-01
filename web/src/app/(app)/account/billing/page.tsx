@@ -12,9 +12,9 @@ import { headers } from 'next/headers'
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ reason?: string }>
+  searchParams: Promise<{ reason?: string; error?: string }>
 }) {
-  const { reason } = await searchParams
+  const { reason, error } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin')
@@ -48,19 +48,26 @@ export default async function BillingPage({
   async function goToCheckout(formData: FormData) {
     'use server'
     const priceId = formData.get('priceId') as string
+    if (!priceId) redirect('/account/billing?error=no_price')
     const supabase2 = await createClient()
     const { data: { user: u } } = await supabase2.auth.getUser()
     if (!u) redirect('/auth/signin')
     const { data: p } = await supabase2.from('profiles').select('stripe_customer_id').eq('id', u.id).single()
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const session = await createCheckoutSession(
-      p?.stripe_customer_id ?? null,
-      priceId,
-      u.id,
-      `${appUrl}/dashboard?upgraded=1`,
-      `${appUrl}/account/billing`
-    )
-    redirect(session.url!)
+    try {
+      const session = await createCheckoutSession(
+        p?.stripe_customer_id ?? null,
+        priceId,
+        u.id,
+        `${appUrl}/dashboard?upgraded=1`,
+        `${appUrl}/account/billing`
+      )
+      if (!session.url) redirect('/account/billing?error=no_url')
+      redirect(session.url)
+    } catch (err) {
+      const msg = err instanceof Error ? encodeURIComponent(err.message) : 'stripe_error'
+      redirect(`/account/billing?error=${msg}`)
+    }
   }
 
   const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID || ''
@@ -96,6 +103,13 @@ export default async function BillingPage({
         <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <Lock className="h-4 w-4 shrink-0" />
           This tier requires a Pro subscription. Upgrade below to unlock all content.
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <p className="font-medium">Checkout failed</p>
+          <p className="mt-0.5 text-red-600">{decodeURIComponent(error)}</p>
         </div>
       )}
 
