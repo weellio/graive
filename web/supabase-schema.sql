@@ -355,8 +355,8 @@ on conflict (key) do nothing;
 
 -- 4. RLS for courses table
 alter table courses enable row level security;
-create policy if not exists "Anyone can read enabled courses" on courses for select using (enabled = true);
-create policy if not exists "Admins can manage courses" on courses for all using (
+create policy "Anyone can read enabled courses" on courses for select using (enabled = true);
+create policy "Admins can manage courses" on courses for all using (
   exists (select 1 from profiles where id = auth.uid() and role = 'admin')
 );
 
