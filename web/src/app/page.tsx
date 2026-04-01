@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { TIER_CONFIG } from '@/types'
 import { getSiteSettings } from '@/lib/config/site'
+import { MeshGradient } from '@/components/landing/MeshGradient'
+import { TextScramble } from '@/components/landing/TextScramble'
 import {
   ChevronRight,
   ArrowRight,
@@ -125,33 +127,26 @@ export default async function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Magenta glow left, cyan glow right */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div
-            className="absolute -left-32 top-0 h-150 w-150 rounded-full blur-[140px] opacity-20"
-            style={{ backgroundColor: '#e040fb' }}
-          />
-          <div
-            className="absolute -right-32 bottom-0 h-150 w-150 rounded-full blur-[140px] opacity-15"
-            style={{ backgroundColor: '#00e5ff' }}
-          />
+        {/* Animated mesh gradient background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <MeshGradient className="absolute inset-0 w-full h-full" />
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24 flex flex-col lg:flex-row items-center gap-12">
           {/* Text */}
           <div className="flex-1 text-center lg:text-left">
             <Badge
-              className="mb-5 border text-xs tracking-widest uppercase"
+              className="mb-5 border text-xs tracking-widest uppercase font-mono"
               style={{
                 backgroundColor: 'rgba(224,64,251,0.1)',
                 borderColor: 'rgba(224,64,251,0.3)',
                 color: '#e040fb',
               }}
             >
-              Generative Robotic AI in Virtual Environments
+              <TextScramble text="Generative Robotic AI in Virtual Environments" trigger="load" duration={1800} />
             </Badge>
             <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight tracking-tight">
-              The next generation
+              Where imagination
               <br />
               <span
                 className="bg-clip-text text-transparent"
@@ -159,13 +154,13 @@ export default async function LandingPage() {
                   backgroundImage: 'linear-gradient(to right, #e040fb, #00e5ff)',
                 }}
               >
-                needs to speak AI
+                meets intelligence
               </span>
             </h1>
             <p className="mt-6 text-slate-400 text-lg leading-relaxed max-w-xl">
-              {brandName} is an AI literacy platform for ages 10–18. Prompt engineering,
-              digital critical thinking, and the skills to build in an AI-first world —
-              with a built-in AI tutor on every lesson.
+              Prepare to be amazed by the convergence of AI and human potential.
+              A world where the boundaries of what&apos;s possible are continually redefined —
+              and your kids are the ones redefining them.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 lg:justify-start justify-center">
               <Link href="/auth/signup">
