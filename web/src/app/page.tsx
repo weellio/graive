@@ -6,6 +6,7 @@ import { TIER_CONFIG } from '@/types'
 import { getSiteSettings } from '@/lib/config/site'
 import { MeshGradient } from '@/components/landing/MeshGradient'
 import { TextScramble } from '@/components/landing/TextScramble'
+import { BrandName } from '@/components/ui/BrandName'
 import {
   ChevronRight,
   ArrowRight,
@@ -94,12 +95,10 @@ export default async function LandingPage() {
               height={32}
               className="object-contain"
             />
-            <span
+            <BrandName
+              name={brandName}
               className="font-bold tracking-widest text-lg uppercase"
-              style={{ color: '#e040fb' }}
-            >
-              {brandName}
-            </span>
+            />
           </div>
           <div className="flex items-center gap-3">
             <Link href="https://reddit.com/r/graive" target="_blank" rel="noopener noreferrer">
@@ -299,72 +298,106 @@ export default async function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20">
         <h2 className="text-2xl font-bold text-white text-center mb-2">Simple pricing</h2>
         <p className="text-slate-400 text-center mb-10">Start free. Upgrade when you're ready.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Free */}
-          <div className="rounded-xl border border-white/10 bg-white/3 p-7">
-            <p className="font-semibold text-white text-lg mb-1">Free</p>
-            <div className="flex items-baseline gap-1 mb-5">
-              <span className="text-4xl font-bold text-white">$0</span>
-              <span className="text-slate-500">forever</span>
+          <div className="rounded-xl border border-white/10 bg-white/3 p-6 flex flex-col">
+            <p className="font-semibold text-white text-base mb-1">Free</p>
+            <div className="flex items-baseline gap-1 mb-4">
+              <span className="text-3xl font-bold text-white">$0</span>
+              <span className="text-slate-500 text-sm">forever</span>
             </div>
-            <ul className="space-y-2.5 mb-6">
-              {['Explorer Level (Ages 10–11)', '10 AI messages / day', 'Progress tracking'].map(f => (
-                <li key={f} className="flex items-center gap-2 text-sm text-slate-300">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: '#00e5ff' }} />
+            <ul className="space-y-2 mb-6 flex-1">
+              {['First module of every level', '10 AI messages / day', 'Progress tracking'].map(f => (
+                <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" style={{ color: '#00e5ff' }} />
                   {f}
                 </li>
               ))}
             </ul>
             <Link href="/auth/signup">
-              <Button
-                variant="outline"
-                className="w-full border-white/20 text-slate-300 hover:bg-white/10 hover:text-white"
-              >
-                Start for Free
+              <Button variant="outline" size="sm" className="w-full border-white/20 text-slate-300 hover:bg-white/10 hover:text-white">
+                Start Free
               </Button>
             </Link>
           </div>
 
-          {/* Pro */}
+          {/* Pro Monthly */}
           <div
-            className="rounded-xl p-7 relative"
-            style={{
-              border: '2px solid rgba(224,64,251,0.5)',
-              background: 'rgba(224,64,251,0.06)',
-            }}
+            className="rounded-xl p-6 relative flex flex-col"
+            style={{ border: '2px solid rgba(224,64,251,0.5)', background: 'rgba(224,64,251,0.06)' }}
           >
-            <div className="absolute -top-3 left-6">
-              <Badge
-                className="text-white border-0 flex items-center gap-1 px-3"
-                style={{ backgroundColor: '#e040fb' }}
-              >
-                <Star className="h-3 w-3" /> Most Popular
+            <div className="absolute -top-3 left-4">
+              <Badge className="text-white border-0 flex items-center gap-1 px-2.5 text-xs" style={{ backgroundColor: '#e040fb' }}>
+                <Star className="h-3 w-3" /> Popular
               </Badge>
             </div>
-            <p className="font-semibold text-white text-lg mb-1">Pro</p>
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-4xl font-bold text-white">$9.99</span>
-              <span className="text-slate-400">/month</span>
+            <p className="font-semibold text-white text-base mb-1">Pro</p>
+            <div className="flex items-baseline gap-1 mb-0.5">
+              <span className="text-3xl font-bold text-white">$24.99</span>
+              <span className="text-slate-400 text-sm">/mo</span>
             </div>
-            <p className="text-xs mb-5" style={{ color: '#e040fb' }}>Or $79.99/year — 2 months free</p>
-            <ul className="space-y-2.5 mb-6">
+            <p className="text-xs mb-4" style={{ color: '#e040fb' }}>Or $199.99/year — save 33%</p>
+            <ul className="space-y-2 mb-6 flex-1">
               {proFeatures.map(f => (
-                <li key={f} className="flex items-center gap-2 text-sm text-slate-300">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: '#00e5ff' }} />
+                <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" style={{ color: '#00e5ff' }} />
                   {f}
                 </li>
               ))}
             </ul>
             <Link href="/auth/signup">
-              <Button
-                className="w-full text-white"
-                style={{ backgroundColor: '#e040fb' }}
-              >
-                <Zap className="h-4 w-4 mr-2" /> Get Pro Access
+              <Button size="sm" className="w-full text-white" style={{ backgroundColor: '#e040fb' }}>
+                <Zap className="h-3.5 w-3.5 mr-1.5" /> Get Pro
+              </Button>
+            </Link>
+          </div>
+
+          {/* Family */}
+          <div className="rounded-xl border border-teal-500/40 bg-teal-500/5 p-6 flex flex-col">
+            <p className="font-semibold text-white text-base mb-1">Family</p>
+            <div className="flex items-baseline gap-1 mb-0.5">
+              <span className="text-3xl font-bold text-white">$59.99</span>
+              <span className="text-slate-400 text-sm">/mo</span>
+            </div>
+            <p className="text-xs text-teal-400 mb-4">Up to 4 learners · ~$15/learner</p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {['All Pro features for every member', 'Each child gets their own account', 'Parent progress dashboard'].map(f => (
+                <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-teal-400" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link href="/auth/signup">
+              <Button size="sm" className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                Get Family Plan
+              </Button>
+            </Link>
+          </div>
+
+          {/* Classroom */}
+          <div className="rounded-xl border border-violet-500/40 bg-violet-500/5 p-6 flex flex-col">
+            <p className="font-semibold text-white text-base mb-1">Classroom</p>
+            <div className="flex items-baseline gap-1 mb-0.5">
+              <span className="text-3xl font-bold text-white">$149.99</span>
+              <span className="text-slate-400 text-sm">/mo</span>
+            </div>
+            <p className="text-xs text-violet-400 mb-4">Up to 30 students · ~$5/student</p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {['All Pro features for every student', 'Teacher dashboard + class roster', 'Simple join code for students'].map(f => (
+                <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-violet-400" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link href="/auth/signup">
+              <Button size="sm" className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+                Get Classroom Plan
               </Button>
             </Link>
           </div>
@@ -398,9 +431,7 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
           <div className="flex items-center gap-2">
             <Image src={logoSrc} alt={brandName} width={24} height={24} className="object-contain" />
-            <span className="font-bold tracking-widest uppercase text-xs" style={{ color: '#e040fb' }}>
-              {brandName}
-            </span>
+            <BrandName name={brandName} className="font-bold tracking-widest uppercase text-xs" />
           </div>
           <p>© {new Date().getFullYear()} {brandName} · Generative Robotic AI in Virtual Environments</p>
           <div className="flex gap-4">

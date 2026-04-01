@@ -15,6 +15,7 @@ import {
 import type { Profile } from '@/types'
 import { TIER_CONFIG } from '@/types'
 import { BookOpen, LayoutDashboard, Settings, LogOut, Shield } from 'lucide-react'
+import { BrandName } from '@/components/ui/BrandName'
 
 interface AppNavProps {
   profile: Profile
@@ -47,7 +48,11 @@ export function AppNav({ profile, brandName, logoUrl }: AppNavProps) {
               {logoUrl ? (
                 <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
               ) : (
-                <span style={{ color: 'var(--brand-primary)' }}>{brandName}</span>
+                <BrandName
+                  name={brandName}
+                  className="font-bold tracking-widest uppercase"
+                  style={{ color: 'var(--brand-primary)' }}
+                />
               )}
             </Link>
             <div className="hidden md:flex items-center gap-1">
