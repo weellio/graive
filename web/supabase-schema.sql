@@ -348,9 +348,9 @@ from courses c
 where c.slug = 'ai-literacy'
   and m.course_id is null;
 
--- 3. Add api_key to site_settings
+-- 3. Add api_key and llm_model to site_settings
 insert into site_settings (key, value)
-values ('api_key', '')
+values ('api_key', ''), ('llm_model', 'claude-sonnet-4-6')
 on conflict (key) do nothing;
 
 -- 4. RLS for courses table

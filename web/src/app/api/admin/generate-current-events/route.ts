@@ -98,7 +98,7 @@ Write the full module now. It should take about 20-25 minutes to complete. Make 
       const { default: OpenAI } = await import('openai')
       const client = new OpenAI({ apiKey: apiKeyOverride || process.env.OPENAI_API_KEY })
       const res = await client.chat.completions.create({
-        model: settings.llm_model_innovator || 'gpt-4o',
+        model: settings.llm_model || 'gpt-4o',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 2500,
       })
@@ -106,14 +106,14 @@ Write the full module now. It should take about 20-25 minutes to complete. Make 
     } else if (provider === 'gemini') {
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const genAI = new GoogleGenerativeAI(apiKeyOverride || process.env.GEMINI_API_KEY || '')
-      const model = genAI.getGenerativeModel({ model: settings.llm_model_innovator || 'gemini-1.5-pro' })
+      const model = genAI.getGenerativeModel({ model: settings.llm_model || 'gemini-2.0-flash' })
       const res = await model.generateContent(prompt)
       content = res.response.text()
     } else {
       const { default: Anthropic } = await import('@anthropic-ai/sdk')
       const client = new Anthropic({ apiKey: apiKeyOverride || process.env.ANTHROPIC_API_KEY })
       const res = await client.messages.create({
-        model: settings.llm_model_innovator || 'claude-sonnet-4-6',
+        model: settings.llm_model || 'claude-sonnet-4-6',
         max_tokens: 2500,
         messages: [{ role: 'user', content: prompt }],
       })

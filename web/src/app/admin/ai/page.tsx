@@ -12,14 +12,10 @@ import {
 } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { RefreshCw } from 'lucide-react'
-import type { AgeTier } from '@/types'
 
 interface AISettings {
   llm_provider: string
-  llm_model_explorer: string
-  llm_model_builder: string
-  llm_model_thinker: string
-  llm_model_innovator: string
+  llm_model: string
   llm_api_key_override: string
   conversation_history_enabled: string
   free_tier_daily_message_limit: string
@@ -28,10 +24,7 @@ interface AISettings {
 
 const DEFAULTS: AISettings = {
   llm_provider: 'claude',
-  llm_model_explorer: 'claude-haiku-4-5-20251001',
-  llm_model_builder: 'claude-haiku-4-5-20251001',
-  llm_model_thinker: 'claude-sonnet-4-6',
-  llm_model_innovator: 'claude-sonnet-4-6',
+  llm_model: 'claude-sonnet-4-6',
   llm_api_key_override: '',
   conversation_history_enabled: 'true',
   free_tier_daily_message_limit: '10',
@@ -44,33 +37,11 @@ const PROVIDER_DOCS: Record<string, string> = {
   gemini:  'https://ai.google.dev/gemini-api/docs/models/gemini',
 }
 
-const PROVIDER_MODEL_DEFAULTS: Record<string, Pick<AISettings, 'llm_model_explorer' | 'llm_model_builder' | 'llm_model_thinker' | 'llm_model_innovator'>> = {
-  claude: {
-    llm_model_explorer:  'claude-haiku-4-5-20251001',
-    llm_model_builder:   'claude-haiku-4-5-20251001',
-    llm_model_thinker:   'claude-sonnet-4-6',
-    llm_model_innovator: 'claude-sonnet-4-6',
-  },
-  openai: {
-    llm_model_explorer:  'gpt-4o-mini',
-    llm_model_builder:   'gpt-4o-mini',
-    llm_model_thinker:   'gpt-4o',
-    llm_model_innovator: 'gpt-4o',
-  },
-  gemini: {
-    llm_model_explorer:  'gemini-2.0-flash',
-    llm_model_builder:   'gemini-2.0-flash',
-    llm_model_thinker:   'gemini-1.5-pro',
-    llm_model_innovator: 'gemini-1.5-pro',
-  },
+const PROVIDER_MODEL_DEFAULTS: Record<string, string> = {
+  claude:  'claude-sonnet-4-6',
+  openai:  'gpt-4o',
+  gemini:  'gemini-2.0-flash',
 }
-
-const tiers: { key: keyof AISettings; label: string; tier: AgeTier }[] = [
-  { key: 'llm_model_explorer',  label: 'Explorer (10–11)',  tier: 'explorer' },
-  { key: 'llm_model_builder',   label: 'Builder (12–13)',   tier: 'builder' },
-  { key: 'llm_model_thinker',   label: 'Thinker (14–15)',   tier: 'thinker' },
-  { key: 'llm_model_innovator', label: 'Innovator (16–18)', tier: 'innovator' },
-]
 
 export default function AdminAIPage() {
   const [settings, setSettings] = useState<AISettings>(DEFAULTS)
@@ -111,7 +82,6 @@ export default function AdminAIPage() {
     }
   }, [])
 
-  // Fetch models whenever provider changes (and on first load)
   useEffect(() => {
     fetchModels(settings.llm_provider)
   }, [settings.llm_provider, fetchModels])
@@ -133,7 +103,7 @@ export default function AdminAIPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-800">AI Config</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Configure the LLM provider, models, and conversation settings.</p>
+        <p className="text-sm text-slate-500 mt-0.5">Configure the LLM provider, model, and conversation settings.</p>
       </div>
 
       <Card>
@@ -145,8 +115,11 @@ export default function AdminAIPage() {
               value={settings.llm_provider}
               onValueChange={v => {
                 if (!v) return
-                const modelDefaults = PROVIDER_MODEL_DEFAULTS[v] ?? PROVIDER_MODEL_DEFAULTS.claude
-                setSettings(prev => ({ ...prev, llm_provider: v, ...modelDefaults }))
+                setSettings(prev => ({
+                  ...prev,
+                  llm_provider: v,
+                  llm_model: PROVIDER_MODEL_DEFAULTS[v] ?? PROVIDER_MODEL_DEFAULTS.claude,
+                }))
               }}
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -181,7 +154,7 @@ export default function AdminAIPage() {
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <div>
-              <CardTitle className="text-base">Model per Tier</CardTitle>
+              <CardTitle className="text-base">Model</CardTitle>
               <CardDescription className="text-xs mt-0.5">
                 Models fetched live from the {settings.llm_provider} API.{' '}
                 <a
@@ -210,31 +183,30 @@ export default function AdminAIPage() {
               ⚠ {modelsError} — check your API key is configured.
             </p>
           )}
-          {tiers.map(t => (
-            <div key={t.key} className="grid gap-1.5">
-              <Label>{t.label}</Label>
-              {models.length > 0 ? (
-                <Select value={settings[t.key]} onValueChange={v => set(t.key, v ?? '')}>
-                  <SelectTrigger className="font-mono text-sm">
-                    <SelectValue placeholder="Select a model…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {models.map(m => (
-                      <SelectItem key={m} value={m} className="font-mono text-sm">{m}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  value={settings[t.key]}
-                  onChange={e => set(t.key, e.target.value)}
-                  placeholder={modelsLoading ? 'Loading models…' : 'Enter model name manually'}
-                  className="font-mono text-sm"
-                  disabled={modelsLoading}
-                />
-              )}
-            </div>
-          ))}
+          <div className="grid gap-1.5">
+            <Label>Active Model</Label>
+            {models.length > 0 ? (
+              <Select value={settings.llm_model} onValueChange={v => set('llm_model', v ?? '')}>
+                <SelectTrigger className="font-mono text-sm">
+                  <SelectValue placeholder="Select a model…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map(m => (
+                    <SelectItem key={m} value={m} className="font-mono text-sm">{m}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                value={settings.llm_model}
+                onChange={e => set('llm_model', e.target.value)}
+                placeholder={modelsLoading ? 'Loading models…' : 'Enter model name manually'}
+                className="font-mono text-sm"
+                disabled={modelsLoading}
+              />
+            )}
+            <p className="text-xs text-slate-400">Used for all AI chat and content generation.</p>
+          </div>
         </CardContent>
       </Card>
 

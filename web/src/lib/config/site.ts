@@ -47,6 +47,7 @@ export function getDefaultSettings(): SiteSettings {
     brand_accent_color: '#f59e0b',
     brand_font: 'Inter',
     llm_provider: 'claude',
+    llm_model: 'claude-sonnet-4-6',
     llm_model_explorer: 'claude-haiku-4-5-20251001',
     llm_model_builder: 'claude-haiku-4-5-20251001',
     llm_model_thinker: 'claude-sonnet-4-6',

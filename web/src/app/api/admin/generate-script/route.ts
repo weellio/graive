@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       const { default: OpenAI } = await import('openai')
       const client = new OpenAI({ apiKey: apiKeyOverride || process.env.OPENAI_API_KEY })
       const res = await client.chat.completions.create({
-        model: settings.llm_model_innovator || 'gpt-4o',
+        model: settings.llm_model || 'gpt-4o',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 1500,
       })
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
     } else if (provider === 'gemini') {
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const genAI = new GoogleGenerativeAI(apiKeyOverride || process.env.GEMINI_API_KEY || '')
-      const model = genAI.getGenerativeModel({ model: settings.llm_model_innovator || 'gemini-1.5-pro' })
+      const model = genAI.getGenerativeModel({ model: settings.llm_model || 'gemini-2.0-flash' })
       const res = await model.generateContent(prompt)
       script = res.response.text()
     } else {
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
       const { default: Anthropic } = await import('@anthropic-ai/sdk')
       const client = new Anthropic({ apiKey: apiKeyOverride || process.env.ANTHROPIC_API_KEY })
       const res = await client.messages.create({
-        model: settings.llm_model_innovator || 'claude-sonnet-4-6',
+        model: settings.llm_model || 'claude-sonnet-4-6',
         max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }],
       })

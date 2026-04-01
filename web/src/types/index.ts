@@ -106,6 +106,7 @@ export interface SiteSettings {
   brand_accent_color: string
   brand_font: string
   llm_provider: LLMProvider
+  llm_model: string
   llm_model_explorer: string
   llm_model_builder: string
   llm_model_thinker: string

@@ -17,7 +17,7 @@ export async function streamLLMResponse(
   const apiKey = settings.llm_api_key_override || undefined
 
   const modelKey = `llm_model_${tier}` as keyof SiteSettings
-  const model = settings[modelKey] as string
+  const model = settings.llm_model || (settings[modelKey] as string)
 
   // Playground mode always uses the open prompt — ignores DB overrides
   let systemPrompt: string
