@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { getSiteSettings, buildCssVars } from '@/lib/config/site'
+import CookieBanner from '@/components/CookieBanner'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${inter.className} min-h-full flex flex-col`}>
         {children}
         <Toaster richColors />
+        <CookieBanner />
       </body>
     </html>
   )

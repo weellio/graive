@@ -54,6 +54,14 @@ export default function SignUpPage() {
       toast.error(error.message)
       setLoading(false)
     } else {
+      // Fire-and-forget parent notification — don't block signup on email delivery
+      if (needsParent && parentEmail) {
+        fetch('/api/auth/notify-parent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ childName: fullName, childEmail: email, parentEmail, tier: ageTier }),
+        }).catch(() => {/* silent — email is informational only */})
+      }
       toast.success('Account created! Check your email to confirm.')
       router.push('/auth/confirm')
     }

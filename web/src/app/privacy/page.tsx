@@ -39,7 +39,14 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="text-xl font-semibold text-slate-800 mb-3">4. Children's Privacy (Under 13)</h2>
-          <p className="text-slate-600 leading-relaxed">For learners under 13, we collect minimal data: name, email, and age group only. We do not send marketing emails to under-13 accounts. We encourage providing a parent or guardian email at registration so a trusted adult is informed. Parents may request deletion of their child's account and data at any time by contacting us.</p>
+          <p className="text-slate-600 leading-relaxed mb-3">For learners selecting the Explorer (ages 10–11) or Builder (ages 12–13) tiers, we require a parent or guardian email address and explicit parental consent at the point of registration.</p>
+          <ul className="text-slate-600 space-y-2 list-disc pl-5">
+            <li>We collect minimal data for under-13 accounts: name, email, age group, and parent/guardian email only.</li>
+            <li>We do not send marketing emails to under-13 accounts or their parents.</li>
+            <li>When a child registers, we automatically send an informational email to the parent/guardian explaining what the platform is, what data is collected, and how to request deletion.</li>
+            <li>Parents or guardians may request full deletion of their child's account and all associated data at any time by contacting <a href="mailto:privacy@graive.com" className="text-indigo-600 hover:underline">privacy@graive.com</a>. We will action this within 7 days.</li>
+            <li>We do not knowingly collect data from children without verifiable parental consent.</li>
+          </ul>
         </section>
 
         <section>
@@ -63,9 +70,33 @@ export default function PrivacyPage() {
           <p className="text-slate-600 mt-3">To exercise these rights, contact us at the email below.</p>
         </section>
 
-        <section>
+        <section id="cookies">
           <h2 className="text-xl font-semibold text-slate-800 mb-3">8. Cookies</h2>
-          <p className="text-slate-600 leading-relaxed">We use cookies only for authentication (session management via Supabase). We do not use tracking or advertising cookies.</p>
+          <p className="text-slate-600 leading-relaxed mb-3">We use the minimum cookies necessary to operate the platform. We do not use advertising cookies, tracking pixels, or third-party analytics cookies.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-slate-600 border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left py-2 pr-4 font-medium text-slate-700">Cookie</th>
+                  <th className="text-left py-2 pr-4 font-medium text-slate-700">Purpose</th>
+                  <th className="text-left py-2 font-medium text-slate-700">Duration</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                <tr>
+                  <td className="py-2 pr-4 font-mono text-xs">sb-*</td>
+                  <td className="py-2 pr-4">Authentication session (Supabase). Keeps you signed in.</td>
+                  <td className="py-2">Session / 1 hour</td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4 font-mono text-xs">graive_cookie_consent</td>
+                  <td className="py-2 pr-4">Remembers that you have seen and responded to this cookie notice.</td>
+                  <td className="py-2">Persistent (localStorage)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-slate-500 text-sm mt-3">The consent preference is stored in your browser's localStorage, not as a cookie, so it never leaves your device.</p>
         </section>
 
         <section>
