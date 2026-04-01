@@ -37,7 +37,7 @@ Every module includes:
 - Hands-on activities to try
 - Reflection questions
 
-**Explorer Level is completely free.** Builder, Thinker, and Innovator require a Pro subscription.
+**The first module of every level is free** — so you can try any tier before subscribing. A Pro subscription unlocks all modules across all levels.
 
 ---
 
@@ -71,12 +71,15 @@ Once logged in, you'll land on your **Dashboard**. This shows:
 
 When you sign up, you pick your age group. This determines your starting level:
 
-- **Ages 10–11 → Explorer** (free)
-- **Ages 12–13 → Builder** (Pro)
-- **Ages 14–15 → Thinker** (Pro)
-- **Ages 16–18 → Innovator** (Pro)
+- **Ages 10–11 → Explorer**
+- **Ages 12–13 → Builder**
+- **Ages 14–15 → Thinker**
+- **Ages 16–18 → Innovator**
+- **Adults 18+ → Creator**
 
-You can see all four levels from your Dashboard — locked levels show a padlock and a link to upgrade.
+The first module of each level is free to try. A Pro subscription unlocks all modules across all levels and courses.
+
+You can see all levels from your Dashboard — modules requiring Pro show a padlock and a link to upgrade.
 
 > **Can I change my level?**
 > Contact support. Level changes are possible but require admin approval to keep the learning progression meaningful.
@@ -156,8 +159,8 @@ The tutor is scoped to the lesson topic. It won't:
 
 ### Free vs Pro message limits
 
-- **Free (Explorer):** 10 AI messages per day. The counter resets at midnight.
-- **Pro (all levels):** Unlimited messages.
+- **Free (no subscription):** 10 AI messages per day. The counter resets at midnight.
+- **Pro:** Unlimited messages.
 
 If you hit your daily limit, you'll see a message letting you know. It resets the next day, or you can upgrade to Pro for unlimited access.
 
@@ -194,7 +197,7 @@ Yes — modules don't lock each other out. You can open any module in your level
 
 ## Upgrading to Pro
 
-Explorer Level is free forever. To access Builder, Thinker, or Innovator:
+The first module of each level is free. To unlock all modules across all levels:
 
 1. Go to **Account → Billing** (click your name in the top right)
 2. Choose **Monthly ($9.99/month)** or **Annual ($79.99/year — 2 months free)**

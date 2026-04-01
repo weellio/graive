@@ -213,6 +213,33 @@ CREATE POLICY "Users manage own notes" ON notes FOR ALL
 INSERT INTO site_settings (key, value)
   VALUES ('paid_tier_daily_message_limit', '200')
   ON CONFLICT (key) DO NOTHING;
+
+-- Courses layer (adds multi-subject support)
+CREATE TABLE IF NOT EXISTS courses (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  slug text NOT NULL UNIQUE,
+  title text NOT NULL,
+  description text,
+  icon text,
+  color text,
+  enabled boolean NOT NULL DEFAULT true,
+  order_index integer NOT NULL DEFAULT 0,
+  created_at timestamptz DEFAULT now()
+);
+INSERT INTO courses (slug, title, description, icon, color, enabled, order_index)
+VALUES ('ai-literacy', 'AI Literacy', 'How artificial intelligence works, how to use it, and how to think critically about it.', '🤖', '#6366f1', true, 0)
+ON CONFLICT (slug) DO NOTHING;
+ALTER TABLE modules
+  ADD COLUMN IF NOT EXISTS course_id uuid REFERENCES courses(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS course_slug text NOT NULL DEFAULT 'ai-literacy';
+UPDATE modules m SET course_id = c.id, course_slug = 'ai-literacy'
+FROM courses c WHERE c.slug = 'ai-literacy' AND m.course_id IS NULL;
+INSERT INTO site_settings (key, value) VALUES ('api_key', '') ON CONFLICT (key) DO NOTHING;
+ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read enabled courses" ON courses FOR SELECT USING (enabled = true);
+CREATE POLICY "Admins can manage courses" ON courses FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
 ```
 
 ### 4. Get your API keys
@@ -459,6 +486,7 @@ WHERE email = 'your-email@example.com';
 Go to `https://graive.com/admin`. You'll see the admin sidebar with:
 
 - **Overview** — active users, AI usage, conversion rate, recent completions
+- **Courses** — create and manage top-level subject areas (e.g. AI Literacy, Math)
 - **Modules** — enable/disable per tier, edit content and metadata
 - **Current Events** — create monthly AI news modules with scheduled publish dates
 - **Video Scripts** — AI-generate teleprompter scripts per module, export all as .txt
@@ -466,6 +494,7 @@ Go to `https://graive.com/admin`. You'll see the admin sidebar with:
 - **Theme** — brand name, logo, primary and accent colours, font
 - **AI Config** — LLM provider, model per tier, daily message limits
 - **Users** — view users, manage plans (grant beta access, override subscriptions)
+- **API Keys** — generate and rotate the Bearer token for the management REST API
 
 ### 4. Configure your brand
 
@@ -536,6 +565,74 @@ The app reads markdown from the `curriculum/` folder relative to the project roo
 ### Creating custom curriculum
 
 See [CURRICULUM_FORMAT.md](../CURRICULUM_FORMAT.md) for the authoring spec.
+
+---
+
+## Management REST API
+
+The platform exposes a REST API for scripted bulk operations — useful for importing large curricula without going through the admin UI.
+
+### Authentication
+
+All endpoints require a Bearer token in the `Authorization` header. Generate the token from `/admin/api-keys`.
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" https://graive.com/api/v1/modules
+```
+
+### Endpoints
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| GET | `/api/v1/modules` | List modules (`?tier=`, `?course=` optional filters) |
+| POST | `/api/v1/modules` | Create a module |
+| GET | `/api/v1/modules/:id` | Get one module by UUID |
+| PUT | `/api/v1/modules/:id` | Update a module (partial update supported) |
+| DELETE | `/api/v1/modules/:id` | Delete a module |
+| POST | `/api/v1/modules/bulk` | Upsert up to 200 modules in one request |
+| GET | `/api/v1/courses` | List all courses |
+| POST | `/api/v1/courses` | Create a course |
+| GET | `/api/v1/courses/:id` | Get course by UUID or slug |
+| PUT | `/api/v1/courses/:id` | Update a course |
+| DELETE | `/api/v1/courses/:id` | Delete a course |
+
+### Bulk import example
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "upsert",
+    "modules": [
+      {
+        "course_slug": "ai-literacy",
+        "tier_slug": "explorer",
+        "slug": "what-is-ai",
+        "title": "What is AI?",
+        "description": "An intro to artificial intelligence",
+        "order_index": 1,
+        "estimated_minutes": 20,
+        "content": "# What is AI?\n\nLesson content here..."
+      }
+    ]
+  }' \
+  https://graive.com/api/v1/modules/bulk
+```
+
+`mode: "upsert"` (default) merges on `(tier_slug, slug)`. Use `mode: "insert"` to fail instead of update on conflict.
+
+---
+
+## Courses (multi-subject support)
+
+Courses are top-level subject areas that group modules across all tier levels. The default course is `ai-literacy`. You can add more from `/admin/courses`.
+
+URLs follow the pattern `/learn/[course-slug]/[tier]/[module-slug]`. Old bookmarks at `/learn/[tier]/[module-slug]` automatically redirect to `/learn/ai-literacy/[tier]/[module-slug]`.
+
+### Free access model
+
+The **first module per tier per course** is always accessible without a subscription. All other modules require a paid plan. This replaces the old "Explorer tier is fully free" model.
 
 ---
 
