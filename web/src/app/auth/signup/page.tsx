@@ -20,12 +20,23 @@ export default function SignUpPage() {
   const [fullName, setFullName] = useState('')
   const [ageTier, setAgeTier] = useState<AgeTier>('explorer')
   const [parentEmail, setParentEmail] = useState('')
+  const [parentConsent, setParentConsent] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const needsParentEmail = ageTier === 'explorer' || ageTier === 'builder'
+  // Explorer = ages 10–11, Builder = 12–13: require parent email + consent
+  const needsParent = ageTier === 'explorer' || ageTier === 'builder'
+
+  function canSubmit() {
+    if (!fullName || !email || !password) return false
+    if (needsParent && (!parentEmail || !parentConsent)) return false
+    if (!termsAccepted) return false
+    return true
+  }
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault()
+    if (!canSubmit()) return
     setLoading(true)
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
@@ -35,7 +46,7 @@ export default function SignUpPage() {
         data: {
           full_name: fullName,
           age_tier: ageTier,
-          parent_email: needsParentEmail ? parentEmail : null,
+          parent_email: needsParent ? parentEmail : null,
         },
       },
     })
@@ -79,7 +90,11 @@ export default function SignUpPage() {
                     <button
                       key={tier}
                       type="button"
-                      onClick={() => setAgeTier(tier)}
+                      onClick={() => {
+                        setAgeTier(tier)
+                        setParentConsent(false)
+                        setParentEmail('')
+                      }}
                       className={`p-3 rounded-lg border-2 text-left transition-all ${
                         active
                           ? `${cfg.borderClass} ${cfg.bgClass}`
@@ -121,23 +136,54 @@ export default function SignUpPage() {
               />
             </div>
 
-            {needsParentEmail && (
-              <div className="space-y-2">
-                <Label htmlFor="parent-email">Parent or guardian email</Label>
-                <Input
-                  id="parent-email"
-                  type="email"
-                  placeholder="parent@example.com"
-                  value={parentEmail}
-                  onChange={e => setParentEmail(e.target.value)}
-                />
-                <p className="text-xs text-slate-500">
-                  Recommended for under-13 learners so a parent can stay informed.
+            {needsParent && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
+                <p className="text-sm font-medium text-amber-800">
+                  Parent or guardian required for ages 10–13
                 </p>
+                <div className="space-y-1">
+                  <Label htmlFor="parent-email" className="text-sm">Parent / guardian email</Label>
+                  <Input
+                    id="parent-email"
+                    type="email"
+                    placeholder="parent@example.com"
+                    value={parentEmail}
+                    onChange={e => setParentEmail(e.target.value)}
+                    required={needsParent}
+                  />
+                </div>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 shrink-0"
+                    checked={parentConsent}
+                    onChange={e => setParentConsent(e.target.checked)}
+                    required
+                  />
+                  <span className="text-xs text-amber-700">
+                    I am the parent or guardian of this learner, or a parent/guardian has given permission for this account to be created. I understand my child will interact with an AI assistant as part of this course.
+                  </span>
+                </label>
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5 shrink-0"
+                checked={termsAccepted}
+                onChange={e => setTermsAccepted(e.target.checked)}
+                required
+              />
+              <span className="text-xs text-slate-500">
+                I agree to the{' '}
+                <Link href="/terms" className="underline hover:text-slate-700" target="_blank">Terms of Service</Link>
+                {' '}and{' '}
+                <Link href="/privacy" className="underline hover:text-slate-700" target="_blank">Privacy Policy</Link>
+              </span>
+            </label>
+
+            <Button type="submit" className="w-full" disabled={loading || !canSubmit()}>
               {loading ? 'Creating account…' : 'Create free account'}
             </Button>
 
