@@ -51,8 +51,22 @@ export interface Subscription {
   updated_at: string
 }
 
+export interface Course {
+  id: string
+  slug: string
+  title: string
+  description: string | null
+  icon: string | null
+  color: string | null
+  enabled: boolean
+  order_index: number
+  created_at: string
+}
+
 export interface Module {
   id: string
+  course_id: string | null
+  course_slug: string | null    // denormalized for convenient querying
   tier_slug: AgeTier
   slug: string
   title: string
@@ -110,6 +124,8 @@ export interface SiteSettings {
   curriculum_name: string
   curriculum_author: string
   curriculum_version: string
+  // Management API
+  api_key: string
 }
 
 export interface ChatMessage {

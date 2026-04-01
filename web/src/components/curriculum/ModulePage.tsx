@@ -407,6 +407,7 @@ interface ModulePageProps {
   history: Conversation[]
   isCompleted: boolean
   tier: AgeTier
+  courseSlug: string
   prevModule: { slug: string; title: string } | null
   nextModule: { slug: string; title: string } | null
   historyEnabled: boolean
@@ -419,6 +420,7 @@ export function ModulePage({
   history,
   isCompleted,
   tier,
+  courseSlug,
   prevModule,
   nextModule,
   historyEnabled,
@@ -464,7 +466,7 @@ export function ModulePage({
         duration: 4000,
       })
       if (nextModule) {
-        setTimeout(() => router.push(`/learn/${tier}/${nextModule.slug}`), 2000)
+        setTimeout(() => router.push(`/learn/${courseSlug}/${tier}/${nextModule.slug}`), 2000)
       }
     }
     setMarking(false)
@@ -547,7 +549,7 @@ export function ModulePage({
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
         <Link href="/dashboard" className="hover:text-slate-700 transition-colors">Dashboard</Link>
         <ChevronRight className="h-4 w-4" />
-        <Link href={`/learn/${tier}`} className={`font-medium transition-colors ${tierCfg.textClass}`}>
+        <Link href={`/learn/${courseSlug}/${tier}`} className={`font-medium transition-colors ${tierCfg.textClass}`}>
           {tierCfg.label}
         </Link>
         <ChevronRight className="h-4 w-4" />
@@ -604,7 +606,7 @@ export function ModulePage({
       {/* Module prev/next navigation */}
       <div className="flex justify-between mt-6 pt-4 border-t border-slate-100">
         {prevModule ? (
-          <Link href={`/learn/${tier}/${prevModule.slug}`}>
+          <Link href={`/learn/${courseSlug}/${tier}/${prevModule.slug}`}>
             <Button variant="ghost" className="text-slate-500 gap-2 rounded-xl">
               <ChevronLeft className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{prevModule.title}</span>
@@ -613,7 +615,7 @@ export function ModulePage({
           </Link>
         ) : <div />}
         {nextModule && (
-          <Link href={`/learn/${tier}/${nextModule.slug}`}>
+          <Link href={`/learn/${courseSlug}/${tier}/${nextModule.slug}`}>
             <Button variant="ghost" className="text-slate-500 gap-2 rounded-xl">
               <span className="hidden sm:inline text-sm">{nextModule.title}</span>
               <span className="sm:hidden text-sm">Next</span>

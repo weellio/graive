@@ -2,20 +2,25 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getSiteSettings } from '@/lib/config/site'
 import { ModulePage } from '@/components/curriculum/ModulePage'
-import type { AgeTier, Module, Conversation, Profile } from '@/types'
-import { TIER_CONFIG } from '@/types'
+import { TIER_CONFIG, type AgeTier, type Module, type Conversation, type Profile } from '@/types'
 import path from 'path'
 import fs from 'fs/promises'
 
 interface PageProps {
-  params: Promise<{ tier: string; module: string }>
+  params: Promise<{ course: string; tier: string; module: string }>
 }
 
 export default async function LearnModulePage({ params }: PageProps) {
-  const { tier, module: moduleSlug } = await params
+  const { course, tier, module: moduleSlug } = await params
+
+  const tierConfig = TIER_CONFIG[tier as AgeTier]
+  if (!tierConfig) notFound()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin')
+
+  const today = new Date().toISOString().slice(0, 10)
 
   const [{ data: profile }, { data: moduleData }, { data: subscription }, settings] =
     await Promise.all([
@@ -26,7 +31,7 @@ export default async function LearnModulePage({ params }: PageProps) {
         .eq('tier_slug', tier)
         .eq('slug', moduleSlug)
         .eq('enabled', true)
-        .or(`publish_date.is.null,publish_date.lte.${new Date().toISOString().slice(0, 10)}`)
+        .or(`publish_date.is.null,publish_date.lte.${today}`)
         .single(),
       supabase.from('subscriptions').select('*').eq('user_id', user.id).single(),
       getSiteSettings(),
@@ -34,17 +39,24 @@ export default async function LearnModulePage({ params }: PageProps) {
 
   if (!moduleData) notFound()
 
-  const tierConfig = TIER_CONFIG[tier as AgeTier]
-  if (!tierConfig) notFound()
-
-  // Gate paid tiers
   const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing'
-  if (!tierConfig.free && !isSubscribed) {
-    redirect('/account/billing?reason=tier-locked')
+
+  // Free gating: first module (lowest order_index) per tier is always accessible
+  const { data: firstModule } = await supabase
+    .from('modules')
+    .select('id')
+    .eq('tier_slug', tier)
+    .eq('enabled', true)
+    .order('order_index')
+    .limit(1)
+    .single()
+
+  const isFirstModule = firstModule?.id === moduleData.id
+  if (!isSubscribed && !isFirstModule) {
+    redirect('/account/billing?reason=module-locked')
   }
 
-  // Load markdown content — DB content takes priority (imported curriculum),
-  // then fall back to filesystem path, then placeholder
+  // Load markdown content
   let content = ''
   if ((moduleData as unknown as { content?: string }).content) {
     content = (moduleData as unknown as { content: string }).content
@@ -70,7 +82,6 @@ export default async function LearnModulePage({ params }: PageProps) {
     history = (data || []) as Conversation[]
   }
 
-  // Check progress
   const { data: progressRow } = await supabase
     .from('progress')
     .select('id')
@@ -78,7 +89,6 @@ export default async function LearnModulePage({ params }: PageProps) {
     .eq('module_id', moduleData.id)
     .single()
 
-  // Get adjacent modules for navigation
   const { data: allModules } = await supabase
     .from('modules')
     .select('id, slug, title, order_index')
@@ -98,6 +108,7 @@ export default async function LearnModulePage({ params }: PageProps) {
       history={history}
       isCompleted={!!progressRow}
       tier={tier as AgeTier}
+      courseSlug={course}
       prevModule={prevModule}
       nextModule={nextModule}
       historyEnabled={settings.conversation_history_enabled === 'true'}

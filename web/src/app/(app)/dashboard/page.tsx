@@ -73,7 +73,7 @@ export default async function DashboardPage() {
               All {userModules.length} modules complete · {completedCount * 100} XP earned
             </p>
           </div>
-          <Link href={`/learn/${userTier}/certificate`}>
+          <Link href={`/learn/ai-literacy/${userTier}/certificate`}>
             <Button className="bg-amber-500 hover:bg-amber-600 text-white gap-2 shrink-0">
               <Trophy className="h-4 w-4" /> View Certificate
             </Button>
@@ -122,7 +122,7 @@ export default async function DashboardPage() {
 
       {/* ── Next Up card ──────────────────────────────────────────────────── */}
       {nextModule && !tierComplete && (
-        <Link href={`/learn/${userTier}/${nextModule.slug}`}>
+        <Link href={`/learn/ai-literacy/${userTier}/${nextModule.slug}`}>
           <div
             className="rounded-2xl p-5 border-2 hover-lift cursor-pointer flex items-center gap-4"
             style={{ borderColor: tierCfg.color, backgroundColor: tierCfg.color + '0d' }}
@@ -206,7 +206,7 @@ export default async function DashboardPage() {
                         </Button>
                       </Link>
                     ) : (
-                      <Link href={`/learn/${tier}`}>
+                      <Link href={`/learn/ai-literacy/${tier}`}>
                         <Button variant="ghost" size="sm" className="w-full text-xs">
                           {isAllDone ? 'Review' : done > 0 ? 'Continue' : 'Start'}
                           <ChevronRight className="h-3 w-3 ml-1" />
@@ -229,7 +229,7 @@ export default async function DashboardPage() {
             const done = completedIds.has(mod.id)
             const isNext = mod.id === nextModule?.id
             return (
-              <Link key={mod.id} href={`/learn/${userTier}/${mod.slug}`}>
+              <Link key={mod.id} href={`/learn/ai-literacy/${userTier}/${mod.slug}`}>
                 <Card className={`h-full hover-lift ${
                   done ? 'bg-amber-50 border-amber-200' :
                   isNext ? `border-2` : ''

@@ -312,3 +312,51 @@ create policy "Admins can manage site_settings" on site_settings for all using (
 create policy "Admins can view all profiles" on profiles for select using (
   exists (select 1 from profiles where id = auth.uid() and role = 'admin')
 );
+
+-- ============================================================
+-- MIGRATION: Courses + course columns on modules
+-- Run this block if upgrading an existing installation
+-- ============================================================
+
+-- 1. Courses table
+create table if not exists courses (
+  id uuid primary key default uuid_generate_v4(),
+  slug text not null unique,
+  title text not null,
+  description text,
+  icon text,
+  color text,
+  enabled boolean not null default true,
+  order_index integer not null default 0,
+  created_at timestamptz default now()
+);
+
+-- Seed the default AI Literacy course
+insert into courses (slug, title, description, icon, color, enabled, order_index)
+values ('ai-literacy', 'AI Literacy', 'How artificial intelligence works, how to use it, and how to think critically about it.', '🤖', '#6366f1', true, 0)
+on conflict (slug) do nothing;
+
+-- 2. Add course columns to modules
+alter table modules
+  add column if not exists course_id uuid references courses(id) on delete set null,
+  add column if not exists course_slug text not null default 'ai-literacy';
+
+-- Back-fill existing modules to the ai-literacy course
+update modules m
+set course_id = c.id, course_slug = 'ai-literacy'
+from courses c
+where c.slug = 'ai-literacy'
+  and m.course_id is null;
+
+-- 3. Add api_key to site_settings
+insert into site_settings (key, value)
+values ('api_key', '')
+on conflict (key) do nothing;
+
+-- 4. RLS for courses table
+alter table courses enable row level security;
+create policy if not exists "Anyone can read enabled courses" on courses for select using (enabled = true);
+create policy if not exists "Admins can manage courses" on courses for all using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+

@@ -43,7 +43,7 @@ export default function AdminModulesPage() {
     toast.success(`Module ${mod.enabled ? 'disabled' : 'enabled'}`)
   }
 
-  const tiers: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator']
+  const tiers: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator', 'creator']
 
   if (loading) {
     return <div className="text-sm text-slate-400 py-8 text-center">Loading modules…</div>

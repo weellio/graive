@@ -63,6 +63,7 @@ export function getDefaultSettings(): SiteSettings {
     curriculum_name: 'AI Literacy',
     curriculum_author: '',
     curriculum_version: '1.0',
+    api_key: '',
   }
 }
 

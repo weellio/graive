@@ -61,7 +61,7 @@ export function AppNav({ profile, brandName, logoUrl }: AppNavProps) {
                   Dashboard
                 </Button>
               </Link>
-              <Link href={`/learn/${profile.age_tier}`}>
+              <Link href={`/learn/ai-literacy/${profile.age_tier}`}>
                 <Button
                   variant={pathname.startsWith('/learn') ? 'secondary' : 'ghost'}
                   size="sm"
