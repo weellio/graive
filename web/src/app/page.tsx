@@ -202,7 +202,18 @@ export default async function LandingPage() {
                 style={{ backgroundColor: '#00e5ff' }}
               />
 
-              {/* Image with radial edge fade */}
+              {/* Blurred pulsing copy — scales 110→150% with blur, creates moving glow halo */}
+              <Image
+                src={logoSrc}
+                alt=""
+                aria-hidden="true"
+                width={340}
+                height={340}
+                className="absolute inset-0 object-contain"
+                style={{ animation: 'logo-breathe 4s ease-in-out infinite' }}
+              />
+
+              {/* Sharp logo on top */}
               <Image
                 src={logoSrc}
                 alt={brandName}
@@ -210,52 +221,15 @@ export default async function LandingPage() {
                 height={340}
                 className="relative object-contain"
                 priority
-                style={{
-                  maskImage: 'radial-gradient(ellipse 78% 78% at 50% 50%, black 55%, transparent 100%)',
-                  WebkitMaskImage: 'radial-gradient(ellipse 78% 78% at 50% 50%, black 55%, transparent 100%)',
-                }}
               />
 
-              {/* Electric arc SVG overlays */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                viewBox="0 0 340 340"
-                fill="none"
-              >
-                <style>{`
-                  @keyframes arc-spin { from { stroke-dashoffset: 900 } to { stroke-dashoffset: 0 } }
-                  @keyframes arc-pulse { 0%,100% { opacity: 0.15 } 50% { opacity: 0.7 } }
-                  @keyframes arc-spin-rev { from { stroke-dashoffset: 0 } to { stroke-dashoffset: -1100 } }
-                  .arc1 { animation: arc-spin 4s linear infinite, arc-pulse 3s ease-in-out infinite; }
-                  .arc2 { animation: arc-spin-rev 6s linear infinite, arc-pulse 4s ease-in-out infinite 1s; }
-                  .arc3 { animation: arc-spin 9s linear infinite, arc-pulse 5s ease-in-out infinite 0.5s; }
-                `}</style>
-
-                {/* Outer ring — magenta */}
-                <ellipse
-                  cx="170" cy="170" rx="158" ry="158"
-                  stroke="#e040fb" strokeWidth="1.2"
-                  strokeDasharray="18 6 4 6 10 8 3 12"
-                  className="arc1"
-                  strokeLinecap="round"
-                />
-                {/* Mid ring — cyan */}
-                <ellipse
-                  cx="170" cy="170" rx="138" ry="138"
-                  stroke="#00e5ff" strokeWidth="0.8"
-                  strokeDasharray="8 14 3 10 6 18"
-                  className="arc2"
-                  strokeLinecap="round"
-                />
-                {/* Inner ring — white spark */}
-                <ellipse
-                  cx="170" cy="170" rx="118" ry="118"
-                  stroke="rgba(255,255,255,0.6)" strokeWidth="0.5"
-                  strokeDasharray="3 20 2 15 1 25"
-                  className="arc3"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <style>{`
+                @keyframes logo-breathe {
+                  0%   { transform: scale(1.1);  filter: blur(8px)  opacity(0.55); }
+                  50%  { transform: scale(1.5);  filter: blur(18px) opacity(0.3);  }
+                  100% { transform: scale(1.1);  filter: blur(8px)  opacity(0.55); }
+                }
+              `}</style>
             </div>
           </div>
         </div>
