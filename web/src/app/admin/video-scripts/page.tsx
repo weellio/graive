@@ -18,6 +18,7 @@ export default function VideoScriptsPage() {
   const [modules, setModules] = useState<ModuleWithScript[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [tierCollapsed, setTierCollapsed] = useState<Record<string, boolean>>({})
   const [generating, setGenerating] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
@@ -122,13 +123,24 @@ export default function VideoScriptsPage() {
         const cfg = TIER_CONFIG[tier]
         const tierMods = modules.filter(m => m.tier_slug === tier)
         if (tierMods.length === 0) return null
+        const isCollapsed = tierCollapsed[tier] ?? false
+        const scriptCount = tierMods.filter(m => m.video_script).length
 
         return (
           <div key={tier} className="space-y-2">
-            <h2 className={`text-sm font-semibold ${cfg.textClass} uppercase tracking-wide`}>
-              {cfg.label} · {cfg.ageRange}
-            </h2>
-            {tierMods.map(mod => {
+            <button
+              onClick={() => setTierCollapsed(prev => ({ ...prev, [tier]: !prev[tier] }))}
+              className="w-full flex items-center justify-between gap-2 py-1 group"
+            >
+              <h2 className={`text-sm font-semibold ${cfg.textClass} uppercase tracking-wide`}>
+                {cfg.label} · {cfg.ageRange}
+              </h2>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{scriptCount}/{tierMods.length} scripts</span>
+                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
+              </div>
+            </button>
+            {!isCollapsed && tierMods.map(mod => {
               const isOpen = expanded === mod.id
               const hasScript = !!mod.video_script
               return (

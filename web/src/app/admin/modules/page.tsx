@@ -9,12 +9,17 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { TIER_CONFIG, type AgeTier, type Module } from '@/types'
-import { Clock, GripVertical, Plus, Pencil } from 'lucide-react'
+import { Clock, GripVertical, Plus, Pencil, ChevronDown } from 'lucide-react'
 
 export default function AdminModulesPage() {
   const [modules, setModules] = useState<Module[]>([])
   const [loading, setLoading] = useState(true)
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const supabase = createClient()
+
+  function toggleCollapsed(tier: string) {
+    setCollapsed(prev => ({ ...prev, [tier]: !prev[tier] }))
+  }
 
   useEffect(() => {
     fetch('/api/admin/modules')
@@ -65,15 +70,26 @@ export default function AdminModulesPage() {
         const cfg = TIER_CONFIG[tier]
         const tierModules = modules.filter(m => m.tier_slug === tier)
         if (tierModules.length === 0) return null
+        const isCollapsed = collapsed[tier] ?? false
+        const enabledCount = tierModules.filter(m => m.enabled).length
 
         return (
           <Card key={tier}>
-            <CardHeader className={`pb-3 rounded-t-xl ${cfg.bgClass} border-b ${cfg.borderClass}`}>
-              <CardTitle className={`text-sm font-semibold ${cfg.textClass}`}>
-                {cfg.label} · {cfg.ageRange}
-              </CardTitle>
+            <CardHeader
+              className={`pb-3 rounded-t-xl ${cfg.bgClass} border-b ${cfg.borderClass} cursor-pointer select-none ${isCollapsed ? 'rounded-b-xl border-b-0' : ''}`}
+              onClick={() => toggleCollapsed(tier)}
+            >
+              <div className="flex items-center justify-between">
+                <CardTitle className={`text-sm font-semibold ${cfg.textClass}`}>
+                  {cfg.label} · {cfg.ageRange}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{enabledCount}/{tierModules.length} enabled</span>
+                  <ChevronDown className={`h-4 w-4 ${cfg.textClass} transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="p-0">
+            {!isCollapsed && <CardContent className="p-0">
               {tierModules.map((mod, idx) => (
                 <div
                   key={mod.id}
@@ -110,7 +126,7 @@ export default function AdminModulesPage() {
                   </div>
                 </div>
               ))}
-            </CardContent>
+            </CardContent>}
           </Card>
         )
       })}
