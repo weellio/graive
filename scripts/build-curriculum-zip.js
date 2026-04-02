@@ -38,7 +38,7 @@ const tierArg = tierIdx !== -1 ? args[tierIdx + 1] : null
 const outArg  = outIdx  !== -1 ? args[outIdx  + 1] : null
 const outFile = outArg || (tierArg ? `curriculum-${tierArg}.zip` : 'curriculum-bundle.zip')
 
-const curriculumRoot = path.join(__dirname, '..', 'curriculum')
+const curriculumRoot = path.join(__dirname, '..', 'web', 'curriculum')
 
 function extractTitle(markdown) {
   const m = markdown.match(/^#\s+(?:Lesson Plan:\s*)?(.+)/m)

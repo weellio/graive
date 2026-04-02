@@ -53,7 +53,7 @@ export default async function LearnModulePage({ params }: PageProps) {
     content = (moduleData as unknown as { content: string }).content
   } else {
     try {
-      const filePath = path.join(process.cwd(), '..', 'curriculum', moduleData.content_path)
+      const filePath = path.join(process.cwd(), 'curriculum', moduleData.content_path)
       content = await fs.readFile(filePath, 'utf-8')
     } catch {
       content = `# ${moduleData.title}\n\n${moduleData.description || ''}\n\n*Content coming soon.*`

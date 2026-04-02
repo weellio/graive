@@ -44,8 +44,8 @@ export async function POST() {
   // Resolve curriculum root — try repo-root sibling first (local dev + Vercel monorepo),
   // then same-directory fallback (if curriculum was moved inside web/)
   const candidates = [
-    path.join(process.cwd(), '..', 'curriculum'),
     path.join(process.cwd(), 'curriculum'),
+    path.join(process.cwd(), '..', 'curriculum'),
   ]
   let curriculumRoot = candidates[0]
   for (const c of candidates) {
