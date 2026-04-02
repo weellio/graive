@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Upload, Download, FileArchive, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, Download, FileArchive, CheckCircle2, AlertCircle, Loader2, RefreshCw } from 'lucide-react'
 
 interface ImportResult {
   success: boolean
@@ -18,7 +18,25 @@ export default function AdminCurriculumPage() {
   const [dragging, setDragging] = useState(false)
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const [syncingLocal, setSyncingLocal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function syncFromServer() {
+    setSyncingLocal(true)
+    try {
+      const res = await fetch('/api/admin/curriculum/import-local', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        toast.success(`Synced — ${data.results.imported} modules imported/updated`)
+      } else {
+        toast.error(data.error || 'Sync failed')
+      }
+    } catch {
+      toast.error('Network error')
+    } finally {
+      setSyncingLocal(false)
+    }
+  }
 
   async function handleFile(file: File) {
     if (!file.name.endsWith('.zip')) {
@@ -70,6 +88,31 @@ export default function AdminCurriculumPage() {
           Import and export curriculum bundles. Swap subjects without touching code.
         </p>
       </div>
+
+      {/* Sync from server filesystem */}
+      <Card className="border-indigo-200 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-800">
+        <CardContent className="pt-5">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-foreground">Sync from Server</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Import all curriculum folders directly from the server filesystem — including the Creator (18+) tier. Safe to run multiple times (upserts by tier+slug).
+              </p>
+            </div>
+            <Button
+              onClick={syncFromServer}
+              disabled={syncingLocal}
+              className="shrink-0 gap-1.5"
+            >
+              {syncingLocal
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <RefreshCw className="h-4 w-4" />
+              }
+              {syncingLocal ? 'Syncing…' : 'Sync Now'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Import */}
@@ -243,7 +286,7 @@ export default function AdminCurriculumPage() {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Badge variant="outline" className="text-xs">Tier slugs are fixed: explorer / builder / thinker / innovator</Badge>
+            <Badge variant="outline" className="text-xs">Tier slugs: explorer / builder / thinker / innovator / creator</Badge>
             <Badge variant="outline" className="text-xs">Rename tier labels in Admin → Theme</Badge>
             <Badge variant="outline" className="text-xs">Empty ai_prompts = use platform defaults</Badge>
             <Badge variant="outline" className="text-xs">Import is non-destructive: upserts by tier+slug</Badge>

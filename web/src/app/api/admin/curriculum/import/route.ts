@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
   // Import each module
   for (const tier of manifest.tiers) {
-    const validTiers = ['explorer', 'builder', 'thinker', 'innovator']
+    const validTiers = ['explorer', 'builder', 'thinker', 'innovator', 'creator']
     if (!validTiers.includes(tier.slug)) {
       results.errors.push(`Unknown tier slug: ${tier.slug}`)
       continue
