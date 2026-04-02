@@ -41,8 +41,9 @@ export default async function LearnModulePage({ params }: PageProps) {
 
   const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
 
-  // Free gating: entire free tiers are always accessible; other tiers require subscription
-  if (!isSubscribed && !tierConfig.free) {
+  // Free gating: tiers listed in free_tiers setting are always accessible
+  const freeTierSlugs = (settings.free_tiers || 'explorer').split(',').map(s => s.trim())
+  if (!isSubscribed && !freeTierSlugs.includes(tier)) {
     redirect('/account/billing?reason=module-locked')
   }
 

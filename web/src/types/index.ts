@@ -127,6 +127,8 @@ export interface SiteSettings {
   curriculum_version: string
   // Management API
   api_key: string
+  // Access control — comma-separated list of tier slugs that are free without subscription
+  free_tiers: string
 }
 
 export interface ChatMessage {

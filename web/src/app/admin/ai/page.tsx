@@ -13,6 +13,14 @@ import {
 import { toast } from 'sonner'
 import { RefreshCw } from 'lucide-react'
 
+const TIERS = [
+  { slug: 'explorer',  label: 'Explorer',  ages: 'Ages 10–11' },
+  { slug: 'builder',   label: 'Builder',   ages: 'Ages 12–13' },
+  { slug: 'thinker',   label: 'Thinker',   ages: 'Ages 14–15' },
+  { slug: 'innovator', label: 'Innovator', ages: 'Ages 16–18' },
+  { slug: 'creator',   label: 'Creator',   ages: 'Ages 18+' },
+]
+
 interface AISettings {
   llm_provider: string
   llm_model: string
@@ -20,6 +28,7 @@ interface AISettings {
   conversation_history_enabled: string
   free_tier_daily_message_limit: string
   paid_tier_daily_message_limit: string
+  free_tiers: string
 }
 
 const DEFAULTS: AISettings = {
@@ -29,6 +38,7 @@ const DEFAULTS: AISettings = {
   conversation_history_enabled: 'true',
   free_tier_daily_message_limit: '10',
   paid_tier_daily_message_limit: '200',
+  free_tiers: 'explorer',
 }
 
 const PROVIDER_DOCS: Record<string, string> = {
@@ -97,6 +107,14 @@ export default function AdminAIPage() {
 
   function set(key: keyof AISettings, value: string) {
     setSettings(prev => ({ ...prev, [key]: value }))
+  }
+
+  function toggleFreeTier(slug: string, enabled: boolean) {
+    setSettings(prev => {
+      const current = prev.free_tiers.split(',').map(s => s.trim()).filter(Boolean)
+      const next = enabled ? [...new Set([...current, slug])] : current.filter(s => s !== slug)
+      return { ...prev, free_tiers: next.join(',') }
+    })
   }
 
   return (
@@ -245,6 +263,32 @@ export default function AdminAIPage() {
               <p className="text-xs text-slate-400">Subscribers (all tiers). Prevents API cost abuse.</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Free Access</CardTitle>
+          <CardDescription className="text-xs mt-0.5">
+            Tiers enabled here are accessible without a subscription.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {TIERS.map(t => {
+            const isFree = settings.free_tiers.split(',').map(s => s.trim()).includes(t.slug)
+            return (
+              <div key={t.slug} className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">{t.label}</p>
+                  <p className="text-xs text-slate-400">{t.ages}</p>
+                </div>
+                <Switch
+                  checked={isFree}
+                  onCheckedChange={v => toggleFreeTier(t.slug, v)}
+                />
+              </div>
+            )
+          })}
         </CardContent>
       </Card>
 

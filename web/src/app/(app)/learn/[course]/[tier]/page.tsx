@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getSiteSettings } from '@/lib/config/site'
 import { TIER_CONFIG, type AgeTier, type Module } from '@/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -31,7 +32,7 @@ export default async function CourseTierPage({ params }: PageProps) {
 
   const today = new Date().toISOString().slice(0, 10)
 
-  const [{ data: modules }, { data: progressRows }, { data: subscription }] =
+  const [{ data: modules }, { data: progressRows }, { data: subscription }, settings] =
     await Promise.all([
       supabase
         .from('modules')
@@ -42,9 +43,12 @@ export default async function CourseTierPage({ params }: PageProps) {
         .order('order_index'),
       supabase.from('progress').select('module_id').eq('user_id', user.id),
       supabase.from('subscriptions').select('status').eq('user_id', user.id).single(),
+      getSiteSettings(),
     ])
 
   const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
+  const freeTierSlugs = (settings.free_tiers || 'explorer').split(',').map(s => s.trim())
+  const isTierFree = freeTierSlugs.includes(tier)
   const allModules = (modules || []) as Module[]
 
   const completedIds = new Set((progressRows || []).map(p => p.module_id))
@@ -93,7 +97,7 @@ export default async function CourseTierPage({ params }: PageProps) {
         {allModules.map((mod, idx) => {
           const done = completedIds.has(mod.id)
           const isCurrent = !done && allModules.slice(0, idx).every(m => completedIds.has(m.id))
-          const isFreeModule = tierConfig.free
+          const isFreeModule = isTierFree
           const isLocked = !isSubscribed && !isFreeModule
 
           const card = (
