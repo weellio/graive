@@ -96,7 +96,7 @@ export default function AdminCurriculumPage() {
             <div>
               <p className="text-sm font-medium text-foreground">Sync from Server</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Import all curriculum folders directly from the server filesystem — including the Creator (18+) tier. Safe to run multiple times (upserts by tier+slug).
+                Import all curriculum folders from the server filesystem. Safe to run multiple times — upserts by tier+slug.
               </p>
             </div>
             <Button
