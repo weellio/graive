@@ -397,7 +397,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
               <Select value={draft.tier_slug} onValueChange={v => set('tier_slug', v as AgeTier)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {(['explorer', 'builder', 'thinker', 'innovator'] as AgeTier[]).map(t => (
+                  {(['explorer', 'builder', 'thinker', 'innovator', 'creator'] as AgeTier[]).map(t => (
                     <SelectItem key={t} value={t}>{TIER_CONFIG[t].label} · {TIER_CONFIG[t].ageRange}</SelectItem>
                   ))}
                 </SelectContent>
@@ -442,12 +442,21 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
             </div>
 
             <div className="col-span-2 grid gap-1.5">
-              <Label>Video URL <span className="text-muted-foreground font-normal">(optional, YouTube embed)</span></Label>
+              <Label>Video URL <span className="text-muted-foreground font-normal">(optional — paste any YouTube URL)</span></Label>
               <Input
                 value={draft.video_url}
-                onChange={e => set('video_url', e.target.value)}
-                placeholder="https://www.youtube.com/embed/..."
+                onChange={e => {
+                  // Auto-convert watch/short URLs to embed format
+                  let url = e.target.value.trim()
+                  const watchMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+                  if (watchMatch) url = `https://www.youtube.com/embed/${watchMatch[1]}?rel=0&modestbranding=1`
+                  set('video_url', url)
+                }}
+                placeholder="https://www.youtube.com/watch?v=… or youtu.be/…"
               />
+              {draft.video_url && (
+                <p className="text-xs text-muted-foreground font-mono truncate">{draft.video_url}</p>
+              )}
             </div>
 
             <div className="col-span-2 flex items-center justify-between p-3 bg-muted rounded-lg border border-border">
