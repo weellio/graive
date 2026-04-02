@@ -6,6 +6,13 @@
     "author": "GRAIVE",
     "version": "2.0"
   },
+  "slug_map": {
+    "ages-10-11":   "explorer",
+    "ages-12-13":   "builder",
+    "ages-14-15":   "thinker",
+    "ages-16-18":   "innovator",
+    "ages-18-plus": "creator"
+  },
   "ai_prompts": {
     "explorer": "You are Spark, a warm and enthusiastic AI tutor for children aged 10–11. You are helping with the current lesson only — stay strictly on the lesson topic. Keep your responses short (under 120 words), use simple everyday language, and include lots of encouragement. If a student asks about something outside the lesson, gently redirect: 'Great question! Let's focus on today's lesson for now.' Never discuss personal topics, real people, or anything unrelated to AI literacy. Use fun analogies kids relate to — cooking, sports, animals, games.",
     "builder": "You are Sage, a knowledgeable and friendly AI tutor for students aged 12–13. You are helping with the current lesson. You can discuss AI, technology, the internet, and digital life topics that relate to the lesson. Keep responses clear and engaging — around 150–200 words max. Encourage students to think critically: ask 'What do you think?' and 'Why might that be?' Use real-world examples from social media, games, and technology they know. Avoid adult content and stay age-appropriate.",
@@ -474,6 +481,68 @@
           "estimated_minutes": 60,
           "video_url": null,
           "content_file": "ages-16-18/module-12-innovator-challenge/lesson-plan-expanded.md"
+        }
+      ]
+    },
+    {
+      "slug": "creator",
+      "label": "Creator",
+      "age_range": "Ages 18+",
+      "theme": "Professional AI Mastery",
+      "modules": [
+        {
+          "slug": "ai-stack",
+          "title": "The Modern AI Stack",
+          "description": "The complete stack from LLMs through APIs, vector databases, and orchestration layers.",
+          "order_index": 1,
+          "estimated_minutes": 60,
+          "video_url": null,
+          "content_file": "ages-18-plus/module-01-ai-stack/lesson-plan.md"
+        },
+        {
+          "slug": "prompt-engineering-pro",
+          "title": "Professional Prompt Engineering",
+          "description": "Advanced patterns: system prompts, few-shot, chain-of-thought, and meta-prompting.",
+          "order_index": 2,
+          "estimated_minutes": 60,
+          "video_url": null,
+          "content_file": "ages-18-plus/module-02-prompt-engineering-pro/lesson-plan.md"
+        },
+        {
+          "slug": "agents",
+          "title": "Building AI Agents",
+          "description": "Design and implement autonomous agents with tool use and multi-step reasoning.",
+          "order_index": 3,
+          "estimated_minutes": 65,
+          "video_url": null,
+          "content_file": "ages-18-plus/module-03-agents/lesson-plan.md"
+        },
+        {
+          "slug": "rag",
+          "title": "RAG — Teaching AI Your Own Data",
+          "description": "Retrieval-augmented generation: embeddings, vector stores, and document pipelines.",
+          "order_index": 4,
+          "estimated_minutes": 65,
+          "video_url": null,
+          "content_file": "ages-18-plus/module-04-rag/lesson-plan.md"
+        },
+        {
+          "slug": "ship-it",
+          "title": "Ship an AI Product in a Weekend",
+          "description": "End-to-end: idea, build, deploy, get first users. Move fast and ship real things.",
+          "order_index": 5,
+          "estimated_minutes": 70,
+          "video_url": null,
+          "content_file": "ages-18-plus/module-05-ship-it/lesson-plan.md"
+        },
+        {
+          "slug": "ai-business",
+          "title": "Running a Lean AI Business",
+          "description": "Pricing, positioning, cost management, and building a sustainable AI product.",
+          "order_index": 6,
+          "estimated_minutes": 60,
+          "video_url": null,
+          "content_file": "ages-18-plus/module-06-ai-business/lesson-plan.md"
         }
       ]
     }
