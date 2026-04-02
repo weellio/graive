@@ -129,6 +129,8 @@ export interface SiteSettings {
   api_key: string
   // Access control — comma-separated list of tier slugs that are free without subscription
   free_tiers: string
+  // Companion — comma-separated tier slugs that show the Spark companion in chat
+  companion_tiers: string
 }
 
 export interface ChatMessage {

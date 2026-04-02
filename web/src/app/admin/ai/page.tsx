@@ -29,6 +29,7 @@ interface AISettings {
   free_tier_daily_message_limit: string
   paid_tier_daily_message_limit: string
   free_tiers: string
+  companion_tiers: string
 }
 
 const DEFAULTS: AISettings = {
@@ -39,6 +40,7 @@ const DEFAULTS: AISettings = {
   free_tier_daily_message_limit: '10',
   paid_tier_daily_message_limit: '200',
   free_tiers: 'explorer',
+  companion_tiers: 'explorer',
 }
 
 const PROVIDER_DOCS: Record<string, string> = {
@@ -114,6 +116,14 @@ export default function AdminAIPage() {
       const current = prev.free_tiers.split(',').map(s => s.trim()).filter(Boolean)
       const next = enabled ? [...new Set([...current, slug])] : current.filter(s => s !== slug)
       return { ...prev, free_tiers: next.join(',') }
+    })
+  }
+
+  function toggleCompanionTier(slug: string, enabled: boolean) {
+    setSettings(prev => {
+      const current = prev.companion_tiers.split(',').map(s => s.trim()).filter(Boolean)
+      const next = enabled ? [...new Set([...current, slug])] : current.filter(s => s !== slug)
+      return { ...prev, companion_tiers: next.join(',') }
     })
   }
 
@@ -286,6 +296,32 @@ export default function AdminAIPage() {
                 <Switch
                   checked={isFree}
                   onCheckedChange={v => toggleFreeTier(t.slug, v)}
+                />
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">AI Companion</CardTitle>
+          <CardDescription className="text-xs mt-0.5">
+            Show the animated Spark companion in the chat panel for selected tiers.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {TIERS.map(t => {
+            const isOn = settings.companion_tiers.split(',').map(s => s.trim()).includes(t.slug)
+            return (
+              <div key={t.slug} className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t.label}</p>
+                  <p className="text-xs text-muted-foreground">{t.ages}</p>
+                </div>
+                <Switch
+                  checked={isOn}
+                  onCheckedChange={v => toggleCompanionTier(t.slug, v)}
                 />
               </div>
             )

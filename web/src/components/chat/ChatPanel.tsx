@@ -8,6 +8,7 @@ import { TIER_CONFIG, type AgeTier, type ChatMessage } from '@/types'
 import { Send, Bot, User, Loader2, GraduationCap, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import ReactMarkdown from 'react-markdown'
+import { SparkCompanion } from './SparkCompanion'
 
 const PLAYGROUND_COLOR = '#10b981' // emerald-500
 
@@ -17,9 +18,10 @@ interface ChatPanelProps {
   tier: AgeTier
   initialMessages: ChatMessage[]
   historyEnabled: boolean
+  companionEnabled?: boolean
 }
 
-export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, historyEnabled }: ChatPanelProps) {
+export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, historyEnabled, companionEnabled = false }: ChatPanelProps) {
   const [mode, setMode] = useState<'tutor' | 'playground'>('tutor')
   const [tutorMessages, setTutorMessages] = useState<ChatMessage[]>(initialMessages)
   const [playMessages, setPlayMessages] = useState<ChatMessage[]>([])
@@ -34,6 +36,9 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
 
   const accentColor = mode === 'playground' ? PLAYGROUND_COLOR : tierCfg.color
   const assistantName = tier === 'explorer' ? 'Spark' : 'Sage'
+  const sparkState = streaming
+    ? (messages[messages.length - 1]?.content === '' ? 'thinking' : 'responding')
+    : 'idle'
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -164,7 +169,10 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4" style={{ position: 'relative' }}>
+        {companionEnabled && mode === 'tutor' && (
+          <SparkCompanion state={sparkState} color={accentColor} />
+        )}
         {messages.length === 0 ? emptyState : (
           <div className="space-y-4">
             {messages.map((msg, i) => (

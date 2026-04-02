@@ -103,6 +103,7 @@ export default async function LearnModulePage({ params }: PageProps) {
       prevModule={prevModule}
       nextModule={nextModule}
       historyEnabled={settings.conversation_history_enabled === 'true'}
+      companionEnabled={(settings.companion_tiers || 'explorer').split(',').map(s => s.trim()).includes(tier)}
     />
   )
 }

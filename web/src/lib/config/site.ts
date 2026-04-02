@@ -66,6 +66,7 @@ export function getDefaultSettings(): SiteSettings {
     curriculum_version: '1.0',
     api_key: '',
     free_tiers: 'explorer',
+    companion_tiers: 'explorer',
   }
 }
 

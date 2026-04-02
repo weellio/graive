@@ -164,3 +164,8 @@
     transform: translateY(0);
   }
 }
+
+@keyframes spark-dot {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50%       { transform: translateY(-4px); opacity: 1; }
+}

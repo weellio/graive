@@ -411,6 +411,7 @@ interface ModulePageProps {
   prevModule: { slug: string; title: string } | null
   nextModule: { slug: string; title: string } | null
   historyEnabled: boolean
+  companionEnabled?: boolean
 }
 
 export function ModulePage({
@@ -424,6 +425,7 @@ export function ModulePage({
   prevModule,
   nextModule,
   historyEnabled,
+  companionEnabled = false,
 }: ModulePageProps) {
   const router = useRouter()
   const [completed, setCompleted] = useState(isCompleted)
@@ -575,6 +577,7 @@ export function ModulePage({
             tier={tier}
             initialMessages={initialMessages}
             historyEnabled={historyEnabled}
+            companionEnabled={companionEnabled}
           />
         </div>
       </div>
