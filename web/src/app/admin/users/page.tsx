@@ -18,14 +18,14 @@ interface UserRow extends Profile {
 }
 
 const PLAN_OPTIONS: { value: SubscriptionPlan; label: string; badge: string }[] = [
-  { value: 'free',    label: 'Free',    badge: 'bg-slate-100 text-slate-600 border-slate-200' },
+  { value: 'free',    label: 'Free',    badge: 'bg-muted text-muted-foreground border-border' },
   { value: 'monthly', label: 'Monthly', badge: 'bg-green-100 text-green-700 border-green-200' },
   { value: 'annual',  label: 'Annual',  badge: 'bg-blue-100 text-blue-700 border-blue-200'   },
   { value: 'beta',    label: 'Beta',    badge: 'bg-violet-100 text-violet-700 border-violet-200' },
 ]
 
 function planBadgeClass(plan: SubscriptionPlan) {
-  return PLAN_OPTIONS.find(p => p.value === plan)?.badge ?? 'bg-slate-100 text-slate-500'
+  return PLAN_OPTIONS.find(p => p.value === plan)?.badge ?? 'bg-muted text-muted-foreground'
 }
 
 export default function AdminUsersPage() {
@@ -78,14 +78,14 @@ export default function AdminUsersPage() {
   }
 
   if (loading) {
-    return <div className="text-sm text-slate-400 py-8 text-center">Loading users…</div>
+    return <div className="text-sm text-muted-foreground py-8 text-center">Loading users…</div>
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Users</h1>
-        <p className="text-sm text-slate-500 mt-0.5">
+        <h1 className="text-xl font-bold text-foreground">Users</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
           {users.length} user{users.length !== 1 ? 's' : ''}. Use the Plan column to manually grant or revoke access.
         </p>
       </div>
@@ -95,13 +95,13 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Name / Email</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Tier</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Plan</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Role</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">AI today</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Joined</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Name / Email</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Tier</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Plan</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Role</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">AI today</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Joined</th>
                 </tr>
               </thead>
               <tbody>
@@ -110,10 +110,10 @@ export default function AdminUsersPage() {
                   const busy = updating === user.id
 
                   return (
-                    <tr key={user.id} className="border-b border-slate-50 hover:bg-slate-50">
+                    <tr key={user.id} className="border-b border-slate-50 hover:bg-muted">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-slate-800">{user.full_name || '—'}</p>
-                        <p className="text-xs text-slate-400">{user.email}</p>
+                        <p className="font-medium text-foreground">{user.full_name || '—'}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </td>
 
                       <td className="px-4 py-3">
@@ -128,7 +128,7 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {busy ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                           ) : (
                             <Select
                               value={user.plan}
@@ -144,10 +144,10 @@ export default function AdminUsersPage() {
                                   <SelectItem key={opt.value} value={opt.value} className="text-xs">
                                     <Badge className={`text-xs mr-1 ${opt.badge}`}>{opt.label}</Badge>
                                     {opt.value === 'beta' && (
-                                      <span className="text-slate-400 text-xs">— full access, no Stripe</span>
+                                      <span className="text-muted-foreground text-xs">— full access, no Stripe</span>
                                     )}
                                     {opt.value === 'free' && (
-                                      <span className="text-slate-400 text-xs">— Explorer only, rate-limited</span>
+                                      <span className="text-muted-foreground text-xs">— Explorer only, rate-limited</span>
                                     )}
                                   </SelectItem>
                                 ))}
@@ -161,17 +161,17 @@ export default function AdminUsersPage() {
                         {user.role === 'admin' ? (
                           <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200 text-xs">admin</Badge>
                         ) : (
-                          <span className="text-xs text-slate-400">student</span>
+                          <span className="text-xs text-muted-foreground">student</span>
                         )}
                       </td>
 
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-mono ${user.today_messages > 0 ? 'text-slate-700' : 'text-slate-300'}`}>
+                        <span className={`text-xs font-mono ${user.today_messages > 0 ? 'text-foreground' : 'text-slate-300'}`}>
                           {user.today_messages}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 text-xs text-slate-400">
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
                         {new Date(user.created_at).toLocaleDateString('en-GB', {
                           day: 'numeric', month: 'short', year: 'numeric',
                         })}
@@ -182,7 +182,7 @@ export default function AdminUsersPage() {
               </tbody>
             </table>
             {users.length === 0 && (
-              <p className="text-sm text-slate-400 text-center py-8">No users yet.</p>
+              <p className="text-sm text-muted-foreground text-center py-8">No users yet.</p>
             )}
           </div>
         </CardContent>

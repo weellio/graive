@@ -20,7 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!profile) redirect('/auth/signin')
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <AppNav
         profile={profile as Profile}
         brandName={settings.brand_name}

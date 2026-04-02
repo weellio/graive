@@ -86,7 +86,7 @@ export default async function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-bold text-slate-800">
+              <h1 className="text-2xl font-bold text-foreground">
                 Welcome back, {profile?.full_name?.split(' ')[0] || 'Learner'} 👋
               </h1>
               {/* Streak badge */}
@@ -104,15 +104,15 @@ export default async function DashboardPage() {
           </div>
 
           {/* XP */}
-          <div className="flex items-center gap-1.5 bg-white/60 rounded-xl px-4 py-2 border border-white/80 shrink-0">
+          <div className="flex items-center gap-1.5 bg-card/60 rounded-xl px-4 py-2 border border-white/80 shrink-0">
             <Zap className="h-4 w-4 text-amber-500" />
-            <span className="text-lg font-bold text-slate-800">{totalXP}</span>
-            <span className="text-sm text-slate-500">XP</span>
+            <span className="text-lg font-bold text-foreground">{totalXP}</span>
+            <span className="text-sm text-muted-foreground">XP</span>
           </div>
         </div>
 
         <div className="mt-4">
-          <div className="flex justify-between text-sm text-slate-600 mb-1">
+          <div className="flex justify-between text-sm text-muted-foreground mb-1">
             <span>{completedCount} of {userModules.length} modules complete</span>
             <span className="font-medium">{progressPct}%</span>
           </div>
@@ -137,9 +137,9 @@ export default async function DashboardPage() {
               <p className="text-xs font-semibold uppercase tracking-wide mb-0.5" style={{ color: tierCfg.color }}>
                 Up Next — Module {nextModule.order_index}
               </p>
-              <h3 className="font-bold text-slate-800 text-base leading-tight truncate">{nextModule.title}</h3>
+              <h3 className="font-bold text-foreground text-base leading-tight truncate">{nextModule.title}</h3>
               {nextModule.description && (
-                <p className="text-sm text-slate-500 mt-0.5 line-clamp-1">{nextModule.description}</p>
+                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{nextModule.description}</p>
               )}
             </div>
             <div
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
 
       {/* ── All tiers overview ────────────────────────────────────────────── */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-800 mb-4">All Learning Levels</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">All Learning Levels</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {tiers.map(tier => {
             const cfg = TIER_CONFIG[tier]
@@ -181,7 +181,7 @@ export default async function DashboardPage() {
                       <CardDescription className="text-xs">{cfg.ageRange}</CardDescription>
                     </div>
                     {isLocked ? (
-                      <Lock className="h-4 w-4 text-slate-400" />
+                      <Lock className="h-4 w-4 text-muted-foreground" />
                     ) : isCurrent ? (
                       <Badge style={{ backgroundColor: cfg.color }} className="text-white text-xs">
                         Current
@@ -192,8 +192,8 @@ export default async function DashboardPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xs text-slate-500 mb-3">{cfg.theme}</p>
-                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                  <p className="text-xs text-muted-foreground mb-3">{cfg.theme}</p>
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>{done}/{tierMods.length} modules</span>
                     {done > 0 && <span className="font-medium" style={{ color: cfg.color }}>{done * 100} XP</span>}
                   </div>
@@ -223,7 +223,7 @@ export default async function DashboardPage() {
 
       {/* ── Your modules grid ─────────────────────────────────────────────── */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-800 mb-4">Your Modules</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Your Modules</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {userModules.map(mod => {
             const done = completedIds.has(mod.id)
@@ -240,7 +240,7 @@ export default async function DashboardPage() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-slate-400">Module {mod.order_index}</span>
+                          <span className="text-xs font-medium text-muted-foreground">Module {mod.order_index}</span>
                           {done && <Star className="h-4 w-4 fill-amber-400 text-amber-400 shrink-0" />}
                           {isNext && !done && (
                             <Badge className="text-white text-xs" style={{ backgroundColor: tierCfg.color }}>
@@ -248,12 +248,12 @@ export default async function DashboardPage() {
                             </Badge>
                           )}
                         </div>
-                        <h3 className="font-semibold text-slate-800 text-sm leading-tight">{mod.title}</h3>
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{mod.description}</p>
+                        <h3 className="font-semibold text-foreground text-sm leading-tight">{mod.title}</h3>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{mod.description}</p>
                       </div>
                       <BookOpen className="h-5 w-5 text-slate-300 shrink-0 mt-0.5" />
                     </div>
-                    <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                       <span>~{mod.estimated_minutes} min</span>
                       {done && <span className="text-amber-500 font-medium">+100 XP ⭐</span>}
                     </div>

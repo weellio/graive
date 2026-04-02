@@ -43,10 +43,10 @@ export default async function CertificatePage({ params }: PageProps) {
   const fullName = profile?.full_name || 'Learner'
 
   return (
-    <div className="min-h-screen bg-slate-100 py-8 px-4">
+    <div className="min-h-screen bg-muted py-8 px-4">
       <div className="max-w-3xl mx-auto mb-6 flex items-center justify-between print:hidden">
         <Link href={`/learn/${course}/${tier}`}>
-          <Button variant="ghost" className="gap-2 text-slate-600">
+          <Button variant="ghost" className="gap-2 text-muted-foreground">
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
         </Link>
@@ -55,23 +55,23 @@ export default async function CertificatePage({ params }: PageProps) {
 
       <div
         id="certificate"
-        className="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden print:shadow-none print:rounded-none"
+        className="max-w-3xl mx-auto bg-card rounded-3xl shadow-2xl overflow-hidden print:shadow-none print:rounded-none"
         style={{ borderTop: `8px solid ${tierConfig.color}` }}
       >
         <div className="px-12 pt-10 pb-6 text-center" style={{ backgroundColor: tierConfig.color + '0f' }}>
           <div className="text-5xl mb-3">🏆</div>
-          <p className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-1">Certificate of Completion</p>
-          <h1 className="text-3xl font-bold text-slate-800">{brandName}</h1>
+          <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-1">Certificate of Completion</p>
+          <h1 className="text-3xl font-bold text-foreground">{brandName}</h1>
         </div>
 
         <div className="px-12 py-8 text-center space-y-6">
-          <p className="text-slate-500 text-base">This is to certify that</p>
+          <p className="text-muted-foreground text-base">This is to certify that</p>
           <div>
             <p className="text-4xl font-bold" style={{ color: tierConfig.color }}>
               {fullName}
             </p>
           </div>
-          <p className="text-slate-600 text-base max-w-md mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-base max-w-md mx-auto leading-relaxed">
             has successfully completed all modules in the
           </p>
           <div
@@ -81,12 +81,12 @@ export default async function CertificatePage({ params }: PageProps) {
             <p className="text-xl font-bold" style={{ color: tierConfig.color }}>
               {tierConfig.label} Level
             </p>
-            <p className="text-sm text-slate-500">{tierConfig.ageRange} · {tierConfig.theme}</p>
+            <p className="text-sm text-muted-foreground">{tierConfig.ageRange} · {tierConfig.theme}</p>
           </div>
           <div className="flex items-center justify-center gap-2 text-amber-500">
             {'⭐'.repeat(Math.min((modules ?? []).length, 6))}
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Completed on {completedOn.toLocaleDateString('en-GB', {
               day: 'numeric', month: 'long', year: 'numeric',
             })}
@@ -98,8 +98,8 @@ export default async function CertificatePage({ params }: PageProps) {
           style={{ borderColor: tierConfig.color + '30' }}
         >
           <div>
-            <p className="text-xs text-slate-400">Issued by</p>
-            <p className="text-sm font-semibold text-slate-700">{brandName}</p>
+            <p className="text-xs text-muted-foreground">Issued by</p>
+            <p className="text-sm font-semibold text-foreground">{brandName}</p>
           </div>
           <div
             className="h-12 w-12 rounded-full flex items-center justify-center text-white text-lg font-bold"
@@ -108,7 +108,7 @@ export default async function CertificatePage({ params }: PageProps) {
             {firstName[0]}
           </div>
           <div className="text-right">
-            <p className="text-xs text-slate-400">XP Earned</p>
+            <p className="text-xs text-muted-foreground">XP Earned</p>
             <p className="text-sm font-semibold text-amber-600">
               {(modules ?? []).length * 100} XP ⭐
             </p>
@@ -117,7 +117,7 @@ export default async function CertificatePage({ params }: PageProps) {
       </div>
 
       <div className="max-w-3xl mx-auto mt-6 text-center print:hidden">
-        <p className="text-sm text-slate-400">Take a screenshot to save or share your certificate!</p>
+        <p className="text-sm text-muted-foreground">Take a screenshot to save or share your certificate!</p>
         <div className="mt-4 flex justify-center gap-3">
           <Link href="/dashboard">
             <Button variant="outline">Back to Dashboard</Button>

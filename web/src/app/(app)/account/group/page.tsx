@@ -96,7 +96,7 @@ export default async function GroupDashboardPage() {
               ? <GraduationCap className="h-5 w-5 text-violet-600" />
               : <Users className="h-5 w-5 text-teal-600" />
             }
-            <h1 className="text-2xl font-bold text-slate-800">{activeGroup.name}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{activeGroup.name}</h1>
             <Badge className={isClassroom
               ? 'bg-violet-100 text-violet-700 border-violet-200'
               : 'bg-teal-100 text-teal-700 border-teal-200'
@@ -105,20 +105,20 @@ export default async function GroupDashboardPage() {
             </Badge>
             <Badge className={activeGroup.status === 'active'
               ? 'bg-green-100 text-green-700'
-              : 'bg-slate-100 text-slate-500'
+              : 'bg-muted text-muted-foreground'
             }>
               {activeGroup.status}
             </Badge>
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             {spotsUsed} / {activeGroup.max_members} members · {spotsLeft} spot{spotsLeft !== 1 ? 's' : ''} remaining
           </p>
         </div>
 
         {isOwner && (
           <div className="flex items-center gap-2">
-            <div className="text-sm text-slate-500">Invite code:</div>
-            <code className="font-mono font-bold text-lg tracking-widest px-3 py-1 bg-slate-100 rounded-lg">
+            <div className="text-sm text-muted-foreground">Invite code:</div>
+            <code className="font-mono font-bold text-lg tracking-widest px-3 py-1 bg-muted rounded-lg">
               {activeGroup.invite_code}
             </code>
             <CopyCodeButton code={activeGroup.invite_code} />
@@ -131,10 +131,10 @@ export default async function GroupDashboardPage() {
         <Card className={`border ${isClassroom ? 'border-violet-200 bg-violet-50' : 'border-teal-200 bg-teal-50'}`}>
           <CardContent className="py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex-1">
-              <p className="text-sm font-medium text-slate-700 mb-0.5">
+              <p className="text-sm font-medium text-foreground mb-0.5">
                 Share this link with your {isClassroom ? 'students' : 'family members'}:
               </p>
-              <code className="text-xs text-slate-500 break-all">
+              <code className="text-xs text-muted-foreground break-all">
                 {process.env.NEXT_PUBLIC_APP_URL || 'https://graive.com'}/join/{activeGroup.invite_code}
               </code>
             </div>
@@ -150,15 +150,15 @@ export default async function GroupDashboardPage() {
       {isClassroom && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-slate-600">Group AI Usage Today</CardTitle>
+            <CardTitle className="text-sm font-semibold text-muted-foreground">Group AI Usage Today</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between text-sm text-slate-600 mb-1.5">
+            <div className="flex justify-between text-sm text-muted-foreground mb-1.5">
               <span>{groupMsgsToday} of {groupLimit} shared messages used</span>
               <span className="font-medium">{Math.round((groupMsgsToday / groupLimit) * 100)}%</span>
             </div>
             <Progress value={(groupMsgsToday / groupLimit) * 100} className="h-2" />
-            <p className="text-xs text-slate-400 mt-2">Shared pool resets at midnight · 500 msgs/day for the whole class</p>
+            <p className="text-xs text-muted-foreground mt-2">Shared pool resets at midnight · 500 msgs/day for the whole class</p>
           </CardContent>
         </Card>
       )}
@@ -174,12 +174,12 @@ export default async function GroupDashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Name</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Tier</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Progress</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Streak</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">AI today</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Tier</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Progress</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Streak</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">AI today</th>
                 </tr>
               </thead>
               <tbody>
@@ -187,10 +187,10 @@ export default async function GroupDashboardPage() {
                   const tierCfg = TIER_CONFIG[m.age_tier as AgeTier]
                   const pct = totalModules ? Math.round((m.completions / totalModules) * 100) : 0
                   return (
-                    <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50">
+                    <tr key={m.id} className="border-b border-slate-50 hover:bg-muted">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-slate-800">{m.full_name || '—'}</p>
-                        <p className="text-xs text-slate-400">{m.email}</p>
+                        <p className="font-medium text-foreground">{m.full_name || '—'}</p>
+                        <p className="text-xs text-muted-foreground">{m.email}</p>
                         {m.isOwner && (
                           <Badge variant="outline" className="text-xs mt-0.5">
                             {isClassroom ? 'Teacher' : 'Parent'}
@@ -205,9 +205,9 @@ export default async function GroupDashboardPage() {
                       <td className="px-4 py-3 min-w-32">
                         <div className="flex items-center gap-2">
                           <Progress value={pct} className="h-1.5 flex-1" />
-                          <span className="text-xs text-slate-400 shrink-0">{m.completions} <Star className="h-3 w-3 inline fill-amber-400 text-amber-400" /></span>
+                          <span className="text-xs text-muted-foreground shrink-0">{m.completions} <Star className="h-3 w-3 inline fill-amber-400 text-amber-400" /></span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">{m.completions * 100} XP</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{m.completions * 100} XP</p>
                       </td>
                       <td className="px-4 py-3">
                         {(m.current_streak ?? 0) > 0 ? (
@@ -219,7 +219,7 @@ export default async function GroupDashboardPage() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="flex items-center gap-1 text-sm text-slate-600">
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Zap className="h-3.5 w-3.5 text-indigo-400" />{m.aiToday}
                         </span>
                       </td>
@@ -229,7 +229,7 @@ export default async function GroupDashboardPage() {
               </tbody>
             </table>
             {memberRows.length === 0 && (
-              <p className="text-sm text-slate-400 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 No members yet. Share the invite link above.
               </p>
             )}

@@ -160,15 +160,15 @@ function StepEditor({
   }
 
   return (
-    <Card className="border border-slate-200">
-      <CardHeader className="py-2 px-3 bg-slate-50 rounded-t-xl border-b border-slate-200">
+    <Card className="border border-border">
+      <CardHeader className="py-2 px-3 bg-muted rounded-t-xl border-b border-border">
         <div className="flex items-center gap-2">
           <GripVertical className="h-4 w-4 text-slate-300 flex-shrink-0" />
-          <span className="text-xs font-mono text-slate-400 w-5">{index + 1}</span>
+          <span className="text-xs font-mono text-muted-foreground w-5">{index + 1}</span>
 
           {/* Type selector */}
           <Select value={step.type} onValueChange={v => handleTypeChange(v as StepType)}>
-            <SelectTrigger className="h-7 text-xs w-40 border-slate-200">
+            <SelectTrigger className="h-7 text-xs w-40 border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -191,7 +191,7 @@ function StepEditor({
                 key={btn.title}
                 title={btn.title}
                 onClick={() => handleToolbar(btn)}
-                className="px-1.5 py-0.5 text-xs font-mono rounded hover:bg-slate-200 text-slate-600 transition-colors"
+                className="px-1.5 py-0.5 text-xs font-mono rounded hover:bg-slate-200 text-muted-foreground transition-colors"
               >
                 {btn.label}
               </button>
@@ -203,7 +203,7 @@ function StepEditor({
             <button
               title="Preview"
               onClick={() => setPreview(p => !p)}
-              className="p-1 rounded hover:bg-slate-200 text-slate-500 transition-colors"
+              className="p-1 rounded hover:bg-slate-200 text-muted-foreground transition-colors"
             >
               {preview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             </button>
@@ -211,7 +211,7 @@ function StepEditor({
               title="Move up"
               disabled={index === 0}
               onClick={() => onMove(step.id, -1)}
-              className="p-1 rounded hover:bg-slate-200 text-slate-500 disabled:opacity-30 transition-colors"
+              className="p-1 rounded hover:bg-slate-200 text-muted-foreground disabled:opacity-30 transition-colors"
             >
               <ChevronUp className="h-3.5 w-3.5" />
             </button>
@@ -219,14 +219,14 @@ function StepEditor({
               title="Move down"
               disabled={index === total - 1}
               onClick={() => onMove(step.id, 1)}
-              className="p-1 rounded hover:bg-slate-200 text-slate-500 disabled:opacity-30 transition-colors"
+              className="p-1 rounded hover:bg-slate-200 text-muted-foreground disabled:opacity-30 transition-colors"
             >
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
             <button
               title="Delete step"
               onClick={() => onDelete(step.id)}
-              className="p-1 rounded hover:bg-red-100 text-slate-400 hover:text-red-500 transition-colors"
+              className="p-1 rounded hover:bg-red-100 text-muted-foreground hover:text-red-500 transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -243,7 +243,7 @@ function StepEditor({
             ref={taRef}
             value={step.content}
             onChange={e => onChange(step.id, { content: e.target.value })}
-            className="w-full p-3 font-mono text-xs text-slate-700 resize-none focus:outline-none min-h-[140px] bg-white rounded-b-xl"
+            className="w-full p-3 font-mono text-xs text-foreground resize-none focus:outline-none min-h-[140px] bg-card rounded-b-xl"
             spellCheck={false}
             placeholder={`${typeOption.heading}\n\nWrite your step content here…\n\nTip: use ___ for fill-in blanks, ___/10 for ratings`}
           />
@@ -405,7 +405,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
             </div>
 
             <div className="grid gap-1.5">
-              <Label>Slug <span className="text-slate-400 font-normal">(URL-safe ID)</span></Label>
+              <Label>Slug <span className="text-muted-foreground font-normal">(URL-safe ID)</span></Label>
               <Input
                 value={draft.slug}
                 onChange={e => { setSlugManual(true); set('slug', e.target.value) }}
@@ -433,7 +433,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
             </div>
 
             <div className="col-span-2 grid gap-1.5">
-              <Label>Description <span className="text-slate-400 font-normal">(shown on module card)</span></Label>
+              <Label>Description <span className="text-muted-foreground font-normal">(shown on module card)</span></Label>
               <Input
                 value={draft.description}
                 onChange={e => set('description', e.target.value)}
@@ -442,7 +442,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
             </div>
 
             <div className="col-span-2 grid gap-1.5">
-              <Label>Video URL <span className="text-slate-400 font-normal">(optional, YouTube embed)</span></Label>
+              <Label>Video URL <span className="text-muted-foreground font-normal">(optional, YouTube embed)</span></Label>
               <Input
                 value={draft.video_url}
                 onChange={e => set('video_url', e.target.value)}
@@ -450,10 +450,10 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
               />
             </div>
 
-            <div className="col-span-2 flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="col-span-2 flex items-center justify-between p-3 bg-muted rounded-lg border border-border">
               <div>
-                <p className="text-sm font-medium text-slate-700">Published</p>
-                <p className="text-xs text-slate-400">Visible to learners when enabled</p>
+                <p className="text-sm font-medium text-foreground">Published</p>
+                <p className="text-xs text-muted-foreground">Visible to learners when enabled</p>
               </div>
               <Switch checked={draft.enabled} onCheckedChange={v => set('enabled', v)} />
             </div>
@@ -465,8 +465,8 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-slate-800">Steps</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <h2 className="text-base font-semibold text-foreground">Steps</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Each step is one card learners navigate through. Use the toolbar to insert formatting and interactive elements.
             </p>
           </div>
@@ -477,7 +477,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
         </div>
 
         {draft.steps.length === 0 && (
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center text-slate-400">
+          <div className="border-2 border-dashed border-border rounded-xl p-8 text-center text-muted-foreground">
             <p className="text-sm">No steps yet.</p>
             <p className="text-xs mt-1">Click <strong>Add Step</strong> to start building your module.</p>
           </div>
@@ -485,7 +485,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
 
         {/* Toolbar legend */}
         {draft.steps.length > 0 && (
-          <div className="text-xs text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex flex-wrap gap-x-4 gap-y-1">
+          <div className="text-xs text-muted-foreground bg-muted border border-border rounded-lg px-3 py-2 flex flex-wrap gap-x-4 gap-y-1">
             <span><code className="font-mono">___</code> → fill-in blank</span>
             <span><code className="font-mono">___/10</code> → rating widget</span>
             <span><code className="font-mono">&gt; text</code> → highlighted quote</span>
@@ -517,7 +517,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
       </div>
 
       {/* Save */}
-      <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
+      <div className="flex items-center gap-3 pt-2 border-t border-border">
         <Button onClick={save} disabled={saving} className="gap-1.5">
           <Save className="h-4 w-4" />
           {saving ? 'Saving…' : existing ? 'Save Changes' : 'Create Module'}
@@ -525,7 +525,7 @@ export function ModuleEditor({ existing }: { existing?: Module }) {
         <Button variant="outline" onClick={() => router.push('/admin/modules')}>
           Cancel
         </Button>
-        <span className="text-xs text-slate-400 ml-auto">
+        <span className="text-xs text-muted-foreground ml-auto">
           {draft.steps.length} step{draft.steps.length !== 1 ? 's' : ''}
         </span>
       </div>

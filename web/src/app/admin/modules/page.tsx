@@ -46,15 +46,15 @@ export default function AdminModulesPage() {
   const tiers: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator', 'creator']
 
   if (loading) {
-    return <div className="text-sm text-slate-400 py-8 text-center">Loading modules…</div>
+    return <div className="text-sm text-muted-foreground py-8 text-center">Loading modules…</div>
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-800">Modules</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Toggle modules on/off or create new ones.</p>
+          <h1 className="text-xl font-bold text-foreground">Modules</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Toggle modules on/off or create new ones.</p>
         </div>
         <Link href="/admin/modules/new">
           <Button size="sm" className="gap-1.5 shrink-0">
@@ -81,16 +81,16 @@ export default function AdminModulesPage() {
                 <div
                   key={mod.id}
                   className={`flex items-center gap-3 px-4 py-3 ${
-                    idx < tierModules.length - 1 ? 'border-b border-slate-100' : ''
+                    idx < tierModules.length - 1 ? 'border-b border-border' : ''
                   }`}
                 >
                   <GripVertical className="h-4 w-4 text-slate-300 flex-shrink-0" />
-                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs text-slate-500 font-mono flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground font-mono flex-shrink-0">
                     {mod.order_index}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{mod.title}</p>
-                    <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
+                    <p className="text-sm font-medium text-foreground truncate">{mod.title}</p>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />{mod.estimated_minutes} min
                       </span>
@@ -101,7 +101,7 @@ export default function AdminModulesPage() {
                     <Link href={`/admin/modules/${mod.id}/edit`}>
                       <button
                         title="Edit module"
-                        className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                        className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-muted-foreground transition-colors"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>

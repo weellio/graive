@@ -33,12 +33,12 @@ export default function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6">
-      <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-lg p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <div className="max-w-4xl mx-auto bg-card border border-border rounded-2xl shadow-lg p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-800 mb-0.5">We use cookies</p>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-sm font-medium text-foreground mb-0.5">We use cookies</p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
             We use essential cookies to keep you signed in. We do not use advertising or tracking cookies.{' '}
-            <Link href="/privacy#cookies" className="underline hover:text-slate-700">
+            <Link href="/privacy#cookies" className="underline hover:text-foreground">
               Learn more
             </Link>
           </p>
@@ -61,7 +61,7 @@ export default function CookieBanner() {
           </Button>
           <button
             onClick={decline}
-            className="p-1 text-slate-400 hover:text-slate-600 rounded"
+            className="p-1 text-muted-foreground hover:text-muted-foreground rounded"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />

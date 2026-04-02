@@ -109,7 +109,7 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
         <GraduationCap className="h-6 w-6" style={{ color: accentColor }} />
       </div>
       <p className="font-semibold" style={{ color: accentColor }}>Hi! I&apos;m {assistantName}</p>
-      <p className="text-sm text-slate-500 mt-1">
+      <p className="text-sm text-muted-foreground mt-1">
         I&apos;m here to help you with <strong>{moduleTitle}</strong>. Ask me anything about the lesson!
       </p>
     </div>
@@ -120,19 +120,19 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
         <Zap className="h-6 w-6" style={{ color: PLAYGROUND_COLOR }} />
       </div>
       <p className="font-semibold" style={{ color: PLAYGROUND_COLOR }}>AI Playground</p>
-      <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
         Try anything here — write a story, ask questions, test your prompts from the lesson.
         <br />
-        <span className="text-xs text-slate-400 mt-1 block">This AI is open and ready to help with anything.</span>
+        <span className="text-xs text-muted-foreground mt-1 block">This AI is open and ready to help with anything.</span>
       </p>
     </div>
   )
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="flex flex-col h-full bg-card rounded-xl border border-border overflow-hidden">
 
       {/* Mode toggle */}
-      <div className="flex border-b border-slate-200">
+      <div className="flex border-b border-border">
         <button
           onClick={() => setMode('tutor')}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold transition-all"
@@ -156,7 +156,7 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
       </div>
 
       {/* Mode description pill */}
-      <div className="px-3 py-1.5 border-b border-slate-100 text-xs text-center"
+      <div className="px-3 py-1.5 border-b border-border text-xs text-center"
         style={{ backgroundColor: accentColor + '08', color: accentColor }}>
         {mode === 'tutor'
           ? `📚 Lesson helper — asks about ${moduleTitle}`
@@ -171,7 +171,7 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
               <ChatBubble key={i} message={msg} accentColor={accentColor} assistantName={assistantName} mode={mode} />
             ))}
             {streaming && messages[messages.length - 1]?.content === '' && (
-              <div className="flex gap-2 items-center text-slate-400">
+              <div className="flex gap-2 items-center text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-xs">{mode === 'tutor' ? assistantName : 'AI'} is thinking…</span>
               </div>
@@ -206,7 +206,7 @@ export function ChatPanel({ moduleId, moduleTitle, tier, initialMessages, histor
             {streaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
-        <p className="text-xs text-slate-400 mt-1.5">Press Enter to send · Shift+Enter for new line</p>
+        <p className="text-xs text-muted-foreground mt-1.5">Press Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   )
@@ -228,13 +228,13 @@ function ChatBubble({
       <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
         style={{ backgroundColor: isUser ? '#e2e8f0' : accentColor + '20' }}>
         {isUser
-          ? <User className="h-3.5 w-3.5 text-slate-500" />
+          ? <User className="h-3.5 w-3.5 text-muted-foreground" />
           : <Icon className="h-3.5 w-3.5" style={{ color: accentColor }} />}
       </div>
       <div className={`rounded-2xl px-3.5 py-2.5 max-w-[85%] text-sm leading-relaxed ${
         isUser
-          ? 'bg-slate-100 text-slate-800 rounded-tr-sm'
-          : 'bg-white border border-slate-200 text-slate-800 rounded-tl-sm'
+          ? 'bg-muted text-foreground rounded-tr-sm'
+          : 'bg-card border border-border text-foreground rounded-tl-sm'
       }`}>
         {isUser ? (
           <p className="whitespace-pre-wrap">{message.content}</p>

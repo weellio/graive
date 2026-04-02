@@ -73,8 +73,8 @@ export default function AccountPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Account</h1>
-        <p className="text-slate-500 mt-1">Manage your profile and security settings.</p>
+        <h1 className="text-2xl font-bold text-foreground">Account</h1>
+        <p className="text-muted-foreground mt-1">Manage your profile and security settings.</p>
       </div>
 
       {/* Profile */}
@@ -96,8 +96,8 @@ export default function AccountPage() {
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value={email} disabled className="bg-slate-50 text-slate-500" />
-              <p className="text-xs text-slate-400">Email cannot be changed here. Contact support if needed.</p>
+              <Input value={email} disabled className="bg-muted text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Email cannot be changed here. Contact support if needed.</p>
             </div>
             <Button type="submit" disabled={saving}>
               {saving ? 'Saving…' : 'Save changes'}
@@ -146,8 +146,8 @@ export default function AccountPage() {
       <Card>
         <CardContent className="pt-5 flex items-center justify-between">
           <div>
-            <p className="font-medium text-slate-800 text-sm">Subscription & Billing</p>
-            <p className="text-xs text-slate-500 mt-0.5">Manage your plan and payment details.</p>
+            <p className="font-medium text-foreground text-sm">Subscription & Billing</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Manage your plan and payment details.</p>
           </div>
           <Link href="/account/billing">
             <Button variant="outline" size="sm" className="gap-2">

@@ -58,13 +58,13 @@ interface StepMeta {
 }
 
 const STEP_META: Record<StepType, StepMeta> = {
-  intro:     { icon: BookOpen,     label: 'Read This',       bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: 'bg-slate-100',    pillText: 'text-slate-600',   headingColor: 'text-slate-900',   dark: false },
-  activity:  { icon: FlaskConical, label: 'Try It',          bg: 'bg-white',       border: 'border-slate-200',  topBar: '', pillBg: '',                 pillText: '',                  headingColor: 'text-slate-900',   dark: false },
+  intro:     { icon: BookOpen,     label: 'Read This',       bg: 'bg-card',       border: 'border-border',  topBar: '', pillBg: 'bg-muted',    pillText: 'text-muted-foreground',   headingColor: 'text-foreground',   dark: false },
+  activity:  { icon: FlaskConical, label: 'Try It',          bg: 'bg-card',       border: 'border-border',  topBar: '', pillBg: '',                 pillText: '',                  headingColor: 'text-foreground',   dark: false },
   concepts:  { icon: Lightbulb,    label: 'Key Ideas',       bg: 'bg-sky-50',      border: 'border-sky-200',    topBar: '#0ea5e9', pillBg: 'bg-sky-100',    pillText: 'text-sky-700',    headingColor: 'text-sky-900',     dark: false },
   facts:     { icon: Sparkles,     label: 'Fun Facts',       bg: 'bg-amber-50',    border: 'border-amber-200',  topBar: '#f59e0b', pillBg: 'bg-amber-100',  pillText: 'text-amber-800',  headingColor: 'text-amber-900',   dark: false },
   reflect:   { icon: Brain,        label: 'Think About It',  bg: 'bg-violet-50',   border: 'border-violet-200', topBar: '#8b5cf6', pillBg: 'bg-violet-100', pillText: 'text-violet-700', headingColor: 'text-violet-900',  dark: false },
-  challenge: { icon: Trophy,       label: 'Challenge',       bg: 'bg-slate-900',   border: 'border-slate-700',  topBar: '#f59e0b', pillBg: 'bg-yellow-400', pillText: 'text-slate-900',  headingColor: 'text-white',       dark: true  },
-  general:   { icon: BookOpen,     label: 'Read This',       bg: 'bg-white',       border: 'border-slate-200',  topBar: '#cbd5e1', pillBg: 'bg-slate-100',  pillText: 'text-slate-600',  headingColor: 'text-slate-900',   dark: false },
+  challenge: { icon: Trophy,       label: 'Challenge',       bg: 'bg-slate-900',   border: 'border-slate-700',  topBar: '#f59e0b', pillBg: 'bg-yellow-400', pillText: 'text-foreground',  headingColor: 'text-white',       dark: true  },
+  general:   { icon: BookOpen,     label: 'Read This',       bg: 'bg-card',       border: 'border-border',  topBar: '#cbd5e1', pillBg: 'bg-muted',  pillText: 'text-muted-foreground',  headingColor: 'text-foreground',   dark: false },
 }
 
 // ─── Activity interactivity helpers ──────────────────────────────────────────
@@ -95,7 +95,7 @@ function InlineBlank({ storageKey }: { storageKey: string }) {
       value={val}
       onChange={e => save(e.target.value)}
       placeholder="type here..."
-      className="inline-block mx-1 px-2 py-0.5 border-b-2 border-indigo-400 bg-indigo-50 rounded-t text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-600 min-w-[120px] align-baseline"
+      className="inline-block mx-1 px-2 py-0.5 border-b-2 border-indigo-400 bg-indigo-950/30 rounded-t text-sm font-medium text-foreground focus:outline-none focus:border-indigo-600 min-w-[120px] align-baseline"
     />
   )
 }
@@ -122,7 +122,7 @@ function InlineRating({ storageKey }: { storageKey: string }) {
                 ? 'bg-indigo-500 text-white scale-110 shadow-md'
                 : val !== null && n <= val
                 ? 'bg-indigo-200 text-indigo-700'
-                : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'
+                : 'bg-muted text-muted-foreground hover:bg-indigo-100 hover:text-indigo-600'
             }`}
           >
             {n}
@@ -130,7 +130,7 @@ function InlineRating({ storageKey }: { storageKey: string }) {
         ))}
         <span className="text-sm shrink-0" title="Amazing!">🤩</span>
       </span>
-      <span className="flex justify-between text-xs text-slate-400 px-7">
+      <span className="flex justify-between text-xs text-muted-foreground px-7">
         <span>not good</span>
         <span>amazing!</span>
       </span>
@@ -148,7 +148,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={copy}
-      className="absolute top-2 right-2 px-2.5 py-1 rounded text-xs font-semibold bg-white/10 hover:bg-white/25 text-slate-300 transition-colors"
+      className="absolute top-2 right-2 px-2.5 py-1 rounded text-xs font-semibold bg-card/10 hover:bg-card/25 text-slate-300 transition-colors"
     >
       {copied ? '✓ Copied' : 'Copy'}
     </button>
@@ -196,7 +196,7 @@ function ModuleNotes({ userId, moduleId }: { userId: string; moduleId: string })
         value={text}
         onChange={handleChange}
         placeholder="Write anything here — questions, ideas, things to remember..."
-        className="w-full p-4 text-base resize-none focus:outline-none min-h-[130px] bg-white text-slate-700 placeholder-slate-300"
+        className="w-full p-4 text-base resize-none focus:outline-none min-h-[130px] bg-card text-foreground placeholder-slate-300"
       />
     </div>
   )
@@ -232,13 +232,13 @@ function BlockRenderer({
 
         // Shared component map for headings/fence blocks
         const headingComponents = {
-          h2: ({ children }: any) => <h2 className={`text-xl font-bold mt-4 mb-1 ${dark ? 'text-white' : 'text-slate-800'}`}>{children}</h2>,
-          h3: ({ children }: any) => <h3 className={`text-lg font-bold mt-3 mb-1 ${dark ? 'text-white' : 'text-slate-700'}`}>{children}</h3>,
-          h4: ({ children }: any) => <h4 className={`text-base font-semibold mt-2 mb-0.5 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</h4>,
-          code: ({ children }: any) => <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10' : 'bg-slate-100'}`}>{children}</code>,
+          h2: ({ children }: any) => <h2 className={`text-xl font-bold mt-4 mb-1 ${dark ? 'text-white' : 'text-foreground'}`}>{children}</h2>,
+          h3: ({ children }: any) => <h3 className={`text-lg font-bold mt-3 mb-1 ${dark ? 'text-white' : 'text-foreground'}`}>{children}</h3>,
+          h4: ({ children }: any) => <h4 className={`text-base font-semibold mt-2 mb-0.5 ${dark ? 'text-slate-200' : 'text-foreground'}`}>{children}</h4>,
+          code: ({ children }: any) => <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-card/10' : 'bg-muted'}`}>{children}</code>,
           pre: ({ children }: any) => {
             // Extract raw string to render ourselves — avoids the inner `code`
-            // component applying its bg-slate-100 style (invisible on dark bg)
+            // component applying its bg-muted style (invisible on dark bg)
             const codeEl = (children as any)?.props
             const raw = Array.isArray(codeEl?.children)
               ? codeEl.children.join('')
@@ -275,14 +275,14 @@ function BlockRenderer({
               remarkPlugins={[remarkGfm]}
               components={{
                 p: ({ children }) => (
-                  <p className={`text-[17px] leading-relaxed m-0 ${dark ? 'text-slate-200' : 'text-slate-700'}`}>
+                  <p className={`text-[17px] leading-relaxed m-0 ${dark ? 'text-slate-200' : 'text-foreground'}`}>
                     {children}
                   </p>
                 ),
                 ul: ({ children }) => <ul className="space-y-2 list-disc pl-5">{children}</ul>,
                 ol: ({ children }) => <ol className="space-y-2 list-decimal pl-5">{children}</ol>,
                 li: ({ children }) => (
-                  <li className={`text-[17px] leading-relaxed ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{children}</li>
+                  <li className={`text-[17px] leading-relaxed ${dark ? 'text-slate-200' : 'text-foreground'}`}>{children}</li>
                 ),
                 strong: ({ children }) => <strong className="font-bold">{children}</strong>,
                 em: ({ children }) => <em className="italic">{children}</em>,
@@ -294,7 +294,7 @@ function BlockRenderer({
                     className="border-l-4 pl-4 pr-3 py-2.5 my-1 rounded-r-lg"
                     style={{ borderLeftColor: quoteBorderColor }}
                   >
-                    <div className={`italic text-[17px] leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <div className={`italic text-[17px] leading-relaxed ${dark ? 'text-slate-300' : 'text-muted-foreground'}`}>
                       {children}
                     </div>
                   </blockquote>
@@ -305,7 +305,7 @@ function BlockRenderer({
                   const ratingM = text.match(/^\[rating-(\d+)\]$/)
                   if (blankM) return <InlineBlank storageKey={`${baseKey}-b${blockIdx}-${blankM[1]}`} />
                   if (ratingM) return <InlineRating storageKey={`${baseKey}-r${blockIdx}-${ratingM[1]}`} />
-                  return <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-white/10 text-slate-200' : 'bg-slate-100 text-slate-700'}`}>{children}</code>
+                  return <code className={`px-1.5 py-0.5 rounded text-sm font-mono ${dark ? 'bg-card/10 text-slate-200' : 'bg-muted text-foreground'}`}>{children}</code>
                 },
               }}
             >
@@ -490,7 +490,7 @@ export function ModulePage({
           />
         ))}
       </div>
-      <p className="text-center text-xs text-slate-400">{step + 1} of {totalSteps}</p>
+      <p className="text-center text-xs text-muted-foreground">{step + 1} of {totalSteps}</p>
 
       {/* Card with left/right nav arrows on either side */}
       <div className="flex items-stretch gap-2">
@@ -500,9 +500,9 @@ export function ModulePage({
           onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           disabled={step === 0}
           aria-label="Previous step"
-          className="w-12 shrink-0 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 hover:scale-105 disabled:opacity-20 disabled:pointer-events-none transition-all"
+          className="w-12 shrink-0 flex items-center justify-center rounded-2xl bg-muted hover:bg-accent hover:scale-105 disabled:opacity-20 disabled:pointer-events-none transition-all"
         >
-          <ChevronLeft className="h-7 w-7 text-slate-500" />
+          <ChevronLeft className="h-7 w-7 text-muted-foreground" />
         </button>
 
         {/* Card */}
@@ -546,14 +546,14 @@ export function ModulePage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-        <Link href="/dashboard" className="hover:text-slate-700 transition-colors">Dashboard</Link>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+        <Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
         <ChevronRight className="h-4 w-4" />
         <Link href={`/learn/${courseSlug}/${tier}`} className={`font-medium transition-colors ${tierCfg.textClass}`}>
           {tierCfg.label}
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-slate-700 truncate">{module.title}</span>
+        <span className="text-foreground truncate">{module.title}</span>
       </div>
 
       {/* Module header — just the title */}
@@ -562,7 +562,7 @@ export function ModulePage({
           {tierCfg.label} · Module {module.order_index}
           {completed && <span className="ml-2 text-amber-500">⭐ Complete</span>}
         </p>
-        <h1 className="text-lg font-bold text-slate-800 leading-tight">{module.title}</h1>
+        <h1 className="text-lg font-bold text-foreground leading-tight">{module.title}</h1>
       </div>
 
       {/* Desktop split layout */}
@@ -604,10 +604,10 @@ export function ModulePage({
       </div>
 
       {/* Module prev/next navigation */}
-      <div className="flex justify-between mt-6 pt-4 border-t border-slate-100">
+      <div className="flex justify-between mt-6 pt-4 border-t border-border">
         {prevModule ? (
           <Link href={`/learn/${courseSlug}/${tier}/${prevModule.slug}`}>
-            <Button variant="ghost" className="text-slate-500 gap-2 rounded-xl">
+            <Button variant="ghost" className="text-muted-foreground gap-2 rounded-xl">
               <ChevronLeft className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{prevModule.title}</span>
               <span className="sm:hidden text-sm">Previous</span>
@@ -616,7 +616,7 @@ export function ModulePage({
         ) : <div />}
         {nextModule && (
           <Link href={`/learn/${courseSlug}/${tier}/${nextModule.slug}`}>
-            <Button variant="ghost" className="text-slate-500 gap-2 rounded-xl">
+            <Button variant="ghost" className="text-muted-foreground gap-2 rounded-xl">
               <span className="hidden sm:inline text-sm">{nextModule.title}</span>
               <span className="sm:hidden text-sm">Next</span>
               <ChevronRight className="h-4 w-4" />

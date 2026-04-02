@@ -16,6 +16,7 @@ import type { Profile } from '@/types'
 import { TIER_CONFIG } from '@/types'
 import { BookOpen, LayoutDashboard, Settings, LogOut, Shield } from 'lucide-react'
 import { BrandName } from '@/components/ui/BrandName'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface AppNavProps {
   profile: Profile
@@ -40,7 +41,7 @@ export function AppNav({ profile, brandName, logoUrl }: AppNavProps) {
     : profile.email[0].toUpperCase()
 
   return (
-    <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+    <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
@@ -79,10 +80,11 @@ export function AppNav({ profile, brandName, logoUrl }: AppNavProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span className={`hidden sm:inline-flex text-xs px-2 py-1 rounded-full font-medium ${tier.bgClass} ${tier.textClass}`}>
               {tier.label}
             </span>
+            <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-9 w-9 rounded-full p-0">
@@ -96,7 +98,7 @@ export function AppNav({ profile, brandName, logoUrl }: AppNavProps) {
               <DropdownMenuContent align="end" className="w-48">
                 <div className="px-2 py-1.5 text-sm">
                   <p className="font-medium">{profile.full_name || 'Learner'}</p>
-                  <p className="text-slate-500 text-xs truncate">{profile.email}</p>
+                  <p className="text-muted-foreground text-xs truncate">{profile.email}</p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>

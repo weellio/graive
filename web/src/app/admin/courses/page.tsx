@@ -86,14 +86,14 @@ export default function AdminCoursesPage() {
     setCourses(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c))
   }
 
-  if (loading) return <div className="text-sm text-slate-400 py-8 text-center">Loading…</div>
+  if (loading) return <div className="text-sm text-muted-foreground py-8 text-center">Loading…</div>
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-800">Courses</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <h1 className="text-xl font-bold text-foreground">Courses</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Top-level subject areas. Each course contains modules across all tier levels.
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function AdminCoursesPage() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Slug <span className="text-slate-400 text-xs">(URL-safe, e.g. ai-literacy)</span></Label>
+                <Label>Slug <span className="text-muted-foreground text-xs">(URL-safe, e.g. ai-literacy)</span></Label>
                 <Input
                   placeholder="ai-literacy"
                   value={form.slug}
@@ -149,7 +149,7 @@ export default function AdminCoursesPage() {
                     type="color"
                     value={form.color}
                     onChange={e => setForm(f => ({ ...f, color: e.target.value }))}
-                    className="h-9 w-9 rounded border border-slate-200 cursor-pointer"
+                    className="h-9 w-9 rounded border border-border cursor-pointer"
                   />
                   <Input
                     value={form.color}
@@ -168,7 +168,7 @@ export default function AdminCoursesPage() {
 
       <div className="space-y-3">
         {courses.length === 0 && (
-          <div className="text-sm text-slate-400 py-8 text-center border-2 border-dashed border-slate-200 rounded-xl">
+          <div className="text-sm text-muted-foreground py-8 text-center border-2 border-dashed border-border rounded-xl">
             No courses yet. Create one above.
           </div>
         )}
@@ -206,12 +206,12 @@ export default function AdminCoursesPage() {
                   ) : (
                     <>
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-slate-800">{course.title}</p>
+                        <p className="font-semibold text-foreground">{course.title}</p>
                         <Badge variant="outline" className="text-xs font-mono">{course.slug}</Badge>
-                        {!course.enabled && <Badge variant="outline" className="text-xs text-slate-400">Disabled</Badge>}
+                        {!course.enabled && <Badge variant="outline" className="text-xs text-muted-foreground">Disabled</Badge>}
                       </div>
                       {course.description && (
-                        <p className="text-sm text-slate-500 mt-0.5">{course.description}</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">{course.description}</p>
                       )}
                     </>
                   )}
@@ -219,7 +219,7 @@ export default function AdminCoursesPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setEditingId(editingId === course.id ? null : course.id)}
-                    className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-muted-foreground transition-colors"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -234,15 +234,15 @@ export default function AdminCoursesPage() {
         ))}
       </div>
 
-      <div className="text-sm text-slate-400 bg-slate-50 rounded-xl p-4">
-        <p className="font-medium text-slate-600 mb-1">
+      <div className="text-sm text-muted-foreground bg-muted rounded-xl p-4">
+        <p className="font-medium text-muted-foreground mb-1">
           <BookOpen className="h-4 w-4 inline mr-1" /> How courses work
         </p>
         <ul className="space-y-1 list-disc pl-4">
           <li>Each course groups modules across all 5 tier levels (Explorer → Creator).</li>
-          <li>Modules are assigned a <code className="font-mono text-xs bg-white px-1 rounded">course_slug</code> to link them to a course.</li>
-          <li>The default course is <code className="font-mono text-xs bg-white px-1 rounded">ai-literacy</code> — all existing modules belong here.</li>
-          <li>New courses appear at <code className="font-mono text-xs bg-white px-1 rounded">/learn/[course-slug]/[tier]</code>.</li>
+          <li>Modules are assigned a <code className="font-mono text-xs bg-card px-1 rounded">course_slug</code> to link them to a course.</li>
+          <li>The default course is <code className="font-mono text-xs bg-card px-1 rounded">ai-literacy</code> — all existing modules belong here.</li>
+          <li>New courses appear at <code className="font-mono text-xs bg-card px-1 rounded">/learn/[course-slug]/[tier]</code>.</li>
         </ul>
       </div>
     </div>

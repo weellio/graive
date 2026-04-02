@@ -65,15 +65,15 @@ export default function AdminApiKeysPage() {
     navigator.clipboard.writeText(apiKey).then(() => toast.success('Copied to clipboard'))
   }
 
-  if (loading) return <div className="text-sm text-slate-400 py-8 text-center">Loading…</div>
+  if (loading) return <div className="text-sm text-muted-foreground py-8 text-center">Loading…</div>
 
   const maskedKey = apiKey ? apiKey.slice(0, 7) + '•'.repeat(apiKey.length - 10) + apiKey.slice(-3) : ''
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">API Keys</h1>
-        <p className="text-sm text-slate-500 mt-0.5">
+        <h1 className="text-xl font-bold text-foreground">API Keys</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
           Manage the Bearer token used to authenticate calls to the management API.
         </p>
       </div>
@@ -97,14 +97,14 @@ export default function AdminApiKeysPage() {
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
                     <button
                       onClick={() => setVisible(v => !v)}
-                      className="p-1 rounded hover:bg-slate-100 text-slate-400"
+                      className="p-1 rounded hover:bg-muted text-muted-foreground"
                       title={visible ? 'Hide' : 'Show'}
                     >
                       {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                     <button
                       onClick={copyToClipboard}
-                      className="p-1 rounded hover:bg-slate-100 text-slate-400"
+                      className="p-1 rounded hover:bg-muted text-muted-foreground"
                       title="Copy"
                     >
                       <Copy className="h-4 w-4" />
@@ -138,7 +138,7 @@ export default function AdminApiKeysPage() {
           ) : (
             <div className="text-center py-6">
               <Key className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm text-slate-500 mb-4">No API key set. Generate one to enable the management API.</p>
+              <p className="text-sm text-muted-foreground mb-4">No API key set. Generate one to enable the management API.</p>
               <Button onClick={handleGenerate} disabled={saving} className="gap-2">
                 <Key className="h-4 w-4" /> Generate API Key
               </Button>
@@ -153,8 +153,8 @@ export default function AdminApiKeysPage() {
             <Terminal className="h-4 w-4" /> API Reference
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-slate-600">
-          <p>Use the key as a Bearer token in the <code className="font-mono bg-slate-100 px-1 rounded">Authorization</code> header:</p>
+        <CardContent className="space-y-4 text-sm text-muted-foreground">
+          <p>Use the key as a Bearer token in the <code className="font-mono bg-muted px-1 rounded">Authorization</code> header:</p>
           <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 overflow-x-auto text-xs font-mono leading-relaxed">{`# List all modules
 curl -H "Authorization: Bearer YOUR_KEY" \\
   https://your-domain.com/api/v1/modules
@@ -176,14 +176,14 @@ curl -H "Authorization: Bearer YOUR_KEY" \\
   https://your-domain.com/api/v1/courses`}</pre>
 
           <div className="space-y-2">
-            <p className="font-medium text-slate-700">Endpoints</p>
+            <p className="font-medium text-foreground">Endpoints</p>
             <div className="overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left py-1.5 pr-4 font-medium text-slate-700">Method</th>
-                    <th className="text-left py-1.5 pr-4 font-medium text-slate-700">Path</th>
-                    <th className="text-left py-1.5 font-medium text-slate-700">Action</th>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-1.5 pr-4 font-medium text-foreground">Method</th>
+                    <th className="text-left py-1.5 pr-4 font-medium text-foreground">Path</th>
+                    <th className="text-left py-1.5 font-medium text-foreground">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -204,8 +204,8 @@ curl -H "Authorization: Bearer YOUR_KEY" \\
                       <td className="py-1.5 pr-4">
                         <Badge variant="outline" className="text-xs font-mono">{method}</Badge>
                       </td>
-                      <td className="py-1.5 pr-4 font-mono text-slate-600">{path}</td>
-                      <td className="py-1.5 text-slate-500">{desc}</td>
+                      <td className="py-1.5 pr-4 font-mono text-muted-foreground">{path}</td>
+                      <td className="py-1.5 text-muted-foreground">{desc}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -75,8 +75,8 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Overview</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Platform statistics at a glance.</p>
+        <h1 className="text-xl font-bold text-foreground">Overview</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Platform statistics at a glance.</p>
       </div>
 
       {/* Stats grid */}
@@ -87,9 +87,9 @@ export default async function AdminOverviewPage() {
               <div className={`inline-flex h-10 w-10 rounded-lg ${stat.bg} items-center justify-center mb-3`}>
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
-              <div className="text-2xl font-bold text-slate-800">{stat.value.toLocaleString()}</div>
-              <div className="text-sm text-slate-500 mt-0.5">{stat.label}</div>
-              {stat.sub && <div className="text-xs text-slate-400 mt-1">{stat.sub}</div>}
+              <div className="text-2xl font-bold text-foreground">{stat.value.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground mt-0.5">{stat.label}</div>
+              {stat.sub && <div className="text-xs text-muted-foreground mt-1">{stat.sub}</div>}
             </CardContent>
           </Card>
         ))}
@@ -106,10 +106,10 @@ export default async function AdminOverviewPage() {
               <div className="space-y-3">
                 {topModules.map((m, i) => (
                   <div key={m.id} className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-slate-400 w-4">{i + 1}</span>
+                    <span className="text-sm font-bold text-muted-foreground w-4">{i + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-700 truncate">{m.title}</p>
-                      <div className="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                      <p className="text-sm font-medium text-foreground truncate">{m.title}</p>
+                      <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full rounded-full bg-indigo-400"
                           style={{ width: `${Math.round((m.count / (topModules[0]?.count ?? 1)) * 100)}%` }}
@@ -121,7 +121,7 @@ export default async function AdminOverviewPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-400">No completions yet.</p>
+              <p className="text-sm text-muted-foreground">No completions yet.</p>
             )}
           </CardContent>
         </Card>
@@ -136,13 +136,13 @@ export default async function AdminOverviewPage() {
               <div className="space-y-1">
                 {recentCompletions.map((c, i) => (
                   <div key={i} className="flex justify-between text-sm py-2 border-b border-slate-50 last:border-0">
-                    <span className="text-slate-600 font-mono text-xs truncate max-w-30">
+                    <span className="text-muted-foreground font-mono text-xs truncate max-w-30">
                       {c.user_id.slice(0, 8)}…
                     </span>
-                    <span className="text-slate-500 text-xs truncate flex-1 px-2">
+                    <span className="text-muted-foreground text-xs truncate flex-1 px-2">
                       {(c as { modules?: { title?: string } }).modules?.title ?? '—'}
                     </span>
-                    <span className="text-slate-400 text-xs shrink-0">
+                    <span className="text-muted-foreground text-xs shrink-0">
                       {new Date(c.completed_at).toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'short',
                       })}
@@ -151,7 +151,7 @@ export default async function AdminOverviewPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-400">No completions yet.</p>
+              <p className="text-sm text-muted-foreground">No completions yet.</p>
             )}
           </CardContent>
         </Card>

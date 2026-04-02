@@ -65,8 +65,8 @@ export default function AdminCurriculumPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Curriculum</h1>
-        <p className="text-sm text-slate-500 mt-0.5">
+        <h1 className="text-xl font-bold text-foreground">Curriculum</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
           Import and export curriculum bundles. Swap subjects without touching code.
         </p>
       </div>
@@ -79,8 +79,8 @@ export default function AdminCurriculumPage() {
               <Upload className="h-4 w-4" /> Import Curriculum
             </CardTitle>
             <CardDescription>
-              Upload a <code className="text-xs bg-slate-100 px-1 rounded">.zip</code> bundle containing{' '}
-              <code className="text-xs bg-slate-100 px-1 rounded">curriculum.json</code> and markdown content files.
+              Upload a <code className="text-xs bg-muted px-1 rounded">.zip</code> bundle containing{' '}
+              <code className="text-xs bg-muted px-1 rounded">curriculum.json</code> and markdown content files.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -94,19 +94,19 @@ export default function AdminCurriculumPage() {
                 border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors
                 ${dragging
                   ? 'border-indigo-400 bg-indigo-50'
-                  : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                  : 'border-border hover:border-slate-300 hover:bg-muted'
                 }
               `}
             >
               {importing ? (
-                <div className="flex flex-col items-center gap-2 text-slate-500">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
                   <p className="text-sm">Importing…</p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-2 text-slate-400">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <FileArchive className="h-8 w-8" />
-                  <p className="text-sm font-medium text-slate-600">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Drop a .zip here, or click to browse
                   </p>
                   <p className="text-xs">GRAIVE curriculum bundle format</p>
@@ -170,9 +170,9 @@ export default function AdminCurriculumPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-700 mb-2">The export includes:</p>
-              <ul className="space-y-1.5 text-sm text-slate-500">
+            <div className="rounded-xl border border-border bg-muted p-5">
+              <p className="text-sm font-medium text-foreground mb-2">The export includes:</p>
+              <ul className="space-y-1.5 text-sm text-muted-foreground">
                 {[
                   'curriculum.json — manifest with all module metadata',
                   'content/<tier>/<slug>.md — all lesson markdown files',
@@ -204,8 +204,8 @@ export default function AdminCurriculumPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="font-medium text-slate-700 mb-2">ZIP structure</p>
-              <pre className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 overflow-x-auto">{`my-curriculum.zip
+              <p className="font-medium text-foreground mb-2">ZIP structure</p>
+              <pre className="bg-muted border border-border rounded-lg p-3 text-xs text-muted-foreground overflow-x-auto">{`my-curriculum.zip
 ├── curriculum.json
 └── content/
     ├── explorer/
@@ -216,8 +216,8 @@ export default function AdminCurriculumPage() {
     └── innovator/`}</pre>
             </div>
             <div>
-              <p className="font-medium text-slate-700 mb-2">curriculum.json shape</p>
-              <pre className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 overflow-x-auto">{`{
+              <p className="font-medium text-foreground mb-2">curriculum.json shape</p>
+              <pre className="bg-muted border border-border rounded-lg p-3 text-xs text-muted-foreground overflow-x-auto">{`{
   "format": "graive-curriculum",
   "format_version": "1.0",
   "metadata": {

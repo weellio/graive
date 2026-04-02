@@ -81,15 +81,15 @@ export default function JoinGroupPage() {
         {loading ? (
           <Card>
             <CardContent className="py-12 flex justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </CardContent>
           </Card>
         ) : error ? (
           <Card>
             <CardContent className="py-10 text-center space-y-3">
               <AlertCircle className="h-10 w-10 text-red-400 mx-auto" />
-              <p className="font-semibold text-slate-800">Invalid Invite Code</p>
-              <p className="text-sm text-slate-500">{error}</p>
+              <p className="font-semibold text-foreground">Invalid Invite Code</p>
+              <p className="text-sm text-muted-foreground">{error}</p>
               <Button variant="outline" onClick={() => router.push('/dashboard')}>
                 Go to Dashboard
               </Button>
@@ -113,9 +113,9 @@ export default function JoinGroupPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between text-sm bg-white/70 rounded-xl px-4 py-3">
-                <span className="text-slate-500">Members</span>
-                <span className="font-semibold text-slate-800">
+              <div className="flex items-center justify-between text-sm bg-card/70 rounded-xl px-4 py-3">
+                <span className="text-muted-foreground">Members</span>
+                <span className="font-semibold text-foreground">
                   {group.member_count} / {group.max_members}
                   {spotsLeft <= 3 && spotsLeft > 0 && (
                     <span className="ml-2 text-amber-600 text-xs">({spotsLeft} spot{spotsLeft !== 1 ? 's' : ''} left)</span>
@@ -143,7 +143,7 @@ export default function JoinGroupPage() {
               {!alreadyMember && spotsLeft > 0 && group.status === 'active' && (
                 <>
                   {!user && (
-                    <p className="text-sm text-slate-500 text-center">
+                    <p className="text-sm text-muted-foreground text-center">
                       You'll need to sign in or create an account first.
                     </p>
                   )}

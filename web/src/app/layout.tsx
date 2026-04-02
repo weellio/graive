@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { getSiteSettings, buildCssVars } from '@/lib/config/site'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import CookieBanner from '@/components/CookieBanner'
 import './globals.css'
 
@@ -20,14 +21,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cssVars = buildCssVars(settings)
 
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: cssVars }} />
       </head>
       <body className={`${inter.className} min-h-full flex flex-col`}>
-        {children}
-        <Toaster richColors />
-        <CookieBanner />
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+          {children}
+          <Toaster richColors />
+          <CookieBanner />
+        </ThemeProvider>
       </body>
     </html>
   )

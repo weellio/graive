@@ -102,7 +102,7 @@ export default async function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="https://reddit.com/r/graive" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white text-xs">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-white text-xs">
                 r/graive
               </Button>
             </Link>
@@ -156,7 +156,7 @@ export default async function LandingPage() {
                 meets intelligence
               </span>
             </h1>
-            <p className="mt-6 text-slate-400 text-lg leading-relaxed max-w-xl">
+            <p className="mt-6 text-muted-foreground text-lg leading-relaxed max-w-xl">
               Prepare to be amazed by the convergence of AI and human potential.
               A world where the boundaries of what&apos;s possible are continually redefined —
               and your kids are the ones redefining them.
@@ -183,7 +183,7 @@ export default async function LandingPage() {
                 </Button>
               </Link>
             </div>
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-muted-foreground">
               Explorer Level is free · No credit card required
             </p>
           </div>
@@ -238,7 +238,7 @@ export default async function LandingPage() {
       {/* Tier strip */}
       <section className="border-y border-white/10 bg-white/2">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <p className="text-xs text-slate-500 uppercase tracking-widest text-center mb-6">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest text-center mb-6">
             5 Levels · Ages 10+
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
@@ -257,12 +257,12 @@ export default async function LandingPage() {
                     {free ? (
                       <span className="text-xs font-medium" style={{ color: '#00e5ff' }}>Free</span>
                     ) : (
-                      <span className="text-xs text-slate-500">Pro</span>
+                      <span className="text-xs text-muted-foreground">Pro</span>
                     )}
                   </div>
                   <p className="font-semibold text-white text-sm">{cfg.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{cfg.ageRange}</p>
-                  <p className="text-xs text-slate-400 mt-2 leading-snug">{headline}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{cfg.ageRange}</p>
+                  <p className="text-xs text-muted-foreground mt-2 leading-snug">{headline}</p>
                 </div>
               )
             })}
@@ -275,7 +275,7 @@ export default async function LandingPage() {
         <h2 className="text-2xl font-bold text-white text-center mb-2">
           Not another coding course
         </h2>
-        <p className="text-slate-400 text-center mb-12">
+        <p className="text-muted-foreground text-center mb-12">
           AI literacy is the new foundational skill. {brandName} teaches it properly.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -291,7 +291,7 @@ export default async function LandingPage() {
                 <f.icon className="h-5 w-5" style={{ color: '#e040fb' }} />
               </div>
               <p className="font-semibold text-white text-sm mb-1.5">{f.title}</p>
-              <p className="text-sm text-slate-400 leading-relaxed">{f.description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{f.description}</p>
             </div>
           ))}
         </div>
@@ -300,7 +300,7 @@ export default async function LandingPage() {
       {/* Prompt progression */}
       <section className="border-y border-white/10 bg-white/2">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-14 text-center">
-          <p className="text-xs text-slate-500 uppercase tracking-widest mb-6">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-6">
             The Prompt Engineering Progression
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 text-left">
@@ -315,9 +315,9 @@ export default async function LandingPage() {
                 key={item.tier}
                 className="rounded-lg border border-white/10 bg-white/3 p-4"
               >
-                <p className="text-xs text-slate-500 mb-1">{item.age}</p>
+                <p className="text-xs text-muted-foreground mb-1">{item.age}</p>
                 <p className="font-bold text-sm" style={{ color: '#e040fb' }}>{item.skill}</p>
-                <p className="text-slate-400 text-xs mt-1 italic">{item.q}</p>
+                <p className="text-muted-foreground text-xs mt-1 italic">{item.q}</p>
               </div>
             ))}
           </div>
@@ -327,7 +327,7 @@ export default async function LandingPage() {
       {/* Pricing */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20">
         <h2 className="text-2xl font-bold text-white text-center mb-2">Simple pricing</h2>
-        <p className="text-slate-400 text-center mb-10">Start free. Upgrade when you're ready.</p>
+        <p className="text-muted-foreground text-center mb-10">Start free. Upgrade when you're ready.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Free */}
@@ -335,7 +335,7 @@ export default async function LandingPage() {
             <p className="font-semibold text-white text-base mb-1">Free</p>
             <div className="flex items-baseline gap-1 mb-4">
               <span className="text-3xl font-bold text-white">$0</span>
-              <span className="text-slate-500 text-sm">forever</span>
+              <span className="text-muted-foreground text-sm">forever</span>
             </div>
             <ul className="space-y-2 mb-6 flex-1">
               {['First module of every level', '10 AI messages / day', 'Progress tracking'].map(f => (
@@ -365,7 +365,7 @@ export default async function LandingPage() {
             <p className="font-semibold text-white text-base mb-1">Pro</p>
             <div className="flex items-baseline gap-1 mb-0.5">
               <span className="text-3xl font-bold text-white">$24.99</span>
-              <span className="text-slate-400 text-sm">/mo</span>
+              <span className="text-muted-foreground text-sm">/mo</span>
             </div>
             <p className="text-xs mb-4" style={{ color: '#e040fb' }}>Or $199.99/year — save 33%</p>
             <ul className="space-y-2 mb-6 flex-1">
@@ -388,7 +388,7 @@ export default async function LandingPage() {
             <p className="font-semibold text-white text-base mb-1">Family</p>
             <div className="flex items-baseline gap-1 mb-0.5">
               <span className="text-3xl font-bold text-white">$59.99</span>
-              <span className="text-slate-400 text-sm">/mo</span>
+              <span className="text-muted-foreground text-sm">/mo</span>
             </div>
             <p className="text-xs text-teal-400 mb-4">Up to 4 learners · ~$15/learner</p>
             <ul className="space-y-2 mb-6 flex-1">
@@ -411,7 +411,7 @@ export default async function LandingPage() {
             <p className="font-semibold text-white text-base mb-1">Classroom</p>
             <div className="flex items-baseline gap-1 mb-0.5">
               <span className="text-3xl font-bold text-white">$149.99</span>
-              <span className="text-slate-400 text-sm">/mo</span>
+              <span className="text-muted-foreground text-sm">/mo</span>
             </div>
             <p className="text-xs text-violet-400 mb-4">Up to 30 students · ~$5/student</p>
             <ul className="space-y-2 mb-6 flex-1">
@@ -434,11 +434,11 @@ export default async function LandingPage() {
       {/* Subreddit CTA */}
       <section className="border-t border-white/10 bg-white/2">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14 text-center">
-          <p className="text-xs text-slate-500 uppercase tracking-widest mb-3">Stay Current</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Stay Current</p>
           <h3 className="text-xl font-bold text-white mb-2">
             100 AI sources. One daily digest.
           </h3>
-          <p className="text-slate-400 text-sm mb-5">
+          <p className="text-muted-foreground text-sm mb-5">
             The {brandName} subreddit compiles the most important AI news every single day.
             Follow along while your kids learn the skills to understand it.
           </p>
@@ -455,7 +455,7 @@ export default async function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Image src={logoSrc} alt={brandName} width={24} height={24} className="object-contain" />
             <BrandName name={brandName} className="font-bold tracking-widest uppercase text-xs" />

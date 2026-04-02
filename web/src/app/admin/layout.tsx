@@ -30,29 +30,29 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (profile?.role !== 'admin') redirect('/dashboard')
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <aside className="lg:w-56 shrink-0">
-            <div className="bg-white rounded-xl border border-slate-200 p-3">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+            <div className="bg-card rounded-xl border border-border p-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
                 Admin Panel
               </p>
               <Link
                 href="/dashboard"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors mb-2"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors mb-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
               </Link>
-              <div className="border-t border-slate-100 my-2" />
+              <div className="border-t border-border my-2" />
               <nav className="space-y-0.5">
                 {navItems.map(item => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}

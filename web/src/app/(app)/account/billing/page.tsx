@@ -95,8 +95,8 @@ export default async function BillingPage({
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-10">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Billing & Subscription</h1>
-        <p className="text-slate-500 mt-1">Manage your plan and payment details.</p>
+        <h1 className="text-2xl font-bold text-foreground">Billing & Subscription</h1>
+        <p className="text-muted-foreground mt-1">Manage your plan and payment details.</p>
       </div>
 
       {reason === 'tier-locked' && (
@@ -126,14 +126,14 @@ export default async function BillingPage({
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-slate-800">
+              <span className="font-medium text-foreground">
                 {isSubscribed ? (subscription as Subscription).plan : 'Free'}
               </span>
               <Badge
                 className={
                   isSubscribed
                     ? 'bg-green-100 text-green-700 border-green-200'
-                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                    : 'bg-muted text-muted-foreground border-border'
                 }
               >
                 {isSubscribed ? (subscription as Subscription).status : 'free'}
@@ -146,7 +146,7 @@ export default async function BillingPage({
             )}
           </div>
           {isSubscribed && (subscription as Subscription).current_period_end && (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Renews on{' '}
               {new Date((subscription as Subscription).current_period_end!).toLocaleDateString(
                 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }
@@ -160,17 +160,17 @@ export default async function BillingPage({
         <>
           {/* ── Individual plans ─────────────────────────────────────────── */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-slate-800">Individual Plans</h2>
+            <h2 className="text-lg font-semibold text-foreground">Individual Plans</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Monthly */}
-              <Card className="border-2 border-slate-200">
+              <Card className="border-2 border-border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Monthly</CardTitle>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-3xl font-bold text-slate-800">$24.99</span>
-                    <span className="text-slate-500 text-sm">/month</span>
+                    <span className="text-3xl font-bold text-foreground">$24.99</span>
+                    <span className="text-muted-foreground text-sm">/month</span>
                   </div>
-                  <p className="text-xs text-slate-400">1 learner · cancel anytime</p>
+                  <p className="text-xs text-muted-foreground">1 learner · cancel anytime</p>
                 </CardHeader>
                 <CardContent>
                   <form action={goToCheckout}>
@@ -190,8 +190,8 @@ export default async function BillingPage({
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Annual</CardTitle>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-3xl font-bold text-slate-800">$199.99</span>
-                    <span className="text-slate-500 text-sm">/year</span>
+                    <span className="text-3xl font-bold text-foreground">$199.99</span>
+                    <span className="text-muted-foreground text-sm">/year</span>
                   </div>
                   <p className="text-xs text-indigo-600 font-medium">Save 33% · 1 learner</p>
                 </CardHeader>
@@ -207,12 +207,12 @@ export default async function BillingPage({
             </div>
 
             {/* Pro features */}
-            <Card className="bg-slate-50 border-slate-200">
+            <Card className="bg-muted border-border">
               <CardContent className="pt-5">
-                <p className="text-sm font-medium text-slate-700 mb-3">Everything in Pro:</p>
+                <p className="text-sm font-medium text-foreground mb-3">Everything in Pro:</p>
                 <ul className="space-y-2">
                   {proFeatures.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
+                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
                       {f}
                     </li>
@@ -225,8 +225,8 @@ export default async function BillingPage({
           {/* ── Group plans ───────────────────────────────────────────────── */}
           <div className="space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-slate-800">Group Plans</h2>
-              <p className="text-sm text-slate-500 mt-0.5">
+              <h2 className="text-lg font-semibold text-foreground">Group Plans</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
                 One subscription covers multiple learners — perfect for families and classrooms.
               </p>
             </div>
@@ -243,13 +243,13 @@ export default async function BillingPage({
                     <CardTitle className="text-base">Family Plan</CardTitle>
                   </div>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-3xl font-bold text-slate-800">$59.99</span>
-                    <span className="text-slate-500 text-sm">/month</span>
+                    <span className="text-3xl font-bold text-foreground">$59.99</span>
+                    <span className="text-muted-foreground text-sm">/month</span>
                   </div>
                   <p className="text-xs text-teal-600 font-medium">Up to 4 learners · ~$15/learner</p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <ul className="space-y-1.5 text-sm text-slate-600">
+                  <ul className="space-y-1.5 text-sm text-muted-foreground">
                     <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-teal-500 shrink-0" />Parent dashboard to track kids' progress</li>
                     <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-teal-500 shrink-0" />Each child gets their own account</li>
                     <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-teal-500 shrink-0" />All Pro features for every member</li>
@@ -274,13 +274,13 @@ export default async function BillingPage({
                     <CardTitle className="text-base">Classroom Plan</CardTitle>
                   </div>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-3xl font-bold text-slate-800">$149.99</span>
-                    <span className="text-slate-500 text-sm">/month</span>
+                    <span className="text-3xl font-bold text-foreground">$149.99</span>
+                    <span className="text-muted-foreground text-sm">/month</span>
                   </div>
                   <p className="text-xs text-violet-600 font-medium">Up to 30 students · ~$5/student</p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <ul className="space-y-1.5 text-sm text-slate-600">
+                  <ul className="space-y-1.5 text-sm text-muted-foreground">
                     <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />Teacher dashboard with class roster</li>
                     <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />Simple join code for students</li>
                     <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />All Pro features for every student</li>
@@ -297,12 +297,12 @@ export default async function BillingPage({
             </div>
 
             {/* Group features */}
-            <Card className="bg-slate-50 border-slate-200">
+            <Card className="bg-muted border-border">
               <CardContent className="pt-5">
-                <p className="text-sm font-medium text-slate-700 mb-3">Everything in Group plans:</p>
+                <p className="text-sm font-medium text-foreground mb-3">Everything in Group plans:</p>
                 <ul className="space-y-2">
                   {groupFeatures.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
+                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
                       {f}
                     </li>
