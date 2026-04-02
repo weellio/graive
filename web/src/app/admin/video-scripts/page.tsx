@@ -24,13 +24,10 @@ export default function VideoScriptsPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    supabase
-      .from('modules')
-      .select('*')
-      .order('tier_slug')
-      .order('order_index')
-      .then(({ data }) => {
-        setModules((data || []) as ModuleWithScript[])
+    fetch('/api/admin/modules')
+      .then(r => r.json())
+      .then(({ modules }) => {
+        setModules((modules || []) as ModuleWithScript[])
         setLoading(false)
       })
   }, [])

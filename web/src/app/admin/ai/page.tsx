@@ -279,8 +279,8 @@ export default function AdminAIPage() {
             return (
               <div key={t.slug} className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-700">{t.label}</p>
-                  <p className="text-xs text-slate-400">{t.ages}</p>
+                  <p className="text-sm font-medium text-foreground">{t.label}</p>
+                  <p className="text-xs text-muted-foreground">{t.ages}</p>
                 </div>
                 <Switch
                   checked={isFree}

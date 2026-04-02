@@ -17,13 +17,10 @@ export default function AdminModulesPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    supabase
-      .from('modules')
-      .select('*')
-      .order('tier_slug')
-      .order('order_index')
-      .then(({ data }) => {
-        setModules((data || []) as Module[])
+    fetch('/api/admin/modules')
+      .then(r => r.json())
+      .then(({ modules }) => {
+        setModules((modules || []) as Module[])
         setLoading(false)
       })
   }, [])
@@ -84,8 +81,8 @@ export default function AdminModulesPage() {
                     idx < tierModules.length - 1 ? 'border-b border-border' : ''
                   }`}
                 >
-                  <GripVertical className="h-4 w-4 text-slate-300 flex-shrink-0" />
-                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground font-mono flex-shrink-0">
+                  <GripVertical className="h-4 w-4 text-slate-300 shrink-0" />
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground font-mono shrink-0">
                     {mod.order_index}
                   </div>
                   <div className="flex-1 min-w-0">
