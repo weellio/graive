@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     const isSubscribed =
-      subscription?.status === 'active' || subscription?.status === 'trialing'
+      ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
 
     const plan = subscription?.plan ?? 'free'
     const isClassroom = plan === 'classroom'

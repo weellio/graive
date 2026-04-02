@@ -26,7 +26,7 @@ export default async function BillingPage({
   ])
 
   const isSubscribed =
-    subscription?.status === 'active' || subscription?.status === 'trialing'
+    ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
 
   const headersList = await headers()
   const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'

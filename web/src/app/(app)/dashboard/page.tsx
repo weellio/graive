@@ -39,7 +39,7 @@ export default async function DashboardPage() {
 
   // ── Derived data ───────────────────────────────────────────────────────────
   const completedIds = new Set((progressRows || []).map(p => p.module_id))
-  const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing'
+  const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
   const userTier = (profile?.age_tier as AgeTier) || 'explorer'
   const tierCfg = TIER_CONFIG[userTier]
 

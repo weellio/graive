@@ -39,7 +39,7 @@ export default async function LearnModulePage({ params }: PageProps) {
 
   if (!moduleData) notFound()
 
-  const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing'
+  const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
 
   // Free gating: first module (lowest order_index) per tier is always accessible
   const { data: firstModule } = await supabase

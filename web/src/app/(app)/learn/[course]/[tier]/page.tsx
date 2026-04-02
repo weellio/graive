@@ -44,7 +44,7 @@ export default async function CourseTierPage({ params }: PageProps) {
       supabase.from('subscriptions').select('status').eq('user_id', user.id).single(),
     ])
 
-  const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing'
+  const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
   const allModules = (modules || []) as Module[]
 
   // Free gating: first module per tier is always free; rest require subscription
