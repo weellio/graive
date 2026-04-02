@@ -89,6 +89,22 @@ export async function POST(req: NextRequest) {
   const provider = settings.llm_provider
   const apiKeyOverride = settings.llm_api_key_override || undefined
 
+  // Pick a model appropriate for the active provider — the stored llm_model may
+  // be from a different provider (e.g. 'claude-sonnet-4-6' while provider='gemini')
+  const PROVIDER_DEFAULTS: Record<string, string> = {
+    claude: 'claude-sonnet-4-6',
+    openai:  'gpt-4o',
+    gemini:  'gemini-2.0-flash',
+  }
+  const MODEL_PREFIXES: Record<string, string> = {
+    claude: 'claude',
+    openai:  'gpt',
+    gemini:  'gemini',
+  }
+  const storedModel = settings.llm_model || ''
+  const modelMatchesProvider = storedModel.startsWith(MODEL_PREFIXES[provider] ?? '')
+  const resolvedModel = modelMatchesProvider ? storedModel : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
+
   try {
     let script = ''
 
@@ -96,7 +112,7 @@ export async function POST(req: NextRequest) {
       const { default: OpenAI } = await import('openai')
       const client = new OpenAI({ apiKey: apiKeyOverride || process.env.OPENAI_API_KEY })
       const res = await client.chat.completions.create({
-        model: settings.llm_model || 'gpt-4o',
+        model: resolvedModel,
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 1500,
       })
@@ -104,7 +120,7 @@ export async function POST(req: NextRequest) {
     } else if (provider === 'gemini') {
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const genAI = new GoogleGenerativeAI(apiKeyOverride || process.env.GEMINI_API_KEY || '')
-      const model = genAI.getGenerativeModel({ model: settings.llm_model || 'gemini-2.0-flash' })
+      const model = genAI.getGenerativeModel({ model: resolvedModel })
       const res = await model.generateContent(prompt)
       script = res.response.text()
     } else {
@@ -112,7 +128,7 @@ export async function POST(req: NextRequest) {
       const { default: Anthropic } = await import('@anthropic-ai/sdk')
       const client = new Anthropic({ apiKey: apiKeyOverride || process.env.ANTHROPIC_API_KEY })
       const res = await client.messages.create({
-        model: settings.llm_model || 'claude-sonnet-4-6',
+        model: resolvedModel,
         max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }],
       })

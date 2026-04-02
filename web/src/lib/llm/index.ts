@@ -17,7 +17,19 @@ export async function streamLLMResponse(
   const apiKey = settings.llm_api_key_override || undefined
 
   const modelKey = `llm_model_${tier}` as keyof SiteSettings
-  const model = settings.llm_model || (settings[modelKey] as string)
+  const storedModel = settings.llm_model || (settings[modelKey] as string) || ''
+
+  // Ensure stored model name is valid for the active provider — it may have been
+  // set while a different provider was active (e.g. 'claude-sonnet-4-6' with gemini)
+  const PROVIDER_DEFAULTS: Record<string, string> = {
+    claude: 'claude-haiku-4-5-20251001',
+    openai:  'gpt-4o-mini',
+    gemini:  'gemini-2.0-flash',
+  }
+  const MODEL_PREFIXES: Record<string, string> = { claude: 'claude', openai: 'gpt', gemini: 'gemini' }
+  const model = storedModel.startsWith(MODEL_PREFIXES[provider] ?? '')
+    ? storedModel
+    : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
 
   // Playground mode always uses the open prompt — ignores DB overrides
   let systemPrompt: string
@@ -33,11 +45,11 @@ export async function streamLLMResponse(
 
   switch (provider) {
     case 'gemini':
-      return streamGemini(messages, systemPrompt, model || 'gemini-2.0-flash', apiKey)
+      return streamGemini(messages, systemPrompt, model, apiKey)
     case 'openai':
-      return streamOpenAI(messages, systemPrompt, model || 'gpt-4o-mini', apiKey)
+      return streamOpenAI(messages, systemPrompt, model, apiKey)
     case 'claude':
     default:
-      return streamClaude(messages, systemPrompt, model || 'claude-haiku-4-5-20251001', apiKey)
+      return streamClaude(messages, systemPrompt, model, apiKey)
   }
 }
