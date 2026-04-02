@@ -102,8 +102,8 @@ export async function POST(req: NextRequest) {
     gemini:  'gemini',
   }
   const storedModel = settings.llm_model || ''
-  const modelMatchesProvider = storedModel.startsWith(MODEL_PREFIXES[provider] ?? '')
-  const resolvedModel = modelMatchesProvider ? storedModel : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
+  const prefix = MODEL_PREFIXES[provider]
+  const resolvedModel = (prefix && storedModel.startsWith(prefix)) ? storedModel : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
 
   try {
     let script = ''

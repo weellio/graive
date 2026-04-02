@@ -97,9 +97,8 @@ Write the full module now. It should take about 20-25 minutes to complete. Make 
     const PROVIDER_DEFAULTS: Record<string, string> = { claude: 'claude-sonnet-4-6', openai: 'gpt-4o', gemini: 'gemini-2.0-flash' }
     const MODEL_PREFIXES: Record<string, string> = { claude: 'claude', openai: 'gpt', gemini: 'gemini' }
     const storedModel = settings.llm_model || ''
-    const resolvedModel = storedModel.startsWith(MODEL_PREFIXES[provider] ?? '')
-      ? storedModel
-      : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
+    const prefix = MODEL_PREFIXES[provider]
+    const resolvedModel = (prefix && storedModel.startsWith(prefix)) ? storedModel : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
 
     if (provider === 'openai') {
       const { default: OpenAI } = await import('openai')

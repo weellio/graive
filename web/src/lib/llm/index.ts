@@ -27,7 +27,8 @@ export async function streamLLMResponse(
     gemini:  'gemini-2.0-flash',
   }
   const MODEL_PREFIXES: Record<string, string> = { claude: 'claude', openai: 'gpt', gemini: 'gemini' }
-  const model = storedModel.startsWith(MODEL_PREFIXES[provider] ?? '')
+  const prefix = MODEL_PREFIXES[provider]
+  const model = (prefix && storedModel.startsWith(prefix))
     ? storedModel
     : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
 
