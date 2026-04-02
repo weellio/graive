@@ -47,15 +47,6 @@ export default async function CourseTierPage({ params }: PageProps) {
   const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
   const allModules = (modules || []) as Module[]
 
-  // Free gating: first module per tier is always free; rest require subscription
-  const firstModuleId = allModules[0]?.id
-  if (!isSubscribed && allModules.length > 1) {
-    // Allow access to the page; individual modules gate on click
-  }
-  // If not subscribed and no modules at all, allow through (they'll see empty state)
-
-  // Gate the whole tier if not subscribed and not the first-module-free tier
-  // We show the page but lock non-first modules visually
   const completedIds = new Set((progressRows || []).map(p => p.module_id))
   const completedCount = allModules.filter(m => completedIds.has(m.id)).length
   const progressPct = allModules.length
@@ -102,7 +93,7 @@ export default async function CourseTierPage({ params }: PageProps) {
         {allModules.map((mod, idx) => {
           const done = completedIds.has(mod.id)
           const isCurrent = !done && allModules.slice(0, idx).every(m => completedIds.has(m.id))
-          const isFreeModule = mod.id === firstModuleId
+          const isFreeModule = tierConfig.free
           const isLocked = !isSubscribed && !isFreeModule
 
           const card = (

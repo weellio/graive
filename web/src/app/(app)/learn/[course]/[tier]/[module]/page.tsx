@@ -41,18 +41,8 @@ export default async function LearnModulePage({ params }: PageProps) {
 
   const isSubscribed = ['active','trialing','past_due','beta'].includes(subscription?.status ?? '')
 
-  // Free gating: first module (lowest order_index) per tier is always accessible
-  const { data: firstModule } = await supabase
-    .from('modules')
-    .select('id')
-    .eq('tier_slug', tier)
-    .eq('enabled', true)
-    .order('order_index')
-    .limit(1)
-    .single()
-
-  const isFirstModule = firstModule?.id === moduleData.id
-  if (!isSubscribed && !isFirstModule) {
+  // Free gating: entire free tiers are always accessible; other tiers require subscription
+  if (!isSubscribed && !tierConfig.free) {
     redirect('/account/billing?reason=module-locked')
   }
 
