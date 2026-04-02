@@ -40,7 +40,18 @@ export async function POST() {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const service = await createServiceClient()
-  const curriculumRoot = path.join(process.cwd(), '..', 'curriculum')
+
+  // Resolve curriculum root — try repo-root sibling first (local dev + Vercel monorepo),
+  // then same-directory fallback (if curriculum was moved inside web/)
+  const candidates = [
+    path.join(process.cwd(), '..', 'curriculum'),
+    path.join(process.cwd(), 'curriculum'),
+  ]
+  let curriculumRoot = candidates[0]
+  for (const c of candidates) {
+    try { await fs.access(c); curriculumRoot = c; break } catch { /* try next */ }
+  }
+
   const results = { imported: 0, skipped: 0, errors: [] as string[] }
 
   // Optional mapping of folder name → tier slug

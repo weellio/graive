@@ -153,6 +153,7 @@ export default function AdminAIPage() {
             <Input
               id="api_key_override"
               type="password"
+              autoComplete="off"
               value={settings.llm_api_key_override}
               onChange={e => set('llm_api_key_override', e.target.value)}
               placeholder="Leave empty to use server environment variable"
