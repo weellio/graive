@@ -82,21 +82,23 @@ export default function VideoScriptsPage() {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  function exportAll() {
+  async function exportAll() {
     const withScripts = modules.filter(m => m.video_script)
     if (withScripts.length === 0) { toast.error('No scripts to export'); return }
-    const text = withScripts.map(m => {
-      const cfg = TIER_CONFIG[m.tier_slug as AgeTier]
-      return `${'='.repeat(60)}\n${cfg?.label ?? m.tier_slug} — Module ${m.order_index}: ${m.title}\n${'='.repeat(60)}\n\n${m.video_script}\n\n`
-    }).join('\n')
-    const blob = new Blob([text], { type: 'text/plain' })
+    const JSZip = (await import('jszip')).default
+    const zip = new JSZip()
+    for (const m of withScripts) {
+      const filename = `${m.tier_slug}_${m.order_index}.txt`
+      zip.file(filename, m.video_script!)
+    }
+    const blob = await zip.generateAsync({ type: 'blob' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'video-scripts.txt'
+    a.download = 'video-scripts.zip'
     a.click()
     URL.revokeObjectURL(url)
-    toast.success(`Exported ${withScripts.length} scripts`)
+    toast.success(`Exported ${withScripts.length} scripts as individual files`)
   }
 
   const tiers: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator', 'creator']
@@ -126,6 +128,11 @@ export default function VideoScriptsPage() {
         const isCollapsed = tierCollapsed[tier] ?? false
         const scriptCount = tierMods.filter(m => m.video_script).length
 
+        const orderCounts = tierMods.reduce<Record<number, number>>((acc, m) => {
+          acc[m.order_index] = (acc[m.order_index] ?? 0) + 1
+          return acc
+        }, {})
+
         return (
           <div key={tier} className="space-y-2">
             <button
@@ -143,6 +150,7 @@ export default function VideoScriptsPage() {
             {!isCollapsed && tierMods.map(mod => {
               const isOpen = expanded === mod.id
               const hasScript = !!mod.video_script
+              const isDuplicate = (orderCounts[mod.order_index] ?? 0) > 1
               return (
                 <Card key={mod.id} className={hasScript ? `border-l-4` : ''} style={hasScript ? { borderLeftColor: cfg.color } : undefined}>
                   <CardContent className="p-4">
@@ -159,6 +167,11 @@ export default function VideoScriptsPage() {
                           {mod.is_current_events && (
                             <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
                               Current Events
+                            </Badge>
+                          )}
+                          {isDuplicate && (
+                            <Badge className="text-xs bg-red-100 text-red-700 border-red-200">
+                              Duplicate #
                             </Badge>
                           )}
                         </div>
