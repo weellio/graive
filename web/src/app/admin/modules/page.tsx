@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { TIER_CONFIG, type AgeTier, type Module } from '@/types'
-import { Clock, GripVertical, Plus, Pencil, ChevronDown } from 'lucide-react'
+import { Clock, GripVertical, Plus, Pencil, ChevronDown, Trash2 } from 'lucide-react'
 
 export default function AdminModulesPage() {
   const [modules, setModules] = useState<Module[]>([])
@@ -43,6 +43,17 @@ export default function AdminModulesPage() {
 
     setModules(prev => prev.map(m => m.id === mod.id ? { ...m, enabled: !m.enabled } : m))
     toast.success(`Module ${mod.enabled ? 'disabled' : 'enabled'}`)
+  }
+
+  async function deleteModule(mod: Module) {
+    if (!confirm(`Delete "${mod.title}"? This cannot be undone.`)) return
+    const res = await fetch(`/api/admin/modules/${mod.id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      toast.error('Failed to delete module')
+      return
+    }
+    setModules(prev => prev.filter(m => m.id !== mod.id))
+    toast.success('Module deleted')
   }
 
   const tiers: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator', 'creator']
@@ -119,6 +130,13 @@ export default function AdminModulesPage() {
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                     </Link>
+                    <button
+                      title="Delete module"
+                      onClick={() => deleteModule(mod)}
+                      className="p-1.5 rounded hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                     <Switch
                       checked={mod.enabled}
                       onCheckedChange={() => toggleEnabled(mod)}
