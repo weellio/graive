@@ -20,3 +20,24 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ modules: data ?? [] })
 }
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const body = await req.json().catch(() => ({}))
+  const ids: string[] | undefined = body?.ids
+
+  const service = await createServiceClient()
+  const query = ids?.length
+    ? service.from('modules').delete().in('id', ids)
+    : service.from('modules').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+
+  const { error } = await query
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
