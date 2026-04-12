@@ -88,11 +88,13 @@ export default function AdminModulesPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids }),
     })
-    if (!res.ok) { toast.error('Failed to delete modules'); setDeleting(false); return }
+    const data = await res.json()
+    if (!res.ok) { toast.error(data.error ?? 'Failed to delete modules'); setDeleting(false); return }
     setModules(prev => prev.filter(m => !selected.has(m.id)))
     setSelected(new Set())
     setDeleting(false)
-    toast.success(`${ids.length} module${ids.length > 1 ? 's' : ''} deleted`)
+    const n = data.deleted ?? ids.length
+    toast.success(`${n} module${n !== 1 ? 's' : ''} deleted from database`)
   }
 
   const tiers: AgeTier[] = ['explorer', 'builder', 'thinker', 'innovator', 'creator']

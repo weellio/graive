@@ -12,8 +12,9 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const service = await createServiceClient()
-  const { error } = await service.from('modules').delete().eq('id', id)
-
+  const { data, error } = await service.from('modules').delete().eq('id', id).select('id')
+  console.log('[DELETE /api/admin/modules/[id]] id:', id, 'deleted:', data?.length ?? 0, 'error:', error?.message ?? null)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (!data?.length) return NextResponse.json({ error: 'Row not found or not deleted' }, { status: 404 })
   return NextResponse.json({ ok: true })
 }

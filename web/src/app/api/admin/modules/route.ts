@@ -34,10 +34,11 @@ export async function DELETE(req: Request) {
 
   const service = await createServiceClient()
   const query = ids?.length
-    ? service.from('modules').delete().in('id', ids)
-    : service.from('modules').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    ? service.from('modules').delete().in('id', ids).select('id')
+    : service.from('modules').delete().neq('id', '00000000-0000-0000-0000-000000000000').select('id')
 
-  const { error } = await query
+  const { data, error } = await query
+  console.log('[DELETE /api/admin/modules] deleted:', data?.length ?? 0, 'error:', error?.message ?? null)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, deleted: data?.length ?? 0 })
 }
