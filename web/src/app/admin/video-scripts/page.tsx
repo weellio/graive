@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { TIER_CONFIG, type AgeTier, type Module } from '@/types'
 import { Video, Download, Sparkles, Loader2, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react'
+import JSZip from 'jszip'
 import { toast } from 'sonner'
 
 interface ModuleWithScript extends Module {
@@ -82,10 +83,9 @@ export default function VideoScriptsPage() {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  async function exportAll() {
+  async function exportAll() { // async kept for zip.generateAsync
     const withScripts = modules.filter(m => m.video_script)
     if (withScripts.length === 0) { toast.error('No scripts to export'); return }
-    const JSZip = (await import('jszip')).default
     const zip = new JSZip()
     for (const m of withScripts) {
       const filename = `${m.tier_slug}_${m.order_index}.txt`
