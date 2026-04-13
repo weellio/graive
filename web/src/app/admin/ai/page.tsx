@@ -44,15 +44,17 @@ const DEFAULTS: AISettings = {
 }
 
 const PROVIDER_DOCS: Record<string, string> = {
-  claude:  'https://docs.anthropic.com/en/docs/about-claude/models',
-  openai:  'https://platform.openai.com/docs/models',
-  gemini:  'https://ai.google.dev/gemini-api/docs/models/gemini',
+  claude:   'https://docs.anthropic.com/en/docs/about-claude/models',
+  openai:   'https://platform.openai.com/docs/models',
+  gemini:   'https://ai.google.dev/gemini-api/docs/models/gemini',
+  deepseek: 'https://api-docs.deepseek.com/quick_start/pricing',
 }
 
 const PROVIDER_MODEL_DEFAULTS: Record<string, string> = {
-  claude:  'claude-sonnet-4-6',
-  openai:  'gpt-4o',
-  gemini:  'gemini-2.0-flash',
+  claude:   'claude-sonnet-4-6',
+  openai:   'gpt-4o',
+  gemini:   'gemini-2.0-flash',
+  deepseek: 'deepseek-chat',
 }
 
 export default function AdminAIPage() {
@@ -155,6 +157,7 @@ export default function AdminAIPage() {
                 <SelectItem value="claude">Anthropic Claude</SelectItem>
                 <SelectItem value="openai">OpenAI</SelectItem>
                 <SelectItem value="gemini">Google Gemini</SelectItem>
+                <SelectItem value="deepseek">DeepSeek</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -170,9 +173,10 @@ export default function AdminAIPage() {
             />
             <p className="text-xs text-slate-400">
               {{
-                claude: 'Uses ANTHROPIC_API_KEY env var if empty',
-                openai: 'Uses OPENAI_API_KEY env var if empty',
-                gemini: 'Uses GEMINI_API_KEY env var if empty',
+                claude:   'Uses ANTHROPIC_API_KEY env var if empty',
+                openai:   'Uses OPENAI_API_KEY env var if empty',
+                gemini:   'Uses GEMINI_API_KEY env var if empty',
+                deepseek: 'Uses DEEPSEEK_API_KEY env var if empty',
               }[settings.llm_provider] ?? ''}
             </p>
           </div>
