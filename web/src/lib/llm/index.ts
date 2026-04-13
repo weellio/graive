@@ -4,6 +4,7 @@ import { getSystemPrompt, getPlaygroundPrompt } from './system-prompts'
 import { streamClaude } from './providers/claude'
 import { streamOpenAI } from './providers/openai'
 import { streamGemini } from './providers/gemini'
+import { streamDeepSeek } from './providers/deepseek'
 
 export async function streamLLMResponse(
   messages: ChatMessage[],
@@ -22,11 +23,12 @@ export async function streamLLMResponse(
   // Ensure stored model name is valid for the active provider — it may have been
   // set while a different provider was active (e.g. 'claude-sonnet-4-6' with gemini)
   const PROVIDER_DEFAULTS: Record<string, string> = {
-    claude: 'claude-haiku-4-5-20251001',
-    openai:  'gpt-4o-mini',
-    gemini:  'gemini-2.0-flash',
+    claude:   'claude-haiku-4-5-20251001',
+    openai:   'gpt-4o-mini',
+    gemini:   'gemini-2.0-flash',
+    deepseek: 'deepseek-chat',
   }
-  const MODEL_PREFIXES: Record<string, string> = { claude: 'claude', openai: 'gpt', gemini: 'gemini' }
+  const MODEL_PREFIXES: Record<string, string> = { claude: 'claude', openai: 'gpt', gemini: 'gemini', deepseek: 'deepseek' }
   const prefix = MODEL_PREFIXES[provider]
   const model = (prefix && storedModel.startsWith(prefix))
     ? storedModel
@@ -49,6 +51,8 @@ export async function streamLLMResponse(
       return streamGemini(messages, systemPrompt, model, apiKey)
     case 'openai':
       return streamOpenAI(messages, systemPrompt, model, apiKey)
+    case 'deepseek':
+      return streamDeepSeek(messages, systemPrompt, model, apiKey)
     case 'claude':
     default:
       return streamClaude(messages, systemPrompt, model, apiKey)

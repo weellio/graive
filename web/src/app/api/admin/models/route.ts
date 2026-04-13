@@ -66,6 +66,21 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ models })
       }
 
+      case 'deepseek': {
+        const key = override || process.env.DEEPSEEK_API_KEY
+        if (!key) return NextResponse.json({ error: 'No API key configured' }, { status: 400 })
+        const res = await fetch('https://api.deepseek.com/models', {
+          headers: { Authorization: `Bearer ${key}` },
+        })
+        if (!res.ok) throw new Error(`DeepSeek ${res.status}`)
+        const { data } = await res.json()
+        const models: string[] = (data ?? [])
+          .map((m: { id: string }) => m.id)
+          .filter((id: string) => id.startsWith('deepseek'))
+          .sort((a: string, b: string) => b.localeCompare(a))
+        return NextResponse.json({ models })
+      }
+
       default:
         return NextResponse.json({ models: [] })
     }

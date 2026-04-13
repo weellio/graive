@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSiteSettings } from '@/lib/config/site'
+import { callAI } from '@/lib/llm/generate'
 import type { AgeTier } from '@/types'
 
 const TIER_CONTEXT: Record<AgeTier, string> = {
@@ -90,42 +91,7 @@ Write a complete, engaging lesson module in markdown format using this EXACT str
 Write the full module now. It should take about 20-25 minutes to complete. Make it feel like the most engaging thing they've read all week.`
 
   try {
-    let content = ''
-    const provider = settings.llm_provider
-    const apiKeyOverride = settings.llm_api_key_override || undefined
-
-    const PROVIDER_DEFAULTS: Record<string, string> = { claude: 'claude-sonnet-4-6', openai: 'gpt-4o', gemini: 'gemini-2.0-flash' }
-    const MODEL_PREFIXES: Record<string, string> = { claude: 'claude', openai: 'gpt', gemini: 'gemini' }
-    const storedModel = settings.llm_model || ''
-    const prefix = MODEL_PREFIXES[provider]
-    const resolvedModel = (prefix && storedModel.startsWith(prefix)) ? storedModel : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
-
-    if (provider === 'openai') {
-      const { default: OpenAI } = await import('openai')
-      const client = new OpenAI({ apiKey: apiKeyOverride || process.env.OPENAI_API_KEY })
-      const res = await client.chat.completions.create({
-        model: resolvedModel,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2500,
-      })
-      content = res.choices[0]?.message?.content ?? ''
-    } else if (provider === 'gemini') {
-      const { GoogleGenerativeAI } = await import('@google/generative-ai')
-      const genAI = new GoogleGenerativeAI(apiKeyOverride || process.env.GEMINI_API_KEY || '')
-      const model = genAI.getGenerativeModel({ model: resolvedModel })
-      const res = await model.generateContent(prompt)
-      content = res.response.text()
-    } else {
-      const { default: Anthropic } = await import('@anthropic-ai/sdk')
-      const client = new Anthropic({ apiKey: apiKeyOverride || process.env.ANTHROPIC_API_KEY })
-      const res = await client.messages.create({
-        model: resolvedModel,
-        max_tokens: 2500,
-        messages: [{ role: 'user', content: prompt }],
-      })
-      content = res.content[0].type === 'text' ? res.content[0].text : ''
-    }
-
+    const content = await callAI(prompt, settings, 2500)
     if (!content) return NextResponse.json({ error: 'Empty AI response' }, { status: 500 })
     return NextResponse.json({ content })
   } catch (err) {

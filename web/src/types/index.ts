@@ -2,7 +2,7 @@ export type AgeTier = 'explorer' | 'builder' | 'thinker' | 'innovator' | 'creato
 export type UserRole = 'student' | 'admin'
 export type SubscriptionStatus = 'active' | 'inactive' | 'trialing' | 'past_due' | 'canceled'
 export type SubscriptionPlan = 'free' | 'monthly' | 'annual' | 'beta' | 'family' | 'classroom'
-export type LLMProvider = 'claude' | 'openai' | 'gemini'
+export type LLMProvider = 'claude' | 'openai' | 'gemini' | 'deepseek'
 export type MessageRole = 'user' | 'assistant'
 
 export interface Profile {

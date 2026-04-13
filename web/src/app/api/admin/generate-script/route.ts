@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getSiteSettings } from '@/lib/config/site'
+import { callAI } from '@/lib/llm/generate'
 import type { AgeTier } from '@/types'
 
 const TIER_VOICE: Record<AgeTier, string> = {
@@ -85,56 +86,8 @@ export async function POST(req: NextRequest) {
 
   const prompt = SCRIPT_TEMPLATE(title, tier as AgeTier, description ?? '', keyPoints, estimatedMinutes ?? 30)
 
-  // Use the configured LLM
-  const provider = settings.llm_provider
-  const apiKeyOverride = settings.llm_api_key_override || undefined
-
-  // Pick a model appropriate for the active provider — the stored llm_model may
-  // be from a different provider (e.g. 'claude-sonnet-4-6' while provider='gemini')
-  const PROVIDER_DEFAULTS: Record<string, string> = {
-    claude: 'claude-sonnet-4-6',
-    openai:  'gpt-4o',
-    gemini:  'gemini-2.0-flash',
-  }
-  const MODEL_PREFIXES: Record<string, string> = {
-    claude: 'claude',
-    openai:  'gpt',
-    gemini:  'gemini',
-  }
-  const storedModel = settings.llm_model || ''
-  const prefix = MODEL_PREFIXES[provider]
-  const resolvedModel = (prefix && storedModel.startsWith(prefix)) ? storedModel : PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.claude
-
   try {
-    let script = ''
-
-    if (provider === 'openai') {
-      const { default: OpenAI } = await import('openai')
-      const client = new OpenAI({ apiKey: apiKeyOverride || process.env.OPENAI_API_KEY })
-      const res = await client.chat.completions.create({
-        model: resolvedModel,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 1500,
-      })
-      script = res.choices[0]?.message?.content ?? ''
-    } else if (provider === 'gemini') {
-      const { GoogleGenerativeAI } = await import('@google/generative-ai')
-      const genAI = new GoogleGenerativeAI(apiKeyOverride || process.env.GEMINI_API_KEY || '')
-      const model = genAI.getGenerativeModel({ model: resolvedModel })
-      const res = await model.generateContent(prompt)
-      script = res.response.text()
-    } else {
-      // Default: Claude
-      const { default: Anthropic } = await import('@anthropic-ai/sdk')
-      const client = new Anthropic({ apiKey: apiKeyOverride || process.env.ANTHROPIC_API_KEY })
-      const res = await client.messages.create({
-        model: resolvedModel,
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }],
-      })
-      script = res.content[0].type === 'text' ? res.content[0].text : ''
-    }
-
+    const script = await callAI(prompt, settings, 1500)
     if (!script) return NextResponse.json({ error: 'Empty response from AI' }, { status: 500 })
 
     // Auto-save to DB
