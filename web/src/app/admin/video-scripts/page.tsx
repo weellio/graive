@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +23,8 @@ export default function VideoScriptsPage() {
   const [generating, setGenerating] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number } | null>(null)
+  const cancelBatch = useRef(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -83,6 +85,42 @@ export default function VideoScriptsPage() {
     setTimeout(() => setCopied(null), 2000)
   }
 
+  async function generateAllUngenerated() {
+    const queue = modules.filter(m => !m.video_script)
+    if (queue.length === 0) { toast.error('All scripts already generated'); return }
+    cancelBatch.current = false
+    setBatchProgress({ current: 0, total: queue.length })
+    let done = 0
+    for (const mod of queue) {
+      if (cancelBatch.current) { toast('Batch cancelled'); break }
+      setGenerating(mod.id)
+      try {
+        const res = await fetch('/api/admin/generate-script', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moduleId: mod.id,
+            title: mod.title,
+            description: mod.description,
+            tier: mod.tier_slug,
+            estimatedMinutes: mod.estimated_minutes,
+            content: mod.content?.slice(0, 2000) ?? '',
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error ?? 'Failed')
+        setModules(prev => prev.map(m => m.id === mod.id ? { ...m, video_script: data.script } : m))
+        done++
+        setBatchProgress({ current: done, total: queue.length })
+      } catch (err) {
+        toast.error(`${mod.title}: ${err instanceof Error ? err.message : 'Failed'}`)
+      }
+    }
+    setGenerating(null)
+    setBatchProgress(null)
+    if (!cancelBatch.current) toast.success(`${done} of ${queue.length} scripts generated`)
+  }
+
   async function exportAll() { // async kept for zip.generateAsync
     const withScripts = modules.filter(m => m.video_script)
     if (withScripts.length === 0) { toast.error('No scripts to export'); return }
@@ -116,9 +154,29 @@ export default function VideoScriptsPage() {
             {scriptCount > 0 && ` ${scriptCount} of ${modules.length} scripts ready.`}
           </p>
         </div>
-        <Button onClick={exportAll} variant="outline" size="sm" className="gap-1.5 shrink-0">
-          <Download className="h-3.5 w-3.5" /> Export All
-        </Button>
+        <div className="flex items-center gap-2">
+          {batchProgress ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {batchProgress.current}/{batchProgress.total} generated…
+              </span>
+              <Button size="sm" variant="outline" onClick={() => { cancelBatch.current = true }}>
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <>
+              {modules.some(m => !m.video_script) && (
+                <Button onClick={generateAllUngenerated} variant="outline" size="sm" className="gap-1.5 shrink-0">
+                  <Sparkles className="h-3.5 w-3.5" /> Generate All
+                </Button>
+              )}
+              <Button onClick={exportAll} variant="outline" size="sm" className="gap-1.5 shrink-0">
+                <Download className="h-3.5 w-3.5" /> Export All
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {tiers.map(tier => {
